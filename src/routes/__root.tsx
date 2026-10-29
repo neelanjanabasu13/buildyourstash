@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ensureGuestSession } from "../lib/session";
 import { SiteHeader } from "../components/SiteHeader";
 import { Toaster } from "../components/ui/sonner";
+import { FirstResultProvider } from "../components/FirstResultContext";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +126,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <FirstResultProvider>
       <SiteHeader />
       <main className="mx-auto w-full max-w-4xl px-4 pb-10 sm:px-6">
         <Outlet />
@@ -133,6 +135,7 @@ function RootComponent() {
         <p className="border-t border-border pt-5 text-xs">Save. Build. Ship.</p>
       </footer>
       <Toaster />
+      </FirstResultProvider>
     </QueryClientProvider>
   );
 }
