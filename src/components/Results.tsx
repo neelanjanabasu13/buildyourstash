@@ -107,7 +107,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         {check && (
           <div className="flex flex-col items-end gap-2">
             <span className={`eyebrow rounded-full px-3 py-1 font-semibold ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>
-            {check.verdict === "REVIVE NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrating a revival" label="KROWE shipped" className="h-20 w-20" />}
+            {check.verdict === "REVIVE NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrating a revival" label="KROWE shipped" className="h-32 w-28" />}
           </div>
         )}
       </div>
@@ -148,7 +148,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         {why && !check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
         {check && (
           <>
-            {check.nothingFound && <BrandImage slot="krowe-sleeping" alt="KROWE asleep: nothing new found" label="KROWE sleeping" className="mb-3 h-20 w-20" />}
+            {check.nothingFound && <BrandImage slot="krowe-sleeping" alt="KROWE asleep: nothing new found" label="KROWE sleeping" className="mb-3 h-28 w-24" />}
             <p>{check.summary}</p>
             <p className="mt-1 font-mono text-xs text-paper-muted">
               searched “{check.query}”{check.searchedSince ? ` since ${check.searchedSince}` : ""}, {check.resultsSeen} results read

@@ -38,7 +38,7 @@ export function SweepProgress({
   const after = (p: Phase[]) => (p.includes(phase) ? "done" : "todo");
   return (
     <section aria-live="polite" className="flex gap-5 rounded-xl border border-border bg-secondary/60 p-5">
-      <BrandImage slot="krowe-thinking" alt="KROWE thinking" label="KROWE thinking" className="hidden h-28 w-24 shrink-0 sm:flex" />
+      <BrandImage slot="krowe-thinking" alt="KROWE thinking" label="KROWE thinking" className="hidden h-40 w-32 shrink-0 sm:flex" />
       <div className="min-w-0 flex-1">
       <p className="eyebrow mb-2 text-primary">Sweep in progress</p>
       <ul className="text-sm">
