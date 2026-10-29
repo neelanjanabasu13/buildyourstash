@@ -106,8 +106,10 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
               e.preventDefault();
               const ids = ["files", "github", "chatgpt"] as const;
               const next = e.key === "Home" ? 0 : e.key === "End" ? 2 : (index + (e.key === "ArrowRight" ? 1 : 2)) % 3;
-              setMode(ids[next]);
-              document.getElementById(`import-tab-${ids[next]}`)?.focus();
+              const nextMode = ids[next];
+              if (!nextMode) return;
+              setMode(nextMode);
+              document.getElementById(`import-tab-${nextMode}`)?.focus();
             }}
             className={`h-auto min-h-16 flex-col gap-1.5 whitespace-normal rounded-none px-2 py-3 text-xs sm:flex-row sm:gap-2 sm:text-sm ${mode === id ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : "text-muted-foreground"}`}>
             <Icon />{label}
