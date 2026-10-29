@@ -127,14 +127,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-4xl px-4 pb-24">
+      <main className="mx-auto w-full max-w-4xl px-4 pb-10 sm:px-6">
         <Outlet />
       </main>
       <footer className="mx-auto max-w-4xl px-4 pb-10 text-sm text-muted-foreground">
-        STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.{" "}
-        <Link to="/how-it-checks" className="text-primary underline-offset-4 hover:underline">
-          How STASH checks itself
-        </Link>
+        <p className="border-t border-border pt-5 text-xs">Save. Build. Ship.</p>
       </footer>
       <Toaster />
     </QueryClientProvider>
