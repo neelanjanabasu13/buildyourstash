@@ -15,12 +15,13 @@ export interface ModelConfig {
 }
 
 export const MODELS: Record<ModelRole, ModelConfig> = {
-  // Extraction of ideas and flags (JSON)
-  extract: { model: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", baseUrl: null, maxTokens: 4000, temperature: 0.1 },
+  // Extraction of ideas and flags (JSON). Nano is a reasoning model: it needs a big
+  // output budget or it burns every token thinking and returns empty content.
+  extract: { model: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", baseUrl: null, maxTokens: 16000, temperature: 0.1 },
   // Thread, why-stopped, search query and verdicts (JSON)
-  reason: { model: "nvidia/nemotron-3-super-120b-a12b", baseUrl: null, maxTokens: 3000, temperature: 0.2 },
+  reason: { model: "nvidia/nemotron-3-super-120b-a12b", baseUrl: null, maxTokens: 6000, temperature: 0.2 },
   // Revival kit writing
-  write: { model: "nvidia/Nemotron-3-Ultra-550b-a55b", baseUrl: null, maxTokens: 2000, temperature: 0.6 },
+  write: { model: "nvidia/Nemotron-3-Ultra-550b-a55b", baseUrl: null, maxTokens: 4000, temperature: 0.6 },
 };
 
 export const TAVILY_URL = "https://api.tavily.com/search";
