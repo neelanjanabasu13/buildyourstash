@@ -81,8 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "STASH: find abandoned side projects worth restarting" },
-      { name: "description", content: "KROWE the crow finds your dropped side projects and checks the live web for what changed." },
+      { property: "og:site_name", content: "STASH" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
