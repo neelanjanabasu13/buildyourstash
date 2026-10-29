@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { LIMITS } from "@/lib/models.config";
+import { KroweClip } from "@/components/KroweClip";
 
 export const Route = createFileRoute("/how-it-checks")({
   head: () => ({
@@ -28,10 +29,15 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 function HowItChecks() {
   return (
     <div className="space-y-6 pt-6">
-      <h1 className="text-4xl font-extrabold sm:text-5xl">How STASH checks itself</h1>
-      <p className="max-w-2xl text-lg text-muted-foreground">
-        KROWE is clever, but it is still an AI, so we built a few checks that run on our server before anything reaches your screen.
-      </p>
+      <div className="grid items-center gap-6 sm:grid-cols-[1fr_auto]">
+        <div>
+          <h1 className="text-4xl font-extrabold sm:text-5xl">How STASH checks itself</h1>
+          <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+            KROWE is clever, but it is still an AI, so we built a few checks that run on our server before anything reaches your screen.
+          </p>
+        </div>
+        <KroweClip slot="rise" className="hidden h-72 w-40 sm:block" />
+      </div>
 
       <Block title="What is checked: your quotes are real">
         <p>

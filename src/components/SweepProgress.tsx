@@ -1,7 +1,7 @@
 import { Check, Loader2, AlertTriangle } from "lucide-react";
 import type { IdeaStage, Phase } from "@/hooks/use-sweep";
 import type { SweepResult } from "@/lib/types";
-import { BrandImage } from "@/components/BrandImage";
+import { KroweClip } from "@/components/KroweClip";
 
 const IDEA_LABEL: Record<IdeaStage, string> = {
   why: "working out why you stopped",
@@ -38,7 +38,7 @@ export function SweepProgress({
   const after = (p: Phase[]) => (p.includes(phase) ? "done" : "todo");
   return (
     <section aria-live="polite" className="flex gap-5 rounded-xl border border-border bg-secondary/60 p-5">
-      <BrandImage slot="krowe-thinking" alt="KROWE thinking" label="KROWE thinking" className="hidden h-40 w-32 shrink-0 sm:flex" />
+      <KroweClip slot={phase === "starting" || phase === "reading" ? "typing" : "bulb"} className="hidden h-40 w-32 shrink-0 sm:block" />
       <div className="min-w-0 flex-1">
       <p className="eyebrow mb-2 text-primary">Sweep in progress</p>
       <ul className="text-sm">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BrandImage } from "@/components/BrandImage";
+import { KroweClip } from "@/components/KroweClip";
 import type { IdeaResult, Receipt, SweepResult, Thread, VerdictLabel } from "@/lib/types";
 
 export function TallyBar({ result }: { result: SweepResult }) {
@@ -37,8 +37,13 @@ function Receipts({ items }: { items: Receipt[] }) {
 export function ThreadCard({ thread }: { thread: Thread }) {
   return (
     <article className="paper-card p-6 sm:p-8">
-      <p className="eyebrow text-amber-ink">The thread</p>
-      <h2 className="mt-2 text-3xl font-semibold leading-tight">{thread.theme}</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="eyebrow text-amber-ink">The thread</p>
+          <h2 className="mt-2 text-3xl font-semibold leading-tight">{thread.theme}</h2>
+        </div>
+        <KroweClip slot="shard" className="h-40 w-24 shrink-0" />
+      </div>
       <p className="mt-3 text-paper-muted">{thread.explanation}</p>
       <p className="eyebrow mt-5 mb-2 text-paper-muted">Receipts from your pile</p>
       <Receipts items={thread.receipts} />
@@ -107,7 +112,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         {check && (
           <div className="flex flex-col items-end gap-2">
             <span className={`eyebrow rounded-full px-3 py-1 font-semibold ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>
-            {check.verdict === "REVIVE NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrating a revival" label="KROWE shipped" className="h-32 w-28" />}
+            {check.verdict === "REVIVE NOW" && <KroweClip slot="shipped" className="h-36 w-24" />}
           </div>
         )}
       </div>
@@ -148,7 +153,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         {why && !check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
         {check && (
           <>
-            {check.nothingFound && <BrandImage slot="krowe-sleeping" alt="KROWE asleep: nothing new found" label="KROWE sleeping" className="mb-3 h-28 w-24" />}
+            {check.nothingFound && <KroweClip slot="sleep" className="mb-3 h-36 w-24" />}
             <p>{check.summary}</p>
             <p className="mt-1 font-mono text-xs text-paper-muted">
               searched “{check.query}”{check.searchedSince ? ` since ${check.searchedSince}` : ""}, {check.resultsSeen} results read

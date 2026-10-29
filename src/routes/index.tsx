@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
-import { BrandImage } from "@/components/BrandImage";
+import { KroweClip } from "@/components/KroweClip";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
 import { ResultsView } from "@/components/Results";
@@ -42,7 +42,7 @@ function Home() {
             for what has changed since.
           </p>
         </div>
-        <BrandImage slot="krowe-standing" alt="KROWE the crow standing" label="KROWE standing" className="mx-auto hidden h-72 w-56 sm:flex" />
+        <KroweClip slot="munch" className="mx-auto hidden h-80 w-56 sm:block" />
       </section>
 
       {keysMissing && (
@@ -62,7 +62,7 @@ function Home() {
 
       {sweep.phase === "done" && sweep.result.ideas.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <BrandImage slot="krowe-sleeping" alt="KROWE asleep" label="KROWE sleeping" className="h-56 w-40" />
+          <KroweClip slot="sleep" className="h-64 w-40" />
         </div>
       )}
 
