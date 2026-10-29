@@ -30,7 +30,6 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [repoUrl, setRepoUrl] = useState("");
   const [loadingRepo, setLoadingRepo] = useState(false);
   const [mode, setMode] = useState<"files" | "github" | "chatgpt">("files");
-  const [notesOpen, setNotesOpen] = useState(true);
   const [importsOpen, setImportsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +48,15 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
     } finally {
       setLoadingRepo(false);
     }
+  }
+
+  async function addLink() {
+    let url: URL;
+    try { url = new URL(repoUrl.trim()); } catch { setWarning("Paste a complete https link."); return; }
+    if (!["http:", "https:"].includes(url.protocol)) { setWarning("Use an http or https link."); return; }
+    if (url.hostname === "github.com" || url.hostname === "www.github.com") { await addRepo(); return; }
+    setFiles((prev) => [...prev, { name: url.hostname, text: `Idea reference: ${url.href}` }]);
+    setRepoUrl(""); setIsExample(false); setWarning("Link kept as a reference. Add a few words about the idea if the page title isn't in the link.");
   }
 
   const pile = [paste.trim(), ...files.map((f) => `--- ${f.kind ?? "file"}: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
@@ -175,28 +183,6 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         </ul>
       )}
       {warning && <p className="mt-2 text-sm font-medium text-destructive">{warning}</p>}
-      <div hidden className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <Button variant="link" disabled={disabled} className="px-0 text-sm" aria-expanded={notesOpen} aria-controls="paste-notes" onClick={() => setNotesOpen((v) => !v)}><FileText />{notesOpen ? "Close pasted notes" : "Or paste notes"}</Button>
-        <Button variant="link" disabled={disabled} className="px-0 text-sm text-paper-muted" onClick={() => { setPaste(EXAMPLE_PILE); setFiles([]); setIsExample(true); setNotesOpen(true); }}>Try an example pile</Button>
-      </div>
-      <label id="paste-notes" className="hidden">
-        <span className="text-sm font-semibold">Your notes</span>
-        {isExample && (
-          <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>
-        )}
-        <textarea
-          value={paste}
-          disabled={disabled}
-          onChange={(e) => {
-            setPaste(e.target.value);
-            if (isExample && e.target.value !== EXAMPLE_PILE) setIsExample(false);
-          }}
-          placeholder="Old todo lists, half-written READMEs, journal bits, abandoned plans..."
-          rows={5}
-          className="mt-2 w-full resize-y rounded-lg border border-paper-line bg-paper p-3 font-mono text-sm text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-amber"
-        />
-      </label>
-
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className={over ? "font-semibold text-destructive" : "text-paper-muted"}>
           {pile.length.toLocaleString()} / {LIMITS.maxPileChars.toLocaleString()} characters
