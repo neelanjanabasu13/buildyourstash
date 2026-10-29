@@ -14,10 +14,12 @@ import { getKeysStatus } from "@/lib/stash.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "STASH | You stopped for a reason. See if it still holds." },
-      { name: "description", content: "Drop your old notes. KROWE the crow finds the side projects you abandoned and checks the live web for what changed." },
-      { property: "og:title", content: "STASH | You stopped for a reason. See if it still holds." },
-      { property: "og:description", content: "KROWE the crow finds your dropped side projects and checks the live web for what changed since." },
+      { title: "STASH — KROWE rescues your half-finished projects" },
+      { name: "description", content: "STASH — KROWE rescues your half-finished projects" },
+      { property: "og:title", content: "STASH — KROWE rescues your half-finished projects" },
+      { property: "og:description", content: "STASH — KROWE rescues your half-finished projects" },
+      { name: "twitter:title", content: "STASH — KROWE rescues your half-finished projects" },
+      { name: "twitter:description", content: "STASH — KROWE rescues your half-finished projects" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,6 +44,7 @@ function Home() {
         <div className="min-w-0">
           <p className="mb-2 text-xs font-semibold text-muted-foreground">KROWE says</p>
           <h1 className="max-w-xl text-2xl font-semibold leading-tight sm:text-4xl">You stopped for a reason. <span className="block">See if it still holds.</span></h1>
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">Meet KROWE, STASH's crow. He rescues half-finished side projects.</p>
         </div>
       </section>}
       {hasOutcome && <div className="flex flex-wrap items-center justify-between gap-3">
@@ -65,6 +68,26 @@ function Home() {
       <div hidden={!inputVisible}>
         <PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={(pile, example) => { setEditPile(false); void sweep.run(pile, example); }} />
       </div>
+
+      {inputVisible && <section aria-labelledby="how-it-works-title" className="border-t border-foreground/20 pt-8 sm:pt-10">
+        <p className="eyebrow mb-2 text-muted-foreground">From your pile to a next step</p>
+        <h2 id="how-it-works-title" className="text-3xl font-semibold">How it works</h2>
+        <ol className="mt-6 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          {([
+            { slot: "krowe-standing", title: "Drop your pile", text: "Notes, files, a GitHub repo or a ChatGPT export.", alt: "KROWE standing, ready for your pile" },
+            { slot: "krowe-thinking", title: "Find why you stopped", text: "KROWE reads it and finds why you stopped, in your own words, plus the thread running through your ideas.", alt: "KROWE thinking through your unfinished ideas" },
+            { slot: "krowe-thinking", title: "Check what changed", text: "He searches the live web for what changed since you stopped, with sources.", alt: "KROWE with a laptop, investigating what changed" },
+            { slot: "krowe-shipped", title: "Get a verdict and a kit", text: "You get a verdict per idea: REVIVE NOW, NOT YET or STILL DEAD, and a revival kit for the ones worth restarting.", alt: "KROWE celebrating a project ready to ship" },
+          ] as const).map((step, index) => <li key={step.title} className="grid grid-cols-[4.5rem_1fr] items-start gap-4 sm:block">
+            <BrandImage slot={step.slot} alt={step.alt} className="h-24 w-18 sm:mb-4 sm:h-32 sm:w-24" />
+            <div><span className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-sm bg-accent font-mono text-sm font-bold text-accent-foreground">{index + 1}</span>
+              <h3 className="text-xl font-semibold">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
+            </div>
+          </li>)}
+        </ol>
+        <p className="mt-8 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">Every claim about your ideas comes with a quote that the server checks against your pile, and unverifiable claims are dropped.</p>
+      </section>}
 
       {sweep.phase === "done" && sweep.result.ideas.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
