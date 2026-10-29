@@ -1,3 +1,9 @@
+# Museum direction
+- [ ] Persist guest idea exhibits, including one half-formed idea, preserving imports and existing caps.
+- [ ] Curate each exhibit with real search, verified receipts, generated first work and one nudge.
+- [ ] Build the calm museum grid, curator pick and optional pattern after three ideas.
+- [ ] Verify single idea, bulk import, reload persistence and mobile layouts; report any unavailable features.
+
 # Product-first UX
 - [x] Hide secondary navigation until a real first result, keep it tucked away afterward, and verify the simple first-visit flow. Fresh guest completed a real two-idea sweep in 36.5 seconds; checks link stayed hidden until the result and menu expansion, persisted after reload, and mobile checks passed with no browser errors. All 11 tests and latest app checks passed.
 - [x] Clarify STASH product naming and KROWE introduction, update page metadata and add four illustrated how-it-works steps beneath the tool. Exact metadata, artwork loading, mobile layout and example input checked; 9 tests and app checks passed.
