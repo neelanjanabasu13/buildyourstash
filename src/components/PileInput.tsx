@@ -6,6 +6,7 @@ import { LIMITS } from "@/lib/models.config";
 
 interface Props {
   disabled: boolean;
+  sweepBlocked?: boolean;
   onSweep: (pile: string, isExample: boolean) => void;
 }
 
@@ -16,7 +17,7 @@ interface LoadedFile {
 
 const ACCEPT = [".txt", ".md", ".markdown", ".json"];
 
-export function PileInput({ disabled, onSweep }: Props) {
+export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [paste, setPaste] = useState("");
   const [files, setFiles] = useState<LoadedFile[]>([]);
   const [isExample, setIsExample] = useState(false);
@@ -129,7 +130,7 @@ export function PileInput({ disabled, onSweep }: Props) {
         <Button
           variant="amberOnPaper"
           size="lg"
-          disabled={disabled || over || pile.trim().length < 20}
+          disabled={disabled || sweepBlocked || over || pile.trim().length < 20}
           onClick={() => onSweep(pile, isExample)}
           className="sm:flex-1"
         >

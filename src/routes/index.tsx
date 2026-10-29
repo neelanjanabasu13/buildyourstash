@@ -58,7 +58,7 @@ function Home() {
         </div>
       )}
 
-      <PileInput disabled={busy || Boolean(keysMissing)} onSweep={sweep.run} />
+      <PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={sweep.run} />
 
       {sweep.message && (
         <p className={`rounded-lg border p-4 text-sm ${sweep.phase === "error" ? "border-destructive/60 text-foreground" : "border-border text-muted-foreground"}`}>
