@@ -1,3 +1,8 @@
+# Product-first UX
+- [ ] Rebuild the input around import tabs and a large drop zone, keeping every input option.
+- [ ] Refocus progress and results around KROWE, verdicts, receipts and expandable revival kits.
+- [ ] Move explanation to the checks page, preserve brand artwork and verify mobile and live sweep.
+
 # Live verification
 - [x] Test Tavily and all three requested models, including regional fallback and JSON mode. All passed on the default URL, so fallbacks were unnecessary.
 - [x] Check configuration and integration failures and run regression tests. No service failures; all 9 tests passed.
