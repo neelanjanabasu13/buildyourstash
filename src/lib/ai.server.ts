@@ -53,8 +53,20 @@ export async function chat(role: ModelRole, system: string, user: string, json: 
     throw new Error(`Model ${cfg.model} returned ${res.status}`);
   }
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const content = data.choices?.[0]?.message?.content ?? "";
-  if (!content) throw new Error(`Model ${cfg.model} returned an empty reply`);
+  let content = data.choices?.[0]?.message?.content ?? "";
+  // Reasoning models occasionally burn their whole budget thinking and come back
+  // with empty content; one retry usually fixes it.
+  if (!content) {
+    const retry = await fetch(baseUrlFor(role) + "chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!retry.ok) throw new Error(`Model ${cfg.model} returned ${retry.status}`);
+    const retryData = (await retry.json()) as { choices?: { message?: { content?: string } }[] };
+    content = retryData.choices?.[0]?.message?.content ?? "";
+    if (!content) throw new Error(`Model ${cfg.model} returned an empty reply twice`);
+  }
   return stripThinking(content);
 }
 
