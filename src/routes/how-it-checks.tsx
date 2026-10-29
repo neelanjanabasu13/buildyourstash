@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { LIMITS } from "@/lib/models.config";
 
 export const Route = createFileRoute("/how-it-checks")({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/how-it-checks")({
   component: HowItChecks,
 });
 
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
+function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="paper-card p-6 sm:p-8">
       <h2 className="text-2xl font-semibold">{title}</h2>
