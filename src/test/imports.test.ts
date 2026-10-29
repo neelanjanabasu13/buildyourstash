@@ -16,7 +16,7 @@ const conv = (i: number) => ({
 describe("ChatGPT export", () => {
   it("walks mapping in order and keeps user then assistant", () => {
     const [c] = parseConversations(JSON.stringify([conv(1)]));
-    expect(c.messages.map((m) => m.role)).toEqual(["user", "assistant"]);
+    expect(c?.messages.map((m) => m.role)).toEqual(["user", "assistant"]);
   });
   it("caps the compacted pile at 30,000 characters", () => {
     const convs = parseConversations(JSON.stringify(Array.from({ length: 200 }, (_, i) => conv(i))));

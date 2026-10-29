@@ -21,7 +21,7 @@ export class GitHubError extends Error {}
 
 export function parseRepoUrl(input: string): { owner: string; repo: string } | null {
   const m = input.trim().match(/^(?:https?:\/\/)?(?:www\.)?github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?(?:[/?#].*)?$/i);
-  return m ? { owner: m[1], repo: m[2] } : null;
+  return m && m[1] && m[2] ? { owner: m[1], repo: m[2] } : null;
 }
 
 async function gh(path: string, accept = "application/vnd.github+json") {
@@ -60,7 +60,7 @@ export async function readRepo(url: string): Promise<RepoInfo> {
 
   const commits = rawCommits.map((c) => ({
     date: String(c?.commit?.author?.date ?? c?.commit?.committer?.date ?? "").slice(0, 10),
-    message: String(c?.commit?.message ?? "").split("\n")[0].slice(0, 200),
+    message: (String(c?.commit?.message ?? "").split("\n")[0] ?? "").slice(0, 200),
   }));
   const builtWithLovable = rawCommits.some((c) => {
     const names = [c?.author?.login, c?.committer?.login, c?.commit?.author?.name, c?.commit?.author?.email]
