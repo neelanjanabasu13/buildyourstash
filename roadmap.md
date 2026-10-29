@@ -1,5 +1,5 @@
 # Product-first UX
-- [ ] Clarify STASH product naming and KROWE introduction, update page metadata and add four illustrated how-it-works steps beneath the tool.
+- [x] Clarify STASH product naming and KROWE introduction, update page metadata and add four illustrated how-it-works steps beneath the tool. Exact metadata, artwork loading, mobile layout and example input checked; 9 tests and app checks passed.
 - [x] Rebuild the input around import tabs and a large drop zone, keeping every input option.
 - [x] Refocus progress and results around KROWE, verdicts, receipts and expandable revival kits.
 - [x] Move explanation to the checks page, preserve brand artwork and verify mobile and live sweep. GitHub and ChatGPT imports, example loading, a real three-idea sweep, kit expansion and feedback passed; 0 invented quotes shown, no mobile overflow or browser errors. Existing 9 tests and latest app checks passed.
