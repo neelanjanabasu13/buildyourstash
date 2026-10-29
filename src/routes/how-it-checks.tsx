@@ -19,7 +19,7 @@ export const Route = createFileRoute("/how-it-checks")({
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="paper-card p-6 sm:p-8">
+    <section className="border-t border-foreground/20 py-6 sm:py-8">
       <h2 className="text-2xl font-semibold">{title}</h2>
       <div className="mt-3 space-y-3 leading-relaxed">{children}</div>
     </section>
@@ -33,11 +33,17 @@ function HowItChecks() {
         <div>
           <h1 className="text-4xl font-extrabold sm:text-5xl">How STASH checks itself</h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            KROWE is clever, but it is still an AI, so we built a few checks that run on our server before anything reaches your screen.
+            STASH finds the side projects buried in your notes, repos and old chats, then checks whether the reasons you stopped still hold.
           </p>
         </div>
         <KroweClip slot="rise" className="hidden h-72 w-40 sm:block" />
       </div>
+
+      <Block title="From unfinished pile to a next step">
+        <p>Drop your files, add a public GitHub repo, import a ChatGPT export or paste notes. KROWE finds the abandoned ideas and the recurring theme, uses your own words to explain why you stopped, then searches the live web for what changed.</p>
+        <p>Each idea gets REVIVE NOW, NOT YET or STILL DEAD with receipts and sources. REVIVE NOW includes a pitch, three small first steps and a landing-page headline and subhead. You can confirm the reason or correct it in one line.</p>
+        <p>STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.</p>
+      </Block>
 
       <Block title="What is checked: your quotes are real">
         <p>

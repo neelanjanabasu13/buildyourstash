@@ -5,8 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * STASH design system: dark ink night, warm paper cards, a single amber accent.
- * Cards use the "paper" tokens; the page uses background/foreground (ink).
+ * STASH design system: cream paper, black ink, blue headings and mustard accents.
  */
 
 @theme inline {
@@ -99,15 +98,13 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    background-image: radial-gradient(ellipse at top, oklch(0.96 0.02 100) 0%, transparent 60%);
-    background-attachment: fixed;
     min-height: 100vh;
   }
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
     color: var(--color-primary);
   }
 }
@@ -115,8 +112,24 @@
 @utility paper-card {
   background-color: var(--paper);
   color: var(--paper-foreground);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-paper);
+}
+
+@utility sweep-input {
+  background-color: var(--paper);
+  border: 2px solid var(--foreground);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-paper);
+  overflow: hidden;
+}
+
+@layer base {
+  button, a, input, textarea, summary { touch-action: manipulation; }
+  p, li, h1, h2, h3, a { overflow-wrap: anywhere; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
 }
 
 @utility receipt {

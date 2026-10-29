@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
+import { BrandImage } from "@/components/BrandImage";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { KroweClip } from "@/components/KroweClip";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
@@ -11,9 +14,9 @@ import { getKeysStatus } from "@/lib/stash.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "STASH: find abandoned side projects worth restarting" },
+      { title: "STASH | You stopped for a reason. See if it still holds." },
       { name: "description", content: "Drop your old notes. KROWE the crow finds the side projects you abandoned and checks the live web for what changed." },
-      { property: "og:title", content: "STASH: find abandoned side projects worth restarting" },
+      { property: "og:title", content: "STASH | You stopped for a reason. See if it still holds." },
       { property: "og:description", content: "KROWE the crow finds your dropped side projects and checks the live web for what changed since." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -28,22 +31,23 @@ function Home() {
   const keysMissing = keys.data && (!keys.data.nebius || !keys.data.tavily);
   const busy = ["starting", "reading", "checking"].includes(sweep.phase);
   const showProgress = sweep.phase !== "idle" && sweep.phase !== "error";
+  const [editPile, setEditPile] = useState(false);
+  const hasOutcome = sweep.phase === "done";
+  const inputVisible = !busy && (!hasOutcome || editPile);
 
   return (
-    <div className="space-y-10">
-      <section className="grid items-center gap-6 pt-6 sm:grid-cols-[1fr_auto]">
-        <div>
-          <p className="eyebrow text-primary">Meet KROWE, the crow who digs up old projects</p>
-          <h1 className="mt-3 text-4xl font-extrabold leading-[1.05] sm:text-5xl">
-            Find the side projects you gave up on, and learn which ones are worth restarting.
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-            Paste your notes, upload files, or link a GitHub repo. STASH picks out the unfinished ideas, shows why you stopped using quotes from
-            your own notes, searches the web for what has changed since, and tells you whether to revive each one now, wait, or let it go.
-          </p>
+    <div className="space-y-6 pt-2 sm:pt-4">
+      {inputVisible && <section className="flex items-center gap-3 sm:gap-6">
+        <BrandImage slot="krowe-standing" alt="KROWE, ready to rescue your unfinished projects" className="h-28 w-20 shrink-0 sm:h-36 sm:w-24" />
+        <div className="min-w-0">
+          <p className="mb-2 text-xs font-semibold text-muted-foreground">KROWE says</p>
+          <h1 className="max-w-xl text-2xl font-semibold leading-tight sm:text-4xl">You stopped for a reason. <span className="block">See if it still holds.</span></h1>
         </div>
-        <KroweClip slot="munch" className="mx-auto h-72 w-52 sm:h-80 sm:w-56" />
-      </section>
+      </section>}
+      {hasOutcome && <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><p className="eyebrow text-muted-foreground">Sweep complete</p><h1 className="mt-1 text-3xl font-semibold">{sweep.result.ideas.length ? "Here's what we can rescue." : "Nothing to rescue from this pile."}</h1></div>
+        <Button variant="paperOutline" aria-expanded={editPile} onClick={() => setEditPile((v) => !v)}>{editPile ? "Back to results" : "Sweep another pile"}</Button>
+      </div>}
 
       {keysMissing && (
         <div className="flex gap-3 rounded-xl border border-primary/50 bg-primary/10 p-4 text-sm">
@@ -58,11 +62,14 @@ function Home() {
         </div>
       )}
 
-      <PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={sweep.run} />
+      <div hidden={!inputVisible}>
+        <PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={(pile, example) => { setEditPile(false); void sweep.run(pile, example); }} />
+      </div>
 
       {sweep.phase === "done" && sweep.result.ideas.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <KroweClip slot="sleep" className="h-64 w-40" />
+          <BrandImage slot="krowe-sleeping" alt="KROWE resting beside the pile" className="h-40 w-32" />
+          <KroweClip slot="sleep" className="h-44 w-32" />
         </div>
       )}
 
@@ -76,7 +83,7 @@ function Home() {
         <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />
       )}
 
-      {showProgress && sweep.result.ideas.length > 0 && (
+      {showProgress && !busy && sweep.result.ideas.length > 0 && (
         <ResultsView result={sweep.result} onFeedback={sweep.giveFeedback} threadPending={sweep.threadStage !== "done"} />
       )}
     </div>
