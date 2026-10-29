@@ -8,6 +8,13 @@
       "when": 1793286118846,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793318212715,
+      "tag": "0001_museum_verified_parts",
+      "breakpoints": true
     }
   ]
 }

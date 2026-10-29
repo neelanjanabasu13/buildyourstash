@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      sweep_parts: {
+        Row: {
+          created_at: string
+          part: string
+          sweep_id: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          part: string
+          sweep_id: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          part?: string
+          sweep_id?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sweep_parts_sweep_id_fkey"
+            columns: ["sweep_id"]
+            isOneToOne: false
+            referencedRelation: "sweeps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sweeps: {
         Row: {
           created_at: string
