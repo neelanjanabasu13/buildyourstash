@@ -43,7 +43,7 @@ export function ThreadCard({ thread }: { thread: Thread }) {
     <section className="border-b-2 border-foreground pb-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="eyebrow text-amber-ink">The thread</p>
+          <p className="eyebrow text-amber-ink">KROWE noticed a pattern</p>
           <h2 className="mt-2 text-2xl font-semibold leading-tight sm:text-3xl">{thread.theme}</h2>
         </div>
         <KroweClip slot="shard" className="h-32 w-20 shrink-0 sm:h-40 sm:w-24" />
@@ -153,7 +153,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
       )}
 
       <section className="mt-6">
-        <p className="eyebrow mb-2 text-amber-ink">What changed</p>
+        <p className="eyebrow mb-2 text-amber-ink">Why now</p>
         {why && !check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
         {check && (
           <>
@@ -184,13 +184,13 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         )}
       </section>
 
-      {check?.verdict === "REVIVE NOW" && (
+      {check && (
         <details className="mt-6 border-t-2 border-primary pt-4">
-          <summary className="cursor-pointer font-display text-xl font-semibold text-primary">Open your revival kit</summary>
+          <summary className="cursor-pointer font-display text-xl font-semibold text-primary">I've done the first piece of work</summary>
           {!kit && !r.error && <p className="text-sm text-paper-muted">KROWE is writing your kit...</p>}
           {kit && (
             <div className="mt-4 space-y-4">
-              <KroweClip slot="shipped" className="h-40 w-28" />
+              <KroweClip slot={check.verdict === "REVIVE NOW" ? "shipped" : "typing"} className="h-40 w-28" />
               <p className="font-display text-lg italic">{kit.pitch}</p>
               <ol className="list-decimal space-y-1 pl-5">
                 {kit.steps.map((s, i) => (
@@ -206,6 +206,8 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
           )}
         </details>
       )}
+
+      {kit?.steps[0] && <section className="mt-6 border-t border-border pt-4"><p className="eyebrow text-amber-ink">Do this one thing today</p><p className="mt-2 font-display text-lg">{kit.steps[0]}</p></section>}
 
       {r.error && <p className="mt-4 text-sm text-destructive">Couldn't finish this one: {r.error}</p>}
     </article>

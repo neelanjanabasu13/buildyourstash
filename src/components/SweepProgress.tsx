@@ -38,7 +38,7 @@ export function SweepProgress({
 }) {
   const after = (p: Phase[]) => (p.includes(phase) ? "done" : "todo");
   const done = Object.values(stages).filter((s) => s === "done" || s === "error").length;
-  const headline = phase === "starting" ? "Let me get that pile." : phase === "reading" ? "I'm finding what you dropped." : Object.values(stages).some((s) => s === "kit") ? "Something here deserves another shot." : "I'm checking what changed.";
+  const headline = phase === "starting" ? "I'll keep this safe." : phase === "reading" ? "Let me pick up your idea." : Object.values(stages).some((s) => s === "kit") ? "I'm doing the first bit myself." : "I'm checking if your reason still holds.";
   return (
     <section aria-live="polite" className="py-6">
       <div className="mb-6 flex items-center gap-4">
@@ -48,11 +48,11 @@ export function SweepProgress({
       <div className="flex flex-col gap-5 border-y border-foreground/20 py-6 sm:flex-row">
       <KroweClip slot={phase === "starting" || phase === "reading" ? "typing" : "bulb"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
       <div className="min-w-0 flex-1">
-      <p className="eyebrow mb-2 text-primary">Sweep in progress</p>
+      <p className="eyebrow mb-2 text-primary">KROWE is mulling</p>
       <ul className="text-sm">
         <Row state={phase === "starting" ? "run" : after(["reading", "checking", "done"])} label="I'm getting your pile ready" />
         <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="I'm reading your pile and finding what you dropped" />
-        {result.ideas.length > 0 && (
+        {result.ideas.length >= 3 && (
           <Row
             state={threadStage === "running" ? "run" : threadStage === "done" ? "done" : "todo"}
             label="I'm finding the thread that keeps coming back"
