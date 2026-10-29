@@ -33,15 +33,16 @@ function HowItChecks() {
         <div>
           <h1 className="text-4xl font-extrabold sm:text-5xl">How STASH checks itself</h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            STASH finds the side projects buried in your notes, repos and old chats, then checks whether the reasons you stopped still hold.
+            STASH is your idea museum. KROWE keeps the exhibits, checks whether your reason for stopping still holds, and makes a first draft you can pick up.
           </p>
         </div>
         <KroweClip slot="rise" className="hidden h-72 w-40 sm:block" />
       </div>
 
-      <Block title="From unfinished pile to a next step">
-        <p>Drop your files, add a public GitHub repo, import a ChatGPT export or paste notes. KROWE finds the abandoned ideas and the recurring theme, uses your own words to explain why you stopped, then searches the live web for what changed.</p>
-        <p>Each idea gets REVIVE NOW, NOT YET or STILL DEAD with receipts and sources. REVIVE NOW includes a pitch, three small first steps and a landing-page headline and subhead. You can confirm the reason or correct it in one line.</p>
+      <Block title="Stash it, mull it, pick it up">
+        <p>One half-formed idea is enough. Type a thought, paste a link or import files, a public GitHub repo or a ChatGPT export. KROWE checks your own words for why you stopped, then searches the live web for what changed. A pattern across ideas is only a bonus after three exhibits.</p>
+        <p>Each exhibit gets REVIVE NOW, NOT YET or STILL DEAD with receipts and sources. KROWE writes a pitch, three tiny steps and a finished landing-page headline and subhead. For an idea that isn't ready, the draft is a low-risk sketch, not a recommendation to launch. You can confirm the reason or correct it in one line.</p>
+        <p>Your exhibits stay with this browser's guest session, so keep its site data if you want to return to the same museum. No voice-note recording is included yet. Non-GitHub links are references only; their pages are not imported.</p>
         <p>STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.</p>
       </Block>
 
