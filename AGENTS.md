@@ -19,3 +19,4 @@
 - Brand art is loaded from `public/brand/<slot>.png` through `BrandImage`, which shows a neutral placeholder when a file is missing, so art can be swapped without code changes.
 - KROWE's moving scenes are short clips served from the CDN as pointers in `src/assets`, placed only by `src/components/KroweClip.tsx`; each clip carries mp4 and webm copies because some browsers cannot decode either one alone, and the stills in `public/brand` stay as posters and as the no-motion fallback.
 - Input, sweeping and results are views of the existing home route; keep PileInput mounted when hidden so the user's pile survives a sweep and can be reused without changing orchestration.
+- FirstResultProvider shares the completed-result navigation reveal between home and the header; persist only this UI preference in browser storage after hydration, never use it as an authorization check.
