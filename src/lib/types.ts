@@ -65,8 +65,8 @@ export interface IdeaResult {
   why?: WhyStopped;
   check?: LiveCheck;
   kit?: RevivalKit;
-  feedback?: "yes" | "no";
-  feedbackNote?: string;
+  feedback?: "yes" | "no" | undefined;
+  feedbackNote?: string | undefined;
   error?: string;
 }
 

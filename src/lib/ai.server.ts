@@ -70,7 +70,7 @@ export interface TavilyResult {
   published_date?: string;
 }
 
-export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string }) {
+export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined }) {
   const key = process.env["TAVILY_API_KEY"];
   if (!key) throw new KeysMissingError("TAVILY_API_KEY");
   const body: Record<string, unknown> = {

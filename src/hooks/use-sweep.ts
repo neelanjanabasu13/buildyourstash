@@ -69,7 +69,7 @@ export function useSweep() {
           return;
         }
         const id = started.sweepId;
-        setSweepId(id);
+        setSweepId(id ?? null);
         setPhase("reading");
 
         const ex = await extract({ data: { sweepId: id } });

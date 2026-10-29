@@ -265,7 +265,7 @@ export const saveSweep = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await context.supabase.rpc("save_sweep_result", {
       _id: data.sweepId,
-      _result: data.result as SweepResult,
+      _result: JSON.parse(JSON.stringify(data.result as SweepResult)),
       _status: data.status,
     });
     return { ok: true };

@@ -92,7 +92,7 @@ function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "n
   );
 }
 
-export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: (f: "yes" | "no", note?: string) => void }) {
+export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "yes" | "no", note?: string) => void) | undefined }) {
   const { idea, why, check, kit } = r;
   return (
     <article className="paper-card p-6 sm:p-8">
