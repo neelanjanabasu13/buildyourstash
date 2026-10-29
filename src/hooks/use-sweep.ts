@@ -11,6 +11,7 @@ import {
 } from "@/lib/stash.functions";
 import { ensureGuestSession } from "@/lib/session";
 import type { IdeaResult, SweepResult, Tally } from "@/lib/types";
+import { needsKit } from "@/lib/museum";
 
 export type IdeaStage = "why" | "web" | "verdict" | "kit" | "done" | "error";
 export type Phase = "idle" | "starting" | "reading" | "checking" | "done" | "error";
@@ -59,6 +60,7 @@ export function useSweep() {
       setStages({});
       setThreadStage("idle");
       setMessage(null);
+      setSweepId(null);
       setPhase("starting");
       try {
         await ensureGuestSession();
@@ -75,7 +77,7 @@ export function useSweep() {
         const ex = await extract({ data: { sweepId: id } });
         update((r) => ({ ...r, pileTally: add(r.pileTally, ex.tally), ideas: ex.value.map((idea) => ({ idea })) }));
         if (ex.value.length === 0) {
-          setMessage("KROWE read the whole pile and found no dropped ideas it could back with your own words.");
+          setMessage("I couldn't find an idea in those words yet. A half-formed thought is enough, so try naming what you'd like to make.");
           setPhase("done");
           await save({ data: { sweepId: id, result: resultRef.current, status: "done" } });
           return;
@@ -84,6 +86,7 @@ export function useSweep() {
         setStages(Object.fromEntries(ex.value.map((i) => [i.id, "why" as IdeaStage])));
 
         const threadJob = (async () => {
+          if (ex.value.length < 3) { setThreadStage("done"); return; }
           setThreadStage("running");
           try {
             const t = await thread({ data: { sweepId: id, ideas: ex.value } });
@@ -105,9 +108,9 @@ export function useSweep() {
             });
             update((r) => ({ ...r, webTally: add(r.webTally, c.tally) }));
             patchIdea(idea.id, { check: c.value });
-            if (c.value.verdict === "REVIVE NOW") {
+            if (needsKit(c.value.verdict)) {
               setStage(idea.id, "kit");
-              const k = await kit({ data: { sweepId: id, idea, trigger: w.value.trigger, evidence: c.value.evidence } });
+              const k = await kit({ data: { sweepId: id, idea, trigger: w.value.trigger, evidence: c.value.evidence, verdict: c.value.verdict } });
               patchIdea(idea.id, { kit: k });
             }
             setStage(idea.id, "done");
@@ -118,8 +121,8 @@ export function useSweep() {
         });
 
         await Promise.all([threadJob, ...ideaJobs]);
-        setPhase("done");
         await save({ data: { sweepId: id, result: resultRef.current, status: "done" } });
+        setPhase("done");
       } catch (e) {
         console.error(e);
         setMessage(errText(e));
@@ -137,5 +140,5 @@ export function useSweep() {
     [patchIdea, save, sweepId],
   );
 
-  return { phase, message, threadStage, stages, result, run, giveFeedback };
+  return { phase, message, threadStage, stages, result, sweepId, run, giveFeedback };
 }
