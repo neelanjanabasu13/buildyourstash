@@ -48,7 +48,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
     }
   }
 
-  const pile = [paste.trim(), ...files.map((f) => `--- file: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
+  const pile = [paste.trim(), ...files.map((f) => `--- ${f.kind ?? "file"}: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
   const over = pile.length > LIMITS.maxPileChars;
 
   async function addFiles(list: FileList | null) {
