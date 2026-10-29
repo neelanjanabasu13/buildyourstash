@@ -1,29 +1,19 @@
-# Welcome to your Lovable project
+# STASH
 
-This project was built with [Lovable](https://lovable.dev).
+KROWE the crow rescues half-finished side projects. Drop in your notes and STASH finds the ideas you started and dropped, works out why from your own words, finds the thread that keeps coming back, checks the live web for what has changed since, and gives each idea a verdict (REVIVE NOW, NOT YET or STILL DEAD) with receipts.
 
-## Build with Lovable
+> Placeholder README for the hackathon. Setup, architecture and demo notes to come.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Phase 1
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- Drop zone and paste box (.txt, .md, .json parsed in the browser), plus a labelled example pile
+- Live sweep: Nebius Token Factory models (config in `src/lib/models.config.ts`) and Tavily web search
+- Server-side quote and link verification with a visible tally
+- Guest sessions with caps: 3 sweeps a day, 30,000 characters, 8 ideas
+- "How STASH checks itself" page and an admin-only API test page
 
-## Development
+Secrets required: `NEBIUS_API_KEY`, `TAVILY_API_KEY` (optional `NEBIUS_BASE_URL`).
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## License
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+MIT, see `LICENSE`.
