@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { LIMITS } from "@/lib/models.config";
+import { KroweClip } from "@/components/KroweClip";
 
 export const Route = createFileRoute("/how-it-checks")({
   head: () => ({
