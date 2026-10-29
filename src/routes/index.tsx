@@ -3,13 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
 import { BrandImage } from "@/components/BrandImage";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KroweClip } from "@/components/KroweClip";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
 import { ResultsView } from "@/components/Results";
 import { useSweep } from "@/hooks/use-sweep";
 import { getKeysStatus } from "@/lib/stash.functions";
+import { useFirstResult } from "@/components/FirstResultContext";
+import { hasFirstResult } from "@/lib/first-result";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,6 +38,10 @@ function Home() {
   const [editPile, setEditPile] = useState(false);
   const hasOutcome = sweep.phase === "done";
   const inputVisible = !busy && (!hasOutcome || editPile);
+  const { unlock } = useFirstResult();
+  useEffect(() => {
+    if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) unlock();
+  }, [sweep.phase, sweep.result.ideas.length, unlock]);
 
   return (
     <div className="space-y-6 pt-2 sm:pt-4">
