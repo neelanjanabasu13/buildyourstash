@@ -15,3 +15,5 @@
 - Quote verification always reads the pile from the `sweeps` row on the server, never from client input, so receipts cannot be forged.
 - Sweep caps are enforced in the `start_sweep` SQL function; the client display of limits is only informational.
 - No seeded or canned results anywhere; the example pile is input only.
+- GitHub repos and ChatGPT exports are read and compacted in the browser (`src/lib/github.ts`, `src/lib/chatgpt-export.ts`); only the compacted text joins the pile, raw exports never reach the server.
+- Brand art is loaded from `public/brand/<slot>.png` through `BrandImage`, which shows a neutral placeholder when a file is missing, so art can be swapped without code changes.
