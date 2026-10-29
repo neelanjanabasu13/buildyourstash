@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandImage } from "@/components/BrandImage";
 import type { IdeaResult, Receipt, SweepResult, Thread, VerdictLabel } from "@/lib/types";
 
 export function TallyBar({ result }: { result: SweepResult }) {
@@ -103,7 +104,12 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
             {idea.droppedWhen ? `Dropped: ${idea.droppedWhen}` : "When you dropped it: not stated in your pile"}
           </p>
         </div>
-        {check && <span className={`eyebrow rounded-full px-3 py-1 font-semibold ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>}
+        {check && (
+          <div className="flex flex-col items-end gap-2">
+            <span className={`eyebrow rounded-full px-3 py-1 font-semibold ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>
+            {check.verdict === "REVIVE NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrating a revival" label="KROWE shipped" className="h-20 w-20" />}
+          </div>
+        )}
       </div>
       <p className="mt-3">{idea.summary}</p>
 
@@ -142,6 +148,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         {why && !check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
         {check && (
           <>
+            {check.nothingFound && <BrandImage slot="krowe-sleeping" alt="KROWE asleep: nothing new found" label="KROWE sleeping" className="mb-3 h-20 w-20" />}
             <p>{check.summary}</p>
             <p className="mt-1 font-mono text-xs text-paper-muted">
               searched “{check.query}”{check.searchedSince ? ` since ${check.searchedSince}` : ""}, {check.resultsSeen} results read

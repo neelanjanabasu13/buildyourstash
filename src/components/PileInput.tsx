@@ -1,8 +1,10 @@
 import { useRef, useState, type DragEvent } from "react";
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Github, Loader2, MessageSquare, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EXAMPLE_PILE } from "@/lib/example-pile";
 import { LIMITS } from "@/lib/models.config";
+import { GitHubError, readRepo, repoToPile } from "@/lib/github";
+import { conversationsToPile, parseConversations, readExportFile } from "@/lib/chatgpt-export";
 
 interface Props {
   disabled: boolean;
@@ -13,9 +15,11 @@ interface Props {
 interface LoadedFile {
   name: string;
   text: string;
+  kind?: "file" | "github" | "chatgpt";
 }
 
-const ACCEPT = [".txt", ".md", ".markdown", ".json"];
+const ACCEPT = [".txt", ".md", ".markdown", ".json", ".zip"];
+const isExport = (name: string) => /conversations\.json$/i.test(name) || name.toLowerCase().endsWith(".zip");
 
 export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [paste, setPaste] = useState("");
@@ -23,9 +27,28 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [isExample, setIsExample] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
+  const [repoUrl, setRepoUrl] = useState("");
+  const [loadingRepo, setLoadingRepo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pile = [paste.trim(), ...files.map((f) => `--- file: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
+  async function addRepo() {
+    if (!repoUrl.trim()) return;
+    setWarning(null);
+    setLoadingRepo(true);
+    try {
+      const info = await readRepo(repoUrl);
+      const label = `${info.fullName}${info.looksDropped ? " (quiet)" : ""}${info.builtWithLovable ? ", built with Lovable" : ""}`;
+      setFiles((prev) => [...prev.filter((f) => f.name !== label), { name: label, text: repoToPile(info), kind: "github" }]);
+      setRepoUrl("");
+      setIsExample(false);
+    } catch (e) {
+      setWarning(e instanceof GitHubError ? e.message : "KROWE couldn't reach GitHub just now. Please try again.");
+    } finally {
+      setLoadingRepo(false);
+    }
+  }
+
+  const pile = [paste.trim(), ...files.map((f) => `--- ${f.kind ?? "file"}: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
   const over = pile.length > LIMITS.maxPileChars;
 
   async function addFiles(list: FileList | null) {
@@ -34,9 +57,22 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
     const loaded: LoadedFile[] = [];
     for (const f of Array.from(list)) {
       if (!ACCEPT.some((ext) => f.name.toLowerCase().endsWith(ext))) {
-        setWarning(`Skipped ${f.name}: only .txt, .md and .json for now.`);
+        setWarning(`Skipped ${f.name}: only .txt, .md, .json or a ChatGPT export .zip.`);
         continue;
       }
+      if (isExport(f.name)) {
+        try {
+          const convs = parseConversations(await readExportFile(f));
+          const budget = Math.max(2000, LIMITS.maxPileChars - pile.length);
+          const { text, used } = conversationsToPile(convs, budget);
+          if (!text) setWarning(`No idea-like chats found in ${f.name}.`);
+          else loaded.push({ name: `ChatGPT: ${used} of ${convs.length} chats`, text, kind: "chatgpt" });
+        } catch (e) {
+          setWarning(e instanceof Error ? e.message : `Couldn't read ${f.name}.`);
+        }
+        continue;
+      }
+      if (f.name.toLowerCase().endsWith(".zip")) continue;
       if (f.size > 500_000) {
         setWarning(`Skipped ${f.name}: that file is too big.`);
         continue;
@@ -69,7 +105,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
       >
         <Upload className="h-6 w-6 text-amber-ink" />
         <p className="font-display text-lg">Drop your pile here</p>
-        <p className="text-sm text-paper-muted">.txt, .md or .json notes. Read in your browser.</p>
+        <p className="text-sm text-paper-muted">.txt, .md or .json notes, or your ChatGPT export (conversations.json or the .zip). Read in your browser.</p>
         <input
           ref={inputRef}
           type="file"
@@ -87,7 +123,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         <ul className="mt-3 flex flex-wrap gap-2">
           {files.map((f, i) => (
             <li key={f.name + i} className="flex items-center gap-1.5 rounded-full bg-paper-deep px-3 py-1 text-sm">
-              <FileText className="h-3.5 w-3.5" /> {f.name}
+              {f.kind === "github" ? <Github className="h-3.5 w-3.5" /> : f.kind === "chatgpt" ? <MessageSquare className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />} {f.name}
               <button
                 aria-label={`Remove ${f.name}`}
                 onClick={() => setFiles((p) => p.filter((_, j) => j !== i))}
@@ -99,7 +135,22 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
           ))}
         </ul>
       )}
-      {warning && <p className="mt-2 text-sm text-amber-ink">{warning}</p>}
+      <div className="mt-5">
+        <span className="eyebrow text-paper-muted">Or a public GitHub repo</span>
+        <div className="mt-2 flex gap-2">
+          <input
+            value={repoUrl}
+            onChange={(e) => setRepoUrl(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && void addRepo()}
+            placeholder="https://github.com/you/that-project"
+            className="min-w-0 flex-1 rounded-lg border border-paper-line bg-paper px-3 py-2 font-mono text-sm text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-amber"
+          />
+          <Button variant="paperOutline" disabled={disabled || loadingRepo || !repoUrl.trim()} onClick={() => void addRepo()}>
+            {loadingRepo ? <Loader2 className="animate-spin" /> : <Github />} Add repo
+          </Button>
+        </div>
+      </div>
+      {warning && <p className="mt-2 text-sm font-medium text-destructive">{warning}</p>}
 
       <label className="mt-5 block">
         <span className="eyebrow text-paper-muted">Or paste notes</span>
