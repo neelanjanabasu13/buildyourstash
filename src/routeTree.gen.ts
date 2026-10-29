@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiTestRouteImport } from './routes/api-test'
+import { Route as HowItChecksRouteImport } from './routes/how-it-checks'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTestRoute = ApiTestRouteImport.update({
+  id: '/api-test',
+  path: '/api-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItChecksRoute = HowItChecksRouteImport.update({
+  id: '/how-it-checks',
+  path: '/how-it-checks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-test': typeof ApiTestRoute
+  '/how-it-checks': typeof HowItChecksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-test': typeof ApiTestRoute
+  '/how-it-checks': typeof HowItChecksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api-test': typeof ApiTestRoute
+  '/how-it-checks': typeof HowItChecksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api-test' | '/how-it-checks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api-test' | '/how-it-checks'
+  id: '__root__' | '/' | '/api-test' | '/how-it-checks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiTestRoute: typeof ApiTestRoute
+  HowItChecksRoute: typeof HowItChecksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api-test': {
+      id: '/api-test'
+      path: '/api-test'
+      fullPath: '/api-test'
+      preLoaderRoute: typeof ApiTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-checks': {
+      id: '/how-it-checks'
+      path: '/how-it-checks'
+      fullPath: '/how-it-checks'
+      preLoaderRoute: typeof HowItChecksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiTestRoute: ApiTestRoute,
+  HowItChecksRoute: HowItChecksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

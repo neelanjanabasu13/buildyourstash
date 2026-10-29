@@ -1,24 +1,78 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { KeyRound } from "lucide-react";
+import krowe from "@/assets/krowe.png";
+import { PileInput } from "@/components/PileInput";
+import { SweepProgress } from "@/components/SweepProgress";
+import { ResultsView } from "@/components/Results";
+import { useSweep } from "@/hooks/use-sweep";
+import { getKeysStatus } from "@/lib/stash.functions";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "STASH: everything you dropped, checked against today" },
+      { name: "description", content: "Drop your old notes. KROWE the crow finds the side projects you abandoned and checks the live web for what changed." },
+      { property: "og:title", content: "STASH: everything you dropped, checked against today" },
+      { property: "og:description", content: "KROWE the crow finds your dropped side projects and checks the live web for what changed since." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Home() {
+  const sweep = useSweep();
+  const keys = useQuery({ queryKey: ["keys-status"], queryFn: () => getKeysStatus() });
+  const keysMissing = keys.data && (!keys.data.nebius || !keys.data.tavily);
+  const busy = ["starting", "reading", "checking"].includes(sweep.phase);
+  const showProgress = sweep.phase !== "idle" && sweep.phase !== "error";
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="space-y-10">
+      <section className="grid items-center gap-6 pt-6 sm:grid-cols-[1fr_auto]">
+        <div>
+          <p className="eyebrow text-primary">KROWE rescues half-finished side projects</p>
+          <h1 className="mt-3 text-4xl font-extrabold leading-[1.05] sm:text-6xl">
+            Everything you dropped, checked against today.
+          </h1>
+          <p className="mt-4 max-w-xl text-lg text-muted-foreground">
+            Hand over your pile of notes. KROWE finds the ideas you started and left, works out why from your own words, and searches the live web
+            for what has changed since.
+          </p>
+        </div>
+        <img src={krowe} alt="KROWE the crow holding a scroll" width={1024} height={1024} className="mx-auto hidden w-48 drop-shadow-2xl sm:block" />
+      </section>
+
+      {keysMissing && (
+        <div className="flex gap-3 rounded-xl border border-primary/50 bg-primary/10 p-4 text-sm">
+          <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div>
+            <p className="font-semibold text-foreground">Keys not set</p>
+            <p className="text-muted-foreground">
+              STASH only runs live. Missing: {[!keys.data?.nebius && "NEBIUS_API_KEY", !keys.data?.tavily && "TAVILY_API_KEY"].filter(Boolean).join(" and ")}.
+              Sweeps are switched off until the owner adds them.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <PileInput disabled={busy || Boolean(keysMissing)} onSweep={sweep.run} />
+
+      {sweep.message && (
+        <p className={`rounded-lg border p-4 text-sm ${sweep.phase === "error" ? "border-destructive/60 text-foreground" : "border-border text-muted-foreground"}`}>
+          {sweep.message}
+        </p>
+      )}
+
+      {showProgress && busy && (
+        <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />
+      )}
+
+      {showProgress && sweep.result.ideas.length > 0 && (
+        <ResultsView result={sweep.result} onFeedback={sweep.giveFeedback} threadPending={sweep.threadStage !== "done"} />
+      )}
     </div>
   );
 }
