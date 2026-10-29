@@ -64,7 +64,7 @@ export function useSweep() {
         await ensureGuestSession();
         const started = await start({ data: { pile, isExample } });
         if (!started.ok) {
-          setMessage(started.message);
+          setMessage(started.message ?? "Couldn't start the sweep.");
           setPhase("error");
           return;
         }
