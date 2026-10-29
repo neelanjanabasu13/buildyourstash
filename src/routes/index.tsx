@@ -42,7 +42,7 @@ function Home() {
             for what has changed since.
           </p>
         </div>
-        <BrandImage slot="krowe-standing" alt="KROWE the crow standing" label="KROWE standing" className="mx-auto hidden h-56 w-48 sm:flex" />
+        <BrandImage slot="krowe-standing" alt="KROWE the crow standing" label="KROWE standing" className="mx-auto hidden h-72 w-56 sm:flex" />
       </section>
 
       {keysMissing && (
@@ -62,7 +62,7 @@ function Home() {
 
       {sweep.phase === "done" && sweep.result.ideas.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <BrandImage slot="krowe-sleeping" alt="KROWE asleep" label="KROWE sleeping" className="h-40 w-40" />
+          <BrandImage slot="krowe-sleeping" alt="KROWE asleep" label="KROWE sleeping" className="h-56 w-40" />
         </div>
       )}
 
