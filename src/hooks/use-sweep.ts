@@ -68,7 +68,7 @@ export function useSweep() {
           setPhase("error");
           return;
         }
-        const id = started.sweepId;
+        const id = started.sweepId as string;
         setSweepId(id ?? null);
         setPhase("reading");
 
