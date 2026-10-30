@@ -102,6 +102,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      begin_radar: {
+        Args: { _force?: boolean; _idea_id: string; _sweep_id: string }
+        Returns: string
+      }
+      claim_radar_query: {
+        Args: {
+          _idea_id: string
+          _kind: string
+          _round_id: string
+          _sweep_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
