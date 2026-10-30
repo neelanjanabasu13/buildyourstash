@@ -99,7 +99,7 @@ export const extractIdeas = createServerFn({ method: "POST" })
     const pile = await loadPile(context as Ctx, data.sweepId);
     const raw = await chatJson<{ ideas?: any[] }>(
       "extract",
-      `You are KROWE, curator and maker in an idea museum. Find brainwaves, including ONE half-formed thought or aspiration. Describe only the idea itself, never interpret the person's past behaviour.
+      `You are KROWE, worker in an idea workshop. Find brainwaves, including ONE half-formed thought or aspiration. Describe only the idea itself, never interpret the person's past behaviour.
 Today is ${today()}.
 Return {"ideas":[{"name":"short name","summary":"one sentence","quotes":["exact sentence copied from the notes", "..."]}]}
 Rules: at most ${LIMITS.maxIdeas} ideas. Each quote MUST be copied character for character from the notes (1-3 quotes per idea, each 8-200 characters). Never paraphrase inside quotes. Only return no ideas if there is no idea-like content. Do not infer personal history or dates. Choose quotes describing the idea, not past behaviour.`,
@@ -251,7 +251,7 @@ export const firstWorkDrafts = createServerFn({ method: "POST" })
     if (!verified?.check) throw new Error("Check this exhibit before drafting its first work.");
     const raw = await chatJson<{ pitch?: string; steps?: string[]; headline?: string; subhead?: string }>(
       "write",
-      `You are KROWE, an idea museum's curator. Do the first piece of work yourself, don't merely tell the user to write it. Never interpret personal history. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For WATCH or PARK offer a low-risk sketch or test, not a launch guarantee. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
+      `You are KROWE, an idea workshop's worker. Do the first piece of work yourself, don't merely tell the user to write it. Never interpret personal history. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For WATCH or PARK offer a low-risk sketch or test, not a launch guarantee. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
 Return {"pitch":"rewritten one-line pitch","steps":["one tiny thing to do today","second","third"],"headline":"finished landing page headline under 10 words","subhead":"finished landing page subhead"}.`,
       `IDEA: ${verified.idea.name} - ${verified.idea.summary}\nVERDICT: ${verified.check.verdict}\nRESEARCH FOCUS: ${verified.context?.focus ?? verified.idea.summary}\nVERIFIED EVIDENCE:\n${verified.check.evidence.map((e) => `- ${e.claim}`).join("\n")}`,
     );
@@ -283,7 +283,7 @@ export const saveSweep = createServerFn({ method: "POST" })
       _result: JSON.parse(JSON.stringify(result)),
       _status: data.status,
     });
-    if (error) throw new Error("Couldn't save your museum.");
+    if (error) throw new Error("Couldn't save your workshop.");
     return { ok: true };
   });
 
@@ -291,9 +291,9 @@ export const listMuseum = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MuseumSweep[]> => {
     const { data, error } = await context.supabase.from("sweeps").select("id,created_at,status,result").eq("user_id", context.userId).order("created_at", { ascending: false });
-    if (error) throw new Error("Couldn't open your museum.");
+    if (error) throw new Error("Couldn't open your workshop.");
     const { data: parts, error: partsError } = await context.supabase.from("sweep_parts").select("sweep_id,part,value");
-    if (partsError) throw new Error("Couldn't read the saved exhibits.");
+    if (partsError) throw new Error("Couldn't read the saved work.");
     return (data ?? []).map((s) => {
       const saved = s.result as unknown as SweepResult | null;
       const serverParts = (parts ?? []).filter((p) => p.sweep_id === s.id);

@@ -27,7 +27,6 @@ function Row({ state, label }: { state: "todo" | "run" | "done" | "error"; label
 
 export function SweepProgress({
   phase,
-  threadStage,
   stages,
   result,
 }: {
@@ -52,12 +51,6 @@ export function SweepProgress({
       <ul className="text-sm">
         <Row state={phase === "starting" ? "run" : after(["reading", "checking", "done"])} label="I'm getting your pile ready" />
         <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="I'm finding the brainwaves in your notes" />
-        {result.ideas.length >= 3 && (
-          <Row
-            state={threadStage === "running" ? "run" : threadStage === "done" ? "done" : "todo"}
-            label="I'm finding the thread that keeps coming back"
-          />
-        )}
         {result.ideas.map(({ idea }) => {
           const s = stages[idea.id] ?? "context";
           return (

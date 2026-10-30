@@ -3,7 +3,7 @@ import { ExternalLink, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KroweClip } from "@/components/KroweClip";
 import { BrandImage } from "@/components/BrandImage";
-import type { IdeaResult, Receipt, SweepResult, Thread, VerdictLabel } from "@/lib/types";
+import type { IdeaResult, Receipt, SweepResult, VerdictLabel } from "@/lib/types";
 
 export function TallyBar({ result }: { result: SweepResult }) {
   const p = result.pileTally;
@@ -35,21 +35,6 @@ function Receipts({ items }: { items: Receipt[] }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-export function ThreadCard({ thread }: { thread: Thread }) {
-  return (
-    <section className="border-b-2 border-foreground pb-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="eyebrow text-amber-ink">KROWE noticed a pattern</p>
-          <h2 className="mt-2 text-2xl font-semibold leading-tight sm:text-3xl">{thread.theme}</h2>
-        </div>
-        <KroweClip slot="shard" className="h-32 w-20 shrink-0 sm:h-40 sm:w-24" />
-      </div>
-      <details className="mt-3"><summary className="cursor-pointer text-sm text-primary">The receipts behind this thread</summary><p className="my-3 text-paper-muted">{thread.explanation}</p><Receipts items={thread.receipts} /></details>
-    </section>
   );
 }
 
@@ -104,7 +89,7 @@ function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "n
 export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "yes" | "no", note?: string) => void) | undefined }) {
   const { idea, check, kit } = r;
   return (
-    <article className="paper-card p-5 sm:p-7">
+    <section className="border-y border-foreground/20 py-5 sm:py-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {check && <span className={`mb-4 inline-block rounded-sm px-3 py-2 font-mono text-lg font-bold sm:text-xl ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>}
@@ -119,6 +104,8 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         )}
       </div>
       <p className="mt-3">{idea.summary}</p>
+      {kit && <section className="mt-5"><p className="eyebrow text-amber-ink">I sharpened your pitch</p><p className="mt-2 font-display text-xl italic">{kit.pitch}</p></section>}
+      {check && <div className="mt-4 space-y-2 text-sm text-muted-foreground"><p>Confidence: {check.confidence ?? r.radar?.signals[0]?.confidence ?? "low"}</p><p>What would change the verdict: {check.wouldChange ?? r.radar?.signals[0]?.wouldChange ?? "More current, directly relevant source evidence."}</p></div>}
 
       <section className="mt-6">
         <p className="eyebrow mb-2 text-amber-ink">Your brainwave</p>
@@ -164,7 +151,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
       </section>
 
       {check && (
-        <details className="mt-6 border-t-2 border-primary pt-4">
+        <details open className="mt-6 border-t-2 border-primary pt-4">
           <summary className="cursor-pointer font-display text-xl font-semibold text-primary">I've done the first piece of work</summary>
           {!kit && !r.error && <p className="text-sm text-paper-muted">{"KROWE is building your first drafts..."}</p>}
           {kit && (
@@ -186,10 +173,10 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         </details>
       )}
 
-      {kit?.steps[0] && <section className="mt-6 border-t border-border pt-4"><p className="eyebrow text-amber-ink">Do this one thing today</p><p className="mt-2 font-display text-lg">{kit.steps[0]}</p></section>}
+      {kit?.steps[0] && <section className="mt-6 border-t border-border pt-4"><p className="eyebrow text-amber-ink">Do this today</p><p className="mt-2 font-display text-lg">{kit.steps[0]}</p></section>}
 
       {r.error && <p className="mt-4 text-sm text-destructive">Couldn't finish this one: {r.error}</p>}
-    </article>
+    </section>
   );
 }
 
@@ -204,10 +191,6 @@ export function ResultsView({
 }) {
   return (
     <div className="space-y-6">
-      {result.thread && <ThreadCard thread={result.thread} />}
-      {!result.thread && !threadPending && result.ideas.length > 1 && (
-        <p className="text-sm text-muted-foreground">No recurring thread KROWE could back with your own words.</p>
-      )}
       <TallyBar result={result} />
       {result.ideas.map((r) => (
         <IdeaCard key={r.idea.id} r={r} onFeedback={onFeedback ? (f, n) => onFeedback(r.idea.id, f, n) : undefined} />

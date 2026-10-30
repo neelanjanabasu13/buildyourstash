@@ -1,6 +1,6 @@
 # STASH
 
-Every cool idea you ever had starts building itself. Stash a brainwave and KROWE the crow researches its live context and makes editable pitch, landing-page copy, first steps and outreach drafts. BUILD NOW, WATCH and PARK are evidence-backed recommendations, not judgments of the user's past. Guest-first museum, bulk imports, verified quotes and live radar are real; drafts are never sent or published, and radar runs while the museum is open or when you return.
+Every cool idea you ever had starts building itself. Stash a brainwave and KROWE the crow researches its live context and makes editable pitch, landing-page copy, first steps and outreach drafts. BUILD NOW, WATCH and PARK are evidence-backed recommendations, not judgments of the user's past. Guest-first workshop, bulk imports, verified quotes and live radar are real; drafts are never sent or published, and radar runs while the workshop is open or when you return.
 
 > Placeholder README for the hackathon. Setup, architecture and demo notes to come.
 
