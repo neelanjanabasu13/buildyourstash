@@ -5,10 +5,10 @@ import { KroweClip } from "@/components/KroweClip";
 import { BrandImage } from "@/components/BrandImage";
 
 const IDEA_LABEL: Record<IdeaStage, string> = {
-  context: "I'm finding useful context for your idea",
-  web: "I'm checking what changed",
-  verdict: "I'm weighing the evidence",
-  kit: "I'm building your first drafts",
+  context: "Nemotron Super is planning searches for your idea",
+  web: "Tavily is searching the live web",
+  verdict: "Nemotron Super is weighing the evidence",
+  kit: "Nemotron Ultra is writing your first drafts",
   done: "checked and ready",
   error: "I hit a snag",
 };
@@ -49,10 +49,10 @@ export function SweepProgress({
       <div className="flex flex-col gap-5 border-y border-foreground/20 py-6 sm:flex-row">
       <KroweClip key={phase} slot={phase === "starting" ? "shard" : phase === "reading" ? "bulb" : "typing"} loop={phase === "checking"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
       <div className="min-w-0 flex-1">
-      <p className="eyebrow mb-2 text-primary">KROWE is mulling</p>
+      <p className="eyebrow mb-2 text-primary">KROWE is mulling · live on Nebius Token Factory + Tavily</p>
       <ul className="text-sm">
         <Row state={phase === "starting" ? "run" : after(["reading", "checking", "done"])} label="I'm getting your pile ready" />
-        <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="I'm finding the brainwaves in your notes" />
+        <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="Nemotron Nano is finding the ideas in your notes" />
         {result.ideas.map(({ idea }) => {
           const s = stages[idea.id] ?? "context";
           return (
