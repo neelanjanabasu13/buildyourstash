@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound, Plus, RefreshCw } from "lucide-react";
+import { KeyRound, Play, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
 import { FrameTour } from "@/components/FrameTour";
 import { StackBadge } from "@/components/StackBadge";
@@ -79,12 +79,26 @@ function Home() {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
   const inputVisible = !busy && (count === 0 || adding);
+  const firstExample = examples.data?.find((e) => e.slug !== "toastmasters") ?? examples.data?.[0];
   return <>
-    {introducing && <div className="space-y-3 py-4"><FrameTour onDone={() => setIntroducing(false)} /><StackBadge compact /></div>}
-    <div hidden={introducing} className={`space-y-7 pt-2 sm:pt-4 ${introducing ? "" : "workshop-unfold"}`}>
-    <section className="flex items-center gap-4">
-      <KroweClip key={inputVisible ? "capture" : "idle"} slot={busy ? "typing" : inputVisible ? "shard" : "sleep"} className="h-36 w-24 shrink-0" />
-      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea workshop</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the crow who gets on with it. {count ? "Here's what I've been working on for you." : "Stash a brainwave. I'll research what's around it and make your first drafts."}</p><div className="mt-3"><StackBadge compact /></div></div>
+    <div className="space-y-7 pt-2 sm:pt-4">
+    <section className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="space-y-3">{introducing ? <FrameTour onDone={() => setIntroducing(false)} /> : <FrameTour autoStart={false} />}</div>
+      <div className="min-w-0 space-y-4">
+        <p className="eyebrow text-muted-foreground">STASH · your idea workshop</p>
+        <h1 className="text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1>
+        <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the keeper of STASH. Drop a half-finished idea and I research it live, find what others built, and move it from a 2% spark to about 40% ready. {count ? "Here's what I've been working on for you." : ""}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="amberOnPaper" size="lg" disabled={busy || !firstExample} onClick={() => { if (firstExample) { setIntroducing(false); runDemo(firstExample); } }}><Play />See live demo</Button>
+          <a href="#capture" className="text-sm underline underline-offset-4">or drop your own idea</a>
+        </div>
+        <p className="text-xs text-muted-foreground">The demo runs a real idea through NVIDIA Nemotron on Nebius and Tavily live search, start to finish.</p>
+        <StackBadge compact />
+      </div>
+    </section>
+    <section id="capture" className="flex items-center gap-4">
+      <KroweClip key={inputVisible ? "capture" : "idle"} slot={busy ? "typing" : inputVisible ? "shard" : "sleep"} className="h-24 w-16 shrink-0" />
+      <p className="text-lg font-semibold">{busy ? "KROWE is working on it." : "Your turn: what's an idea you never got round to?"}</p>
     </section>
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the workshop" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
@@ -100,6 +114,6 @@ function Home() {
     <Shelf onWork={(text) => { setDemo(false); setHasStashed(true); setAdding(false); void sweep.run(text, false); }} busy={busy} />
     {!busy && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
-    {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How KROWE works</h2><FrameTour autoStart={false} /><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+    {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">What powers KROWE</h2><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;
 }
