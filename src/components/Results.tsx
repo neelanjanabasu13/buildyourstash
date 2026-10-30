@@ -1,30 +1,14 @@
 import { useState } from "react";
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KroweClip } from "@/components/KroweClip";
 import { BrandImage } from "@/components/BrandImage";
 import { ARCHETYPES, readiness, readinessSteps } from "@/lib/archetypes";
 import type { IdeaResult, Receipt, SweepResult, VerdictLabel } from "@/lib/types";
 
-export function TallyBar({ result }: { result: SweepResult }) {
-  const p = result.pileTally;
-  const w = result.webTally;
-  return (
-    <details className="text-xs text-muted-foreground">
-      <summary className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-teal/40 bg-teal/10 px-3 py-2 font-mono text-foreground"><ShieldCheck className="h-3.5 w-3.5 text-teal" />invented-quotes: 0 <span className="text-muted-foreground">· {p.checked} checked</span></summary>
-      <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono">
-      <ShieldCheck className="h-4 w-4 text-primary" />
-      <span>
-        quotes checked: <b className="text-foreground">{p.checked}</b>, invented quotes shown: <b className="text-foreground">0</b>
-        {p.dropped > 0 && <> (dropped {p.dropped} that weren't in your pile)</>}
-      </span>
-      <span>
-        web quotes checked: <b className="text-foreground">{w.checked}</b>, unverified shown: <b className="text-foreground">0</b>
-        {w.dropped > 0 && <> (dropped {w.dropped})</>}
-      </span>
-      </div>
-    </details>
-  );
+// Quote-tally badge retired by product decision; kept as a no-op so callers stay stable.
+export function TallyBar(_: { result: SweepResult }) {
+  return null;
 }
 
 function Receipts({ items }: { items: Receipt[] }) {
@@ -208,7 +192,12 @@ export function Readiness({ r }: { r: IdeaResult }) {
     <section className="mt-5 rounded-md border border-paper-line p-4" aria-label="Readiness">
       <div className="flex items-baseline justify-between gap-3"><p className="eyebrow text-amber-ink">Readiness to ship</p><span className="font-mono text-3xl font-bold text-primary">{pct}%</span></div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} /></div>
-      <ul className="mt-3 grid gap-1 text-xs sm:grid-cols-2">{readinessSteps(r).map((s) => <li key={s.label} className={s.done ? "text-foreground" : "text-muted-foreground"}>{s.done ? "✓" : "○"} {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
+      <ul className="mt-3 grid gap-1 text-xs sm:grid-cols-2">{readinessSteps(r).filter((s) => !s.yours).map((s) => <li key={s.label} className={s.done ? "text-foreground" : "text-muted-foreground"}>{s.done ? "✓" : "○"} {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
+      <div className="mt-3 border-t border-paper-line pt-3">
+        <p className="eyebrow text-amber-ink">The last mile is yours</p>
+        <ul className="mt-1 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">{readinessSteps(r).filter((s) => s.yours).map((s) => <li key={s.label}>○ {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
+        <p className="mt-2 text-sm">100% means you are seconds away from hitting publish. I have done the groundwork, and the real making needs your hands, so pick the next step and tell me how I can help with it.</p>
+      </div>
       {shape && <div className="mt-4 border-t border-paper-line pt-3">
         <p className="text-sm">KROWE sees this as: <b>{shape.label}</b>{shape.id === "other" ? ", so no ready-made playbook. Here is a live guide from the web instead." : "."}</p>
         {shape.id === "other" && (r.kit?.liveTemplate?.length ?? 0) > 0 && <ul className="mt-2 space-y-1 text-sm">{r.kit!.liveTemplate!.map((t) => <li key={t.url}><a href={t.url} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4">{t.title || t.url}</a></li>)}</ul>}

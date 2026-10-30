@@ -51,7 +51,7 @@ function HowItChecks() {
           STASH quotes your words to describe the idea itself, never to explain your personal history. Each idea description must carry a quote from your notes. Before
           showing it, our server looks for the exact quote in the stored words, including capital letters, spaces and punctuation. If it is not there, the claim is thrown away.
         </p>
-        <p>That is what the line “quotes checked: N, invented quotes shown: 0” means, and it also tells you how many invented ones were caught.</p>
+        
       </Block>
 
       <Block title="What is checked: the links are real">

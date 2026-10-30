@@ -17,19 +17,22 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
 
 export const toArchetype = (v: unknown): ArchetypeId => (typeof v === "string" && v in ARCHETYPES ? (v as ArchetypeId) : "other");
 
-export interface ReadinessStep { label: string; done: boolean; points: number }
+export interface ReadinessStep { label: string; done: boolean; points: number; yours?: boolean }
 
-/** Readiness rises only from work actually saved for the idea. */
+/** Readiness rises only from work actually saved. 100% means seconds away from hitting publish, so a full KROWE pass tops out at 40%. */
 export function readinessSteps(r: Pick<IdeaResult, "context" | "check" | "kit" | "radar">): ReadinessStep[] {
   return [
     { label: "Captured", done: true, points: 2 },
-    { label: "Research focus", done: Boolean(r.context), points: 13 },
-    { label: "Checked the live web", done: Boolean(r.check), points: 20 },
-    { label: "Cited sources", done: (r.check?.evidence.length ?? 0) > 0, points: 15 },
-    { label: "Shape identified", done: Boolean(r.kit?.archetype), points: 10 },
-    { label: "Pitch and landing copy", done: Boolean(r.kit?.pitch && r.kit?.headline), points: 20 },
-    { label: "Three first steps", done: (r.kit?.steps.length ?? 0) === 3, points: 10 },
-    { label: "Outreach draft", done: Boolean(r.kit?.outreach), points: 10 },
+    { label: "Research focus", done: Boolean(r.context), points: 5 },
+    { label: "Checked the live web", done: Boolean(r.check), points: 8 },
+    { label: "Cited sources", done: (r.check?.evidence.length ?? 0) > 0, points: 6 },
+    { label: "Shape identified", done: Boolean(r.kit?.archetype), points: 4 },
+    { label: "Pitch and landing copy", done: Boolean(r.kit?.pitch && r.kit?.headline), points: 7 },
+    { label: "Three first steps", done: (r.kit?.steps.length ?? 0) === 3, points: 4 },
+    { label: "Outreach draft", done: Boolean(r.kit?.outreach), points: 4 },
+    { label: "Make the real thing (manuscript, build or product)", done: false, points: 30, yours: true },
+    { label: "Find your first audience or customers", done: false, points: 15, yours: true },
+    { label: "Listing ready to submit", done: false, points: 15, yours: true },
   ];
 }
 
