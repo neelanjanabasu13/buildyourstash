@@ -31,6 +31,7 @@ export function parseJsonLoose<T>(text: string): T {
 export async function chat(role: ModelRole, system: string, user: string, json: boolean): Promise<string> {
   const key = process.env["NEBIUS_API_KEY"];
   if (!key) throw new KeysMissingError("NEBIUS_API_KEY");
+  await reserveCall("nebius");
   const cfg = MODELS[role];
   const body: Record<string, unknown> = {
     model: cfg.model,
@@ -58,6 +59,7 @@ export async function chat(role: ModelRole, system: string, user: string, json: 
   // Reasoning models occasionally burn their whole budget thinking and come back
   // with empty content; one retry usually fixes it.
   if (!content) {
+    await reserveCall("nebius");
     const retry = await fetch(baseUrlFor(role) + "chat/completions", {
       signal: AbortSignal.timeout(75000),
       method: "POST",
@@ -87,6 +89,7 @@ export interface TavilyResult {
 export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined; timeRange?: "month" | "year"; maxResults?: number }) {
   const key = process.env["TAVILY_API_KEY"];
   if (!key) throw new KeysMissingError("TAVILY_API_KEY");
+  await reserveCall("tavily");
   const body: Record<string, unknown> = {
     query: query.slice(0, 380),
     search_depth: "basic",
@@ -113,4 +116,10 @@ export async function tavilySearch(query: string, opts: { topic?: "news" | "gene
     content: r.content ?? "",
     published_date: r.published_date,
   }));
+}
+
+async function reserveCall(provider: "nebius" | "tavily") {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("reserve_provider_call", { _provider: provider });
+  if (error || !data) throw new Error("KROWE's shared daily work budget is used up. Your saved work is safe; please return tomorrow.");
 }

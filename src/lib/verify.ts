@@ -27,9 +27,9 @@ export const MIN_QUOTE_CHARS = 8;
 
 export function quoteIsInSource(quote: string | undefined | null, source: string): boolean {
   if (!quote) return false;
-  const q = normalizeText(trimQuoteDecoration(quote));
+  const q = quote.trim();
   if (q.length < MIN_QUOTE_CHARS) return false;
-  return normalizeText(source).includes(q);
+  return source.includes(q);
 }
 
 export interface Tally {
