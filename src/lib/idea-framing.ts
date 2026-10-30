@@ -1,4 +1,4 @@
-import type { IdeaResult, SweepResult, VerdictLabel } from "./types";
+import type { IdeaResult, SignalType, SweepResult, VerdictLabel } from "./types";
 
 /** Retain saved receipts, but never replay older interpretations of a person's behaviour. */
 export function neutralVerdict(value: string): VerdictLabel {
@@ -7,6 +7,10 @@ export function neutralVerdict(value: string): VerdictLabel {
   return "WATCH";
 }
 export function neutralExhibit(input: IdeaResult): IdeaResult {
+  if (input.radar) {
+    const labels: Record<string, SignalType> = { "NOW FEASIBLE": "Now possible", "CROWDED / COMPETITOR": "Crowded", "EVENT FIT": "Opportunity", "TIMING CHANGED": "Timing changed" };
+    input = { ...input, radar: { ...input.radar, signals: input.radar.signals.map((signal) => ({ ...signal, type: labels[signal.type] ?? signal.type })) } };
+  }
   const legacy = input.check && !["BUILD NOW", "WATCH", "PARK"].includes(input.check.verdict);
   if (!legacy) return input.check ? { ...input, check: { ...input.check, confidence: input.check.confidence ?? input.radar?.signals[0]?.confidence ?? "low", wouldChange: input.check.wouldChange ?? input.radar?.signals[0]?.wouldChange ?? "More current, directly relevant source evidence." } } : input;
   const evidence = input.check?.evidence.map((e) => ({ ...e, claim: e.title || "Source context" })) ?? [];

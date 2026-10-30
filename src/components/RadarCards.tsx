@@ -12,7 +12,7 @@ export function SignalCard({ signal, compact = false }: { signal: Signal; compac
     <p className="mt-3 text-sm"><b className="capitalize">{signal.move}</b>: {signal.why}</p>
     {!compact && <><blockquote className="receipt mt-3 text-sm">“{signal.evidence.quote}”</blockquote><p className="mt-3 text-xs text-muted-foreground">Source date: {signal.sourceDate ?? "not supplied by the source"}</p></>}
     <a className="mt-3 inline-flex max-w-full items-center gap-1 break-words text-sm text-primary underline" href={signal.evidence.url} target="_blank" rel="noreferrer">{signal.evidence.title}<ExternalLink className="h-3 w-3 shrink-0" /></a>
-    {!compact && <><p className="mt-3 text-sm text-muted-foreground">What would change my mind: {signal.wouldChange}</p>{signal.type === "EVENT FIT" && <p className="mt-3 text-sm">Deadline: {signal.deadline}. Prize: {signal.prize ?? "not found"}. {signal.fit}</p>}</>}
+    {!compact && <><p className="mt-3 text-sm text-muted-foreground">What would change my mind: {signal.wouldChange}</p>{signal.type === "Opportunity" && signal.deadline && <p className="mt-3 text-sm">Deadline: {signal.deadline}. Prize: {signal.prize ?? "not found"}. {signal.fit}</p>}</>}
   </article>;
 }
 function ActionCard({ title, text, children }: { title: string; text: string; children?: ReactNode }) {
@@ -21,8 +21,8 @@ function ActionCard({ title, text, children }: { title: string; text: string; ch
 }
 export function RadarCards({ r }: { r: IdeaResult }) {
   if (!r.radar) return null;
-  const competitors = r.radar.signals.filter((s) => s.type === "CROWDED / COMPETITOR");
-  const events = r.radar.signals.filter((s) => s.type === "EVENT FIT");
+  const competitors = r.radar.signals.filter((s) => s.type === "Crowded");
+  const events = r.radar.signals.filter((s) => s.type === "Opportunity" && s.deadline);
   const kit = r.kit;
   return <div className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-xl font-semibold">From KROWE's radar</h3><span className="text-xs text-muted-foreground">Checked {new Date(r.radar.checkedAt).toLocaleString()}</span></div>
@@ -31,7 +31,7 @@ export function RadarCards({ r }: { r: IdeaResult }) {
     {kit && <details open className="border-t border-border pt-4"><summary className="cursor-pointer font-semibold text-primary">KROWE's work</summary><p className="mt-3 text-xs text-muted-foreground">Proposed drafts, not sent or published. Any research-backed moves have radar receipts above.</p><div className="mt-4 grid gap-4 sm:grid-cols-2">
       <ActionCard title="Sharper pitch" text={kit.pitch} /><ActionCard title="Landing page" text={`${kit.headline}\n\n${kit.subhead}`} /><ActionCard title="Three tiny first steps" text={kit.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")} />
       <ActionCard title="Competitor comparison" text={competitors.length ? ["Source | What shipped | Recommended move", ...competitors.map((s) => `${s.evidence.title} (${s.evidence.url}) | ${s.evidence.quote} | ${s.why}`)].join("\n\n") : "No competitor comparison survived this check. That is not evidence that you have no competitors."}>{competitors.length > 0 && <div className="mt-3 overflow-x-auto"><table className="w-full table-fixed text-left text-xs"><thead><tr><th className="w-1/3 pb-2">Competitor source</th><th className="w-1/3 pb-2">Verified comparison</th><th className="pb-2">Recommended move</th></tr></thead><tbody>{competitors.map((s, i) => <tr key={i} className="border-t border-border"><td className="break-words py-3 pr-2 align-top"><a className="text-primary underline" href={s.evidence.url} target="_blank" rel="noreferrer">{s.evidence.title}</a></td><td className="break-words py-3 pr-2 align-top">“{s.evidence.quote}”</td><td className="break-words py-3 align-top">{s.move}: {s.why}</td></tr>)}</tbody></table></div>}</ActionCard>
-      <ActionCard title="Open events" text={events.length ? events.map((s) => `${s.evidence.title}\nDeadline: ${s.deadline}\nPrize: ${s.prize ?? "not found"}\nFit: ${s.fit ?? s.why}\n${s.evidence.url}\nReceipt: ${s.evidence.quote}`).join("\n\n") : "No open event with a verifiable future deadline was found in this check."} />
+      {events.length > 0 && <ActionCard title="Open events" text={events.map((s) => `${s.evidence.title}\nDeadline: ${s.deadline}\nPrize: ${s.prize ?? "not found"}\nFit: ${s.fit ?? s.why}\n${s.evidence.url}\nReceipt: ${s.evidence.quote}`).join("\n\n")} />}
       {kit.outreach && <ActionCard title="Outreach or submission note" text={kit.outreach} />}
     </div></details>}
   </div>;

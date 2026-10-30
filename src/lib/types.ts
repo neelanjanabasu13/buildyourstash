@@ -59,7 +59,7 @@ export interface RevivalKit {
   createdAt?: string;
 }
 
-export type SignalType = "NOW FEASIBLE" | "CROWDED / COMPETITOR" | "EVENT FIT" | "TIMING CHANGED";
+export type SignalType = "Now possible" | "Crowded" | "Opportunity" | "Timing changed";
 export interface Signal {
   type: SignalType;
   headline: string;

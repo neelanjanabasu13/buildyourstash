@@ -12,9 +12,17 @@ export function safeSourceUrl(url: string) {
 export function radarDue(checkedAt: string | undefined, now = Date.now()) {
   return !checkedAt || !Number.isFinite(Date.parse(checkedAt)) || now - Date.parse(checkedAt) >= RADAR_REFRESH_MS;
 }
-export function radarQuery(kind: RadarKind, name: string, focus: string, date: string) {
-  const base = name.slice(0, 140);
-  return (kind === "blocker" ? `${base} ${focus.slice(0, 150)} new model API tool price drop` : kind === "competitors" ? `${base} competitors launched funded` : `${base} open hackathon competition grant deadline prize after ${date}`).slice(0, 380);
+// Existing database keys are bounded query slots, not prescribed research topics.
+export function radarPlan(raw: unknown): { query: string; timeRange: "month" | "year" }[] {
+  const entries = raw && typeof raw === "object" && "queries" in raw && Array.isArray(raw.queries) ? raw.queries : [];
+  const plan = entries.map((entry: unknown) => {
+    if (!entry || typeof entry !== "object" || !("query" in entry) || !("time_range" in entry)) return null;
+    const query = typeof entry.query === "string" ? entry.query.trim().slice(0, 380) : "";
+    const timeRange = entry.time_range === "month" ? "month" : entry.time_range === "year" ? "year" : null;
+    return query && timeRange ? { query, timeRange } : null;
+  }).filter((entry): entry is { query: string; timeRange: "month" | "year" } => Boolean(entry));
+  if (plan.length !== RADAR_QUERY_CAP || new Set(plan.map((entry) => entry.query.toLowerCase())).size !== RADAR_QUERY_CAP) throw new Error("I couldn't plan three distinct searches for this idea. Please check again.");
+  return plan;
 }
 const text = (v: unknown, max = 600) => typeof v === "string" ? v.trim().slice(0, max).replace(/\u2014/g, ", ") : "";
 export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, ideaQuotes: string[], queries: string[], now = new Date().toISOString()): Radar {
@@ -27,7 +35,7 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
     const source = sources.find((s) => s.url === text(entry.url, 2000) && safeSourceUrl(s.url));
     const quote = text(entry.quote, 1200);
     if (!source || !quoteIsInSource(quote, source.content)) { webTally.dropped++; continue; }
-    const type = (["NOW FEASIBLE", "CROWDED / COMPETITOR", "EVENT FIT", "TIMING CHANGED"] as SignalType[]).find((t) => t === entry.type);
+    const type = (["Now possible", "Crowded", "Opportunity", "Timing changed"] as SignalType[]).find((t) => t === entry.type);
     const ideaQuote = text(entry.idea_quote, 600);
     if (ideaQuote) {
       pileTally.checked++;
@@ -38,10 +46,12 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
     const headline = text(entry.headline, 240), why = text(entry.why, 600), wouldChange = text(entry.would_change, 400);
     if (!type || !move || !confidence || !headline || !why || !wouldChange) continue;
     // Changes in timing require dated evidence, never assumptions about the user.
-    if (type === "TIMING CHANGED" && !source.published_date) continue;
+    if (type === "Timing changed" && !source.published_date) continue;
     // Deadline and prize must occur in this same verified quote, not merely in model prose.
     const deadline = text(entry.deadline, 100), prize = text(entry.prize, 100);
-    if (type === "EVENT FIT") {
+    const isEvent = type === "Opportunity" && entry.opportunity_kind === "event";
+    if (type === "Opportunity" && !["event", "other"].includes(entry.opportunity_kind)) continue;
+    if (isEvent) {
       const iso = text(entry.deadline_iso, 10);
       // An event date is not automatically a submission deadline or proof entries are open.
       if (!/\b(deadline|apply by|applications? (?:close|due)|submissions? (?:close|due)|register by|registration closes|entries (?:close|due))\b/i.test(quote)) continue;
@@ -53,7 +63,7 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
       if (!Number.isFinite(parsedDeadline) || new Date(parsedDeadline).toISOString().slice(0, 10) !== iso) continue;
     }
     const evidence: Evidence = { claim: headline, url: source.url, title: source.title, quote };
-    signals.push({ type, headline, ideaQuote: ideaQuote || null, evidence, sourceDate: source.published_date || null, move, why, confidence: !source.published_date && confidence === "high" ? "medium" : confidence, wouldChange, deadline: type === "EVENT FIT" ? deadline : null, prize: prize && quote.includes(prize) ? prize : null, fit: type === "EVENT FIT" ? text(entry.fit, 300) || null : null });
+    signals.push({ type, headline, ideaQuote: ideaQuote || null, evidence, sourceDate: source.published_date || null, move, why, confidence: !source.published_date && confidence === "high" ? "medium" : confidence, wouldChange, deadline: isEvent ? deadline : null, prize: prize && quote.includes(prize) ? prize : null, fit: type === "Opportunity" ? text(entry.fit, 300) || null : null });
   }
   return { signals, checkedAt: now, queries: queries.slice(0, RADAR_QUERY_CAP), webTally, pileTally };
 }
