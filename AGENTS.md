@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Guest initialization caches only in-flight work, and staged client calls have deadlines with visible errors, so expired sessions and stalled providers cannot silently freeze capture.
 - Radar plans three model-generated idea-specific queries server-side and persists the plan per claimed round; legacy database query keys are slots only, preserving caps without prescribing topics.
 - KroweClip owns dual-format animation, viewport-lazy playback and reduced-motion posters; the home introduction is a once-per-page-visit UI sequence, independent of sweep orchestration.
 - Model calls go directly to Nebius Token Factory from server functions (never the Lovable AI gateway); model ids and base URLs live only in `src/lib/models.config.ts`.
