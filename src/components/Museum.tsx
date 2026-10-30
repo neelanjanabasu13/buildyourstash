@@ -45,6 +45,7 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
           <h3 className="text-xl font-semibold">{e.result.idea.name}</h3>
           {e.result.kit && <KroweClip slot="typing" className="mt-3 h-24 w-16 self-end" />}
           <p className="mt-3 text-sm text-muted-foreground">{workActivity(e.result)}</p>
+          {e.result.error && <p role="status" className="mt-3 text-sm text-destructive">I hit a snag: {e.result.error}</p>}
           {e.result.kit && <p className="mt-4 font-display text-lg italic">{e.result.kit.pitch}</p>}
           {e.result.kit && <p className="mt-3 text-xs text-muted-foreground">Pitch · Landing copy · First steps · Research</p>}
           {e.result.check && <span className={`mt-4 self-start rounded-sm px-2 py-1 font-mono text-xs font-semibold ${e.result.check.verdict === "BUILD NOW" ? "bg-revive text-paper" : e.result.check.verdict === "WATCH" ? "bg-accent text-accent-foreground" : "bg-dead text-paper"}`}>{e.result.check.verdict}</span>}

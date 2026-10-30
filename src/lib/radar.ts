@@ -43,6 +43,9 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
     const deadline = text(entry.deadline, 100), prize = text(entry.prize, 100);
     if (type === "EVENT FIT") {
       const iso = text(entry.deadline_iso, 10);
+      // An event date is not automatically a submission deadline or proof entries are open.
+      if (!/\b(deadline|apply by|applications? (?:close|due)|submissions? (?:close|due)|register by|registration closes|entries (?:close|due))\b/i.test(quote)) continue;
+      if (!/\b(open|accepting|apply|register|registration|submit|submissions|entries)\b/i.test(quote)) continue;
       if (!deadline || !quote.includes(deadline) || !/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso < now.slice(0, 10)) continue;
       // The year must appear too: a model may not silently roll an old event forward.
       if (!quote.includes(iso.slice(0, 4))) continue;

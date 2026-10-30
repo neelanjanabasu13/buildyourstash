@@ -21,6 +21,10 @@ describe("KROWE radar rules", () => {
     expect(verifyRadar({ signals: [event] }, [source], idea, [idea], [], "2026-11-13T00:00:00Z").signals).toHaveLength(0);
   });
   it("preserves missing source dates rather than inventing one", () => { expect(verifyRadar({ signals: [signal] }, [{ ...source, published_date: undefined }], idea, [idea], [], now).signals[0]?.sourceDate).toBeNull(); });
+  it("does not turn a scheduled event date into an application deadline", () => {
+    const eventSource = { ...source, content: "Open hackathon on November 12, 2026. Prize $5000." };
+    expect(verifyRadar({ signals: [{ ...signal, type: "EVENT FIT", quote: eventSource.content, deadline: "November 12, 2026", deadline_iso: "2026-11-12" }] }, [eventSource], idea, [idea], [], now).signals).toHaveLength(0);
+  });
   it("does not report timing changes using undated evidence", () => { expect(verifyRadar({ signals: [{ ...signal, type: "TIMING CHANGED" }] }, [{ ...source, published_date: undefined }], idea, [idea], [], now).signals).toHaveLength(0); });
   it("requires source-backed why, confidence and a change condition for every move", () => { for (const move of ["build", "pivot", "narrow", "park", "watch"]) { expect(verifyRadar({ signals: [{ ...signal, move }] }, [source], idea, [idea], [], now).signals[0]?.move).toBe(move); expect(verifyRadar({ signals: [{ ...signal, move, why: "" }] }, [source], idea, [idea], [], now).signals).toHaveLength(0); } });
   it("checks due exhibits again after a day, not on every render", () => { expect(radarDue(now, Date.parse(now) + 23 * 3600000)).toBe(false); expect(radarDue(now, Date.parse(now) + 24 * 3600000)).toBe(true); });
