@@ -27,7 +27,7 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
   };
   const tally: SweepResult = { thread: null, ideas: [], pileTally: { checked: 0, dropped: 0 }, webTally: { checked: 0, dropped: 0 } };
   for (const s of visible) { tally.pileTally.checked += s.result.pileTally.checked; tally.pileTally.dropped += s.result.pileTally.dropped; tally.webTally.checked += s.result.webTally.checked; tally.webTally.dropped += s.result.webTally.dropped; }
-  if (!exhibits.length) return null;
+  if (!exhibits.length) return busy ? null : <div className="flex justify-center" aria-label="KROWE is resting until your first idea"><KroweClip slot="sleep" className="h-32 w-24" /></div>;
   return <section aria-label="KROWE’s work feed" className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-semibold">KROWE’s work <span className="font-sans text-sm text-muted-foreground">({exhibits.length})</span></h2><TallyBar result={tally} /></div>
     <p className="text-xs text-muted-foreground">I get on with research while STASH is open and check due ideas when you return. Your drafts stay here; I don't work while the tab is closed.</p>
@@ -43,7 +43,7 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
         {exhibits.map((e) => <article key={e.key} className="flex min-h-64 flex-col rounded-md border border-foreground/25 bg-card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted-foreground">{activityDay(activityDate(e.result, sweeps.find((s) => s.id === e.sweepId)?.createdAt ?? new Date().toISOString()))}</span><span className="rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{radar.checking === e.key ? "KROWE is mulling" : exhibitStatus(e.result)}</span></div>
           <h3 className="text-xl font-semibold">{e.result.idea.name}</h3>
-          {e.result.kit && <KroweClip slot="typing" className="mt-3 h-24 w-16 self-end" />}
+          {e.result.kit && <KroweClip slot={e.sweepId === currentId ? "shipped" : radar.checking === e.key ? "typing" : "sleep"} className="mt-3 h-36 w-24 self-end" />}
           <p className="mt-3 text-sm text-muted-foreground">{workActivity(e.result)}</p>
           {e.result.error && <p role="status" className="mt-3 text-sm text-destructive">I hit a snag: {e.result.error}</p>}
           {e.result.kit && <p className="mt-4 font-display text-lg italic">{e.result.kit.pitch}</p>}

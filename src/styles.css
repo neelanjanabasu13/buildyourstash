@@ -88,7 +88,24 @@
   --dead: oklch(0.35 0.01 260);
 
   --shadow-paper: 0 0 0 1.5px oklch(0.17 0.01 260), 4px 4px 0 oklch(0.17 0.01 260);
+  --clip-munch: #e5e3d7;
+  --clip-shard: #e0e0d4;
+  --clip-bulb: #dfdfd3;
+  --clip-typing: #dedfd3;
+  --clip-sleep: #e7e8d8;
+  --clip-rise: #e6e7d8;
+  --clip-shipped: #e3e1d4;
 }
+
+.krowe-clip-munch { background: var(--clip-munch); }
+.krowe-clip-shard { background: var(--clip-shard); }
+.krowe-clip-bulb { background: var(--clip-bulb); }
+.krowe-clip-typing { background: var(--clip-typing); }
+.krowe-clip-sleep { background: var(--clip-sleep); }
+.krowe-clip-rise { background: var(--clip-rise); }
+.krowe-clip-shipped { background: var(--clip-shipped); }
+.workshop-unfold { animation: workshop-unfold 450ms ease-out both; }
+@keyframes workshop-unfold { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
 @layer base {
   * {

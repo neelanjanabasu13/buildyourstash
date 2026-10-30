@@ -45,7 +45,7 @@ export function SweepProgress({
         <div><p className="eyebrow mb-2 text-muted-foreground">KROWE is on it</p><h1 className="text-3xl font-semibold">{headline}</h1>{result.ideas.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{done} of {result.ideas.length} ideas checked</p>}</div>
       </div>
       <div className="flex flex-col gap-5 border-y border-foreground/20 py-6 sm:flex-row">
-      <KroweClip slot={phase === "starting" || phase === "reading" ? "typing" : "bulb"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
+      <KroweClip key={phase === "checking" ? "research" : "stashed"} slot={phase === "starting" || phase === "reading" ? "bulb" : "typing"} loop={phase === "checking"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
       <div className="min-w-0 flex-1">
       <p className="eyebrow mb-2 text-primary">KROWE is mulling</p>
       <ul className="text-sm">

@@ -8,7 +8,6 @@ export function SiteHeader() {
     <header className="mx-auto mb-4 flex w-full max-w-4xl items-center justify-between gap-4 border-b border-foreground/20 px-4 py-4 sm:px-6">
       <Link to="/" className="flex items-center gap-3" aria-label="STASH home">
         <BrandImage slot="logo" alt="STASH" label="STASH logo" className="h-16 w-16" />
-        <div><span className="font-display text-2xl font-extrabold text-primary">STASH</span><p className="mt-0.5 text-xs font-semibold text-foreground">Save. Build. Ship.</p></div>
       </Link>
       {unlocked && <details className="relative text-right text-xs text-muted-foreground sm:text-sm">
         <summary className="cursor-pointer px-2 py-3">More about STASH</summary>
