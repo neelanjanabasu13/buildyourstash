@@ -85,6 +85,7 @@ export interface Radar {
 }
 
 export interface IdeaResult {
+  history?: (LiveCheck & { checkedAt: string })[];
   idea: Idea;
   context?: IdeaContext;
   check?: LiveCheck;

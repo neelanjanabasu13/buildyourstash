@@ -18,6 +18,7 @@ export function useSweep() {
   const start = useServerFn(startSweep), save = useServerFn(saveSweep);
   const read = useServerFn(readWorkshopJob), advance = useServerFn(advanceWorkshopJob);
   const active = useRef(false);
+  const lastInput = useRef<{ pile: string; isExample: boolean } | null>(null);
   const [sources, setSources] = useState<{ title: string; url: string }[]>([]);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -46,6 +47,7 @@ export function useSweep() {
     setStages(nextStages);
     setPhase(snapshot.job.status === "done" ? "done" : snapshot.job.status === "failed" ? "error" : snapshot.result.ideas.length ? "checking" : "reading");
     if (snapshot.job.error) setMessage(snapshot.job.error);
+    if (snapshot.job.status === "done" && !snapshot.result.ideas.length) setMessage("I couldn't find an idea in those words. A half-formed thought is enough, so try naming what you'd like to make.");
     return snapshot;
   }, [read]);
 
@@ -73,17 +75,20 @@ export function useSweep() {
       .subscribe();
     // Source chips are read from owner-checked stored search results, never guessed.
     const timer = window.setInterval(async () => {
+      try {
       const { data, error } = await supabase.from("sweep_parts").select("part,value").eq("sweep_id", sweepId).like("part", "radar-search:%");
       if (error) { setMessage("I couldn't refresh the source chips. Your work is still saved."); return; }
       setSources((data ?? []).flatMap((p) => {
         const value = p.value as { sources?: { title: string; url: string }[] };
         return value.sources ?? [];
       }));
+      } catch (e) { setMessage(runError(e)); }
     }, 2000);
     return () => { clearInterval(timer); void supabase.removeChannel(channel); };
   }, [sweepId, sync, phase]);
 
   const run = useCallback(async (pile: string, isExample: boolean) => {
+    lastInput.current = { pile, isExample };
     resultRef.current = emptyResult(); setResult(resultRef.current); setSources([]); setStages({}); setMessage(null); setSweepId(null); setPhase("starting");
     try {
       await ensureGuestSession();
@@ -101,5 +106,6 @@ export function useSweep() {
     [patchIdea, save, sweepId],
   );
 
-  return { phase, message, threadStage, stages, result, sweepId, run, resume, sources, giveFeedback };
+  const retry = () => { if (sweepId) void resume(sweepId); else if (lastInput.current) void run(lastInput.current.pile, lastInput.current.isExample); };
+  return { phase, message, threadStage, stages, result, sweepId, run, resume, retry, sources, giveFeedback };
 }
