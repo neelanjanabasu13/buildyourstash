@@ -248,7 +248,7 @@ export const firstWorkDrafts = createServerFn({ method: "POST" })
     const { data: savedParts, error: savedError } = await context.supabase.from("sweep_parts").select("part,value").eq("sweep_id", data.sweepId);
     if (savedError) throw new Error("Couldn't read verified evidence.");
     const verified = assembleParts(savedParts ?? []).ideas.find((i) => i.idea.id === data.idea.id);
-    if (!verified?.check) throw new Error("Check this exhibit before drafting its first work.");
+    if (!verified?.check) throw new Error("Research this idea before drafting its first work.");
     const raw = await chatJson<{ pitch?: string; steps?: string[]; headline?: string; subhead?: string }>(
       "write",
       `You are KROWE, an idea workshop's worker. Do the first piece of work yourself, don't merely tell the user to write it. Never interpret personal history. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For WATCH or PARK offer a low-risk sketch or test, not a launch guarantee. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.

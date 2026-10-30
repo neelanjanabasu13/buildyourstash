@@ -42,7 +42,7 @@ function HowItChecks() {
       <Block title="Stash it, KROWE gets on it, you pick it up">
         <p>One half-formed idea is enough. Type a thought, paste a link or import files, a public GitHub repo or a ChatGPT export. KROWE quotes your words to describe the idea and searches the live web for useful current context. KROWE works on each idea individually.</p>
         <p>Each idea gets BUILD NOW, WATCH or PARK with receipts and sources when evidence is available. KROWE makes a pitch, page copy, three tiny steps and an outreach draft, with a sourced competitor comparison and open events when found. Without evidence, WATCH means more research is needed; creative first drafts can still take shape. You can confirm or correct the idea in one line.</p>
-        <p>Your ideas and work stay with this browser's guest session, so keep its site data if you want to return to the same museum. No voice-note recording is included yet. Non-GitHub links are references only; their pages are not imported.</p>
+        <p>Your ideas and work stay with this browser's guest session, so keep its site data if you want to return to the same workshop. No voice-note recording is included yet. Non-GitHub links are references only; their pages are not imported.</p>
         <p>STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.</p>
       </Block>
 
