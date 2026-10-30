@@ -29,15 +29,17 @@ export function SweepProgress({
   phase,
   stages,
   result,
+  sources = [],
 }: {
   phase: Phase;
   threadStage: "idle" | "running" | "done";
   stages: Record<string, IdeaStage>;
   result: SweepResult;
+  sources?: { title: string; url: string }[];
 }) {
   const after = (p: Phase[]) => (p.includes(phase) ? "done" : "todo");
   const done = Object.values(stages).filter((s) => s === "done" || s === "error").length;
-  const headline = phase === "starting" ? "I'll keep this safe." : phase === "reading" ? "Let me pick up your idea." : Object.values(stages).some((s) => s === "kit") ? "I'm doing the first bit myself." : "I'm finding what's happening around your idea.";
+  const headline = phase === "starting" ? "Got it. Leave it with me." : phase === "reading" ? "Let me pick up your idea." : Object.values(stages).some((s) => s === "kit") ? "I'm doing the first bit myself." : "I'm finding what's happening around your idea.";
   return (
     <section aria-live="polite" className="py-6">
       <div className="mb-6 flex items-center gap-4">
@@ -45,7 +47,7 @@ export function SweepProgress({
         <div><p className="eyebrow mb-2 text-muted-foreground">KROWE is on it</p><h1 className="text-3xl font-semibold">{headline}</h1>{result.ideas.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{done} of {result.ideas.length} ideas checked</p>}</div>
       </div>
       <div className="flex flex-col gap-5 border-y border-foreground/20 py-6 sm:flex-row">
-      <KroweClip key={phase === "checking" ? "research" : "stashed"} slot={phase === "starting" || phase === "reading" ? "bulb" : "typing"} loop={phase === "checking"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
+      <KroweClip key={phase} slot={phase === "starting" ? "shard" : phase === "reading" ? "bulb" : "typing"} loop={phase === "checking"} className="mx-auto h-48 w-32 shrink-0 sm:mx-0" />
       <div className="min-w-0 flex-1">
       <p className="eyebrow mb-2 text-primary">KROWE is mulling</p>
       <ul className="text-sm">
@@ -62,6 +64,7 @@ export function SweepProgress({
           );
         })}
       </ul>
+      {sources.length > 0 && <ul aria-label="Arriving sources" className="mt-4 flex flex-wrap gap-2">{Array.from(new Map(sources.map((s) => [s.url, s])).values()).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer" className="inline-block max-w-64 truncate rounded-sm border border-teal/40 px-2 py-1 text-xs text-teal underline">{s.title}</a></li>)}</ul>}
       </div>
       </div>
     </section>
