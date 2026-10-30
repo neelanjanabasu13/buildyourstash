@@ -192,7 +192,7 @@ export function Readiness({ r }: { r: IdeaResult }) {
     <section className="mt-5 rounded-md border border-paper-line p-4" aria-label="Readiness">
       <div className="flex items-baseline justify-between gap-3"><p className="eyebrow text-amber-ink">Readiness to ship</p><span className="font-mono text-3xl font-bold text-primary">{pct}%</span></div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} /></div>
-      <ul className="mt-3 grid gap-1 text-xs sm:grid-cols-2">{readinessSteps(r).filter((s) => !s.yours).map((s) => <li key={s.label} className={s.done ? "text-foreground" : "text-muted-foreground"}>{s.done ? "✓" : "○"} {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
+      <ul className="mt-3 grid gap-1 text-xs sm:grid-cols-2">{readinessSteps(r).filter((s) => !s.yours).map((s) => <li key={s.label} className={s.done ? "text-foreground" : "text-muted-foreground"}>{s.done ? "✓" : "○"} {s.label} <span className="font-mono">+{s.earned}/{s.points}</span></li>)}</ul>
       <div className="mt-3 border-t border-paper-line pt-3">
         <p className="eyebrow text-amber-ink">The last mile is yours</p>
         <ul className="mt-1 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">{readinessSteps(r).filter((s) => s.yours).map((s) => <li key={s.label}>○ {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
