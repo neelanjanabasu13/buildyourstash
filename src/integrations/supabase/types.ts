@@ -97,6 +97,33 @@ export type Database = {
         }
         Relationships: []
       }
+      workshop_examples: {
+        Row: {
+          generated_at: string
+          result: Json
+          slug: string
+          source_idea_id: string
+          source_sweep_id: string
+          title: string
+        }
+        Insert: {
+          generated_at: string
+          result: Json
+          slug: string
+          source_idea_id: string
+          source_sweep_id: string
+          title: string
+        }
+        Update: {
+          generated_at?: string
+          result?: Json
+          slug?: string
+          source_idea_id?: string
+          source_sweep_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
