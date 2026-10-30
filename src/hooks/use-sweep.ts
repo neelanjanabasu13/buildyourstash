@@ -36,8 +36,6 @@ export function useSweep() {
       update((r) => ({ ...r, ideas: r.ideas.map((i) => (i.idea.id === id ? { ...i, ...patch } : i)) })),
     [update],
   );
-  const setStage = (id: string, s: IdeaStage) => setStages((m) => ({ ...m, [id]: s }));
-
   const sync = useCallback(async (id: string) => {
     const snapshot = await withDeadline(read({ data: { sweepId: id } }), "Opening progress took too long. Please retry.");
     resultRef.current = snapshot.result; setResult(snapshot.result);
@@ -69,22 +67,21 @@ export function useSweep() {
   }, [sync, advance]);
 
   useEffect(() => {
-    if (!sweepId) return;
+    if (!sweepId || !["starting", "reading", "checking"].includes(phase)) return;
     const channel = supabase.channel(`job-${sweepId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "workshop_jobs", filter: `sweep_id=eq.${sweepId}` }, () => { void sync(sweepId).catch((e) => setMessage(runError(e))); })
       .subscribe();
-    const sourceChannel = supabase.channel(`sources-${sweepId}-${Math.random().toString(36).slice(2)}`);
     // Source chips are read from owner-checked stored search results, never guessed.
     const timer = window.setInterval(async () => {
       const { data, error } = await supabase.from("sweep_parts").select("part,value").eq("sweep_id", sweepId).like("part", "radar-search:%");
-      if (error) return;
+      if (error) { setMessage("I couldn't refresh the source chips. Your work is still saved."); return; }
       setSources((data ?? []).flatMap((p) => {
         const value = p.value as { sources?: { title: string; url: string }[] };
         return value.sources ?? [];
       }));
     }, 2000);
-    return () => { clearInterval(timer); void supabase.removeChannel(channel); void supabase.removeChannel(sourceChannel); };
-  }, [sweepId, sync]);
+    return () => { clearInterval(timer); void supabase.removeChannel(channel); };
+  }, [sweepId, sync, phase]);
 
   const run = useCallback(async (pile: string, isExample: boolean) => {
     resultRef.current = emptyResult(); setResult(resultRef.current); setSources([]); setStages({}); setMessage(null); setSweepId(null); setPhase("starting");

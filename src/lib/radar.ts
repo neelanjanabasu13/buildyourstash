@@ -34,10 +34,10 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
     if (!entry || typeof entry !== "object") continue;
     webTally.checked++;
     const source = sources.find((s) => s.url === text(entry.url, 2000) && safeSourceUrl(s.url));
-    const quote = text(entry.quote, 1200);
+    const quote = typeof entry.quote === "string" ? entry.quote.trim().slice(0, 1200) : "";
     if (!source || !quoteIsInSource(quote, source.content)) { webTally.dropped++; continue; }
     const type = (["Now possible", "Crowded", "Opportunity", "Timing changed"] as SignalType[]).find((t) => t === entry.type);
-    const ideaQuote = text(entry.idea_quote, 600);
+    const ideaQuote = typeof entry.idea_quote === "string" ? entry.idea_quote.trim().slice(0, 600) : "";
     if (ideaQuote) {
       pileTally.checked++;
       if (!ideaQuotes.includes(ideaQuote) || !quoteIsInSource(ideaQuote, pile)) { pileTally.dropped++; continue; }
