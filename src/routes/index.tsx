@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound, Plus } from "lucide-react";
+import { KeyRound, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -76,7 +76,7 @@ function Home() {
   return <>
     {introducing && <section aria-label="Meet KROWE" className="flex flex-col items-center gap-4 py-8 text-center">
       <KroweClip slot="rise" eager loop={false} onEnded={() => setIntroducing(false)} className="h-72 w-48" />
-      <p className="max-w-md font-display text-2xl text-primary">I'm KROWE. Give me your ideas, I'll get on with them.</p>
+      <p className="max-w-md font-display text-2xl text-primary">Caw. I'm KROWE. You have the ideas, I do the work.</p>
       <Button variant="ghost" onClick={() => setIntroducing(false)}>Skip</Button>
     </section>}
     <div hidden={introducing} className={`space-y-7 pt-2 sm:pt-4 ${introducing ? "" : "workshop-unfold"}`}>
@@ -84,13 +84,14 @@ function Home() {
       <KroweClip key={inputVisible ? "capture" : "idle"} slot={busy ? "typing" : inputVisible ? "shard" : "sleep"} className="h-36 w-24 shrink-0" />
       <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea workshop</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the crow who gets on with it. {count ? "Here's what I've been working on for you." : "Stash a brainwave. I'll research what's around it and make your first drafts."}</p></div>
     </section>
-    {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the exhibits" : "Stash another idea"}</Button>}
+    {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the workshop" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
     {keys.error && <p role="alert" className="text-sm text-destructive">I couldn't check KROWE's keys. You can try stashing your idea again.</p>}
     <div hidden={!inputVisible}><PileInput disabled={busy} onSweep={(pile, example) => { setDemo(example); setHasStashed(!example); setCachedDemo(false); setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
-    {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
+    {sweep.message && <div role="alert" className="flex flex-wrap items-center gap-3 border-l-2 border-accent pl-4 text-sm"><p>{sweep.message}</p><Button variant="paperOutline" disabled={busy} onClick={sweep.retry}><RefreshCw />Retry</Button></div>}
+    {!busy && ownedSweeps.filter((s) => s.status === "running" && s.id !== sweep.sweepId).map((s) => <div key={s.id} className="flex flex-wrap items-center gap-3 border-l-2 border-accent pl-4"><p className="text-sm">Your idea is saved. Pick up the unfinished work.</p><Button variant="paperOutline" onClick={() => void sweep.resume(s.id)}><RefreshCw />Resume work</Button></div>)}
     {museum.error && <p role="alert" className="text-sm text-destructive">{runError(museum.error)}</p>}
-    {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
+    {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} sources={sweep.sources} />}
     {museum.isPending && <p role="status" className="text-sm text-muted-foreground">I'm opening your saved ideas.</p>}
     {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
     {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}

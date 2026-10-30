@@ -1,10 +1,11 @@
 import { useRef, useState, type DragEvent } from "react";
-import { ArrowRight, FileText, Github, Loader2, MessageSquare, Upload, X } from "lucide-react";
+import { ArrowRight, FileText, Github, Loader2, MessageSquare, Mic, Square, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EXAMPLE_PILE } from "@/lib/example-pile";
 import { LIMITS } from "@/lib/models.config";
 import { GitHubError, readRepo, repoToPile } from "@/lib/github";
 import { conversationsToPile, parseConversations, readExportFile } from "@/lib/chatgpt-export";
+import { useVoice } from "@/hooks/use-voice";
 
 interface Props {
   disabled: boolean;
@@ -32,6 +33,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [mode, setMode] = useState<"files" | "github" | "chatgpt">("files");
   const [importsOpen, setImportsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const voice = useVoice((words) => { setPaste((old) => [old.trim(), words].filter(Boolean).join(" ")); setIsExample(false); });
 
   async function addRepo() {
     if (!repoUrl.trim()) return;
@@ -103,7 +105,10 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   return (
     <div className="sweep-input">
       <div className="p-4 sm:p-5">
-        <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What brainwave should I pick up?</label>
+        <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What's an idea you never got round to?</label>
+        <div className="mt-4 flex flex-wrap items-center gap-3"><Button variant="amberOnPaper" size="lg" disabled={disabled || !voice.supported} aria-label={voice.listening ? "Stop listening" : "Speak your idea"} aria-pressed={voice.listening} onClick={voice.toggle}>{voice.listening ? <Square /> : <Mic />}{voice.listening ? "I'm listening" : "Speak your idea"}</Button><Button variant="link" disabled={disabled} onClick={() => { setPaste("A personal Toastmasters app"); setIsExample(false); }}>Try: a personal Toastmasters app</Button></div>
+        {!voice.supported && <p className="mt-2 text-xs text-paper-muted">Voice isn't available in this browser. Your typed idea works just as well.</p>}
+        {voice.error && <p role="alert" className="mt-2 text-sm text-destructive">{voice.error}</p>}
         {isExample && <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>}
         <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="A cool idea, a half-thought, a what-if…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
         <div className="mt-1 flex flex-wrap justify-between gap-2">
@@ -182,7 +187,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
           ))}
         </ul>
       )}
-      {warning && <p className="mt-2 text-sm font-medium text-destructive">{warning}</p>}
+      {warning && <p role="alert" className="mt-2 text-sm font-medium text-destructive">{warning}</p>}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className={over ? "font-semibold text-destructive" : "text-paper-muted"}>
           {pile.length.toLocaleString()} / {LIMITS.maxPileChars.toLocaleString()} characters

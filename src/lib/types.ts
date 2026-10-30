@@ -75,6 +75,8 @@ export interface Signal {
   fit: string | null;
 }
 export interface Radar {
+  newSourceUrls?: string[];
+  newSignals?: number;
   checkedAt: string;
   signals: Signal[];
   queries: string[];
@@ -83,6 +85,7 @@ export interface Radar {
 }
 
 export interface IdeaResult {
+  history?: (LiveCheck & { checkedAt: string })[];
   idea: Idea;
   context?: IdeaContext;
   check?: LiveCheck;

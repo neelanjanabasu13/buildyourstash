@@ -22,10 +22,11 @@ export function assembleParts(parts: { part: string; value: unknown }[]): SweepR
     const savedKit = values.get(`kit:${idea.id}`) as RevivalKit | undefined;
     const kit = savedKit?.pitch ? savedKit : undefined;
     const radar = values.get(`radar:${idea.id}`) as Radar | undefined;
+    const history = parts.filter((p) => p.part.startsWith(`history:${idea.id}:`)).map((p) => p.value as LiveCheck & { checkedAt: string }).sort((a, b) => b.checkedAt.localeCompare(a.checkedAt));
     if (radar) { add(radar.pileTally); result.webTally.checked += radar.webTally.checked; result.webTally.dropped += radar.webTally.dropped; }
     if (context) add(context.tally);
     if (check) { result.webTally.checked += check.tally.checked; result.webTally.dropped += check.tally.dropped; }
-    return { idea, ...(context ? { context: context.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}), ...(radar ? { radar } : {}) };
+    return { idea, history, ...(context ? { context: context.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}), ...(radar ? { radar } : {}) };
   });
   return neutralMuseum(result);
 }
