@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Radar plans three model-generated idea-specific queries server-side and persists the plan per claimed round; legacy database query keys are slots only, preserving caps without prescribing topics.
 - KroweClip owns dual-format animation, viewport-lazy playback and reduced-motion posters; the home introduction is a once-per-page-visit UI sequence, independent of sweep orchestration.
 - Model calls go directly to Nebius Token Factory from server functions (never the Lovable AI gateway); model ids and base URLs live only in `src/lib/models.config.ts`.
 - The sweep is split into small server functions (`src/lib/stash.functions.ts`) orchestrated from the client (`src/hooks/use-sweep.ts`) because server CPU per request is tiny.

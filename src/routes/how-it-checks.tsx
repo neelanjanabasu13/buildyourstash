@@ -43,7 +43,7 @@ function HowItChecks() {
         <p>One half-formed idea is enough. Type a thought, paste a link or import files, a public GitHub repo or a ChatGPT export. KROWE quotes your words to describe the idea and searches the live web for useful current context. KROWE works on each idea individually.</p>
         <p>Each idea gets BUILD NOW, WATCH or PARK with receipts and sources when evidence is available. KROWE makes a pitch, page copy, three tiny steps and an outreach draft, with a sourced competitor comparison and open events when found. Without evidence, WATCH means more research is needed; creative first drafts can still take shape. You can confirm or correct the idea in one line.</p>
         <p>Your ideas and work stay with this browser's guest session, so keep its site data if you want to return to the same workshop. No voice-note recording is included yet. Non-GitHub links are references only; their pages are not imported.</p>
-        <p>STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.</p>
+        <p>Quotes and links are machine-checked; verdicts are AI opinions.</p>
       </Block>
 
       <Block title="What is checked: your quotes are real">
@@ -64,7 +64,7 @@ function HowItChecks() {
       </Block>
 
       <Block title="What is NOT checked: the verdicts">
-        <p>KROWE's radar runs three targeted basic searches per idea check for relevant tools and launches, competitors and open events. NOW FEASIBLE, CROWDED / COMPETITOR, EVENT FIT and TIMING CHANGED describe context around the idea. Due ideas are checked while STASH is open and when you return after a day; there is no closed-browser monitoring or notification service. Check again starts a fresh round. Source dates can be missing, which is shown rather than invented. Open event deadlines and any prize must appear in the quoted source passage; unknown eligibility is not a promise of fit.</p>
+        <p>KROWE chooses three targeted basic searches from each idea's own content, with recent results. Now possible, Crowded, Opportunity and Timing changed describe relevant context, whether that is tools, similar builders, funding, communities, launches, regulation or markets. Events and competitions appear only when relevant to the idea. Due ideas are checked while STASH is open and when you return after a day; there is no closed-browser monitoring or notification service. Check again starts a fresh round. Source dates can be missing, which is shown rather than invented. Open event deadlines and any prize must appear in the quoted source passage; unknown eligibility is not a promise of fit.</p>
         <p>Signals include a source-backed recommendation, confidence and what would change it. Exact quotes prove that the source said something, not that the recommendation is correct. Copyable pitches, page copy, first steps and outreach notes are generated draft artifacts, not deployed pages or sent messages.</p>
         <p>
           BUILD NOW, WATCH and PARK are opinions written by an AI model reading the evidence. They can be wrong, too hopeful, or miss news
