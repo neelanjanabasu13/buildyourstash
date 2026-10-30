@@ -86,7 +86,7 @@ export interface TavilyResult {
   published_date?: string;
 }
 
-export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined; timeRange?: "month" | "year"; maxResults?: number }) {
+export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined; timeRange?: "month" | "year"; maxResults?: number; includeDomains?: string[] }) {
   const key = process.env["TAVILY_API_KEY"];
   if (!key) throw new KeysMissingError("TAVILY_API_KEY");
   await reserveCall("tavily");
@@ -99,6 +99,7 @@ export async function tavilySearch(query: string, opts: { topic?: "news" | "gene
   };
   if (opts.startDate) body["start_date"] = opts.startDate;
   if (opts.timeRange) body["time_range"] = opts.timeRange;
+  if (opts.includeDomains?.length) body["include_domains"] = opts.includeDomains;
   const res = await fetch(TAVILY_URL, {
     signal: AbortSignal.timeout(25000),
     method: "POST",

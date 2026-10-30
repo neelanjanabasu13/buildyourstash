@@ -212,6 +212,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         >
           Stash it · KROWE researches with Nemotron + Tavily <ArrowRight />
         </Button>
+        <Button variant="paperOutline" className="mt-2 w-full" disabled={disabled || pile.trim().length < 3} onClick={() => { const shelf = JSON.parse(window.localStorage.getItem("stash-shelf") ?? "[]") as { text: string; at: string }[]; window.localStorage.setItem("stash-shelf", JSON.stringify([{ text: pile.trim().slice(0, 2000), at: new Date().toISOString() }, ...shelf].slice(0, 50))); window.dispatchEvent(new Event("stash-shelf")); setPaste(""); }}>Just save it for later, no research</Button>
         <p className="mt-2 text-center font-mono text-[11px] uppercase tracking-wide text-paper-muted">Runs on NVIDIA Nemotron via Nebius Token Factory · live sources from Tavily</p>
       </div>
       </div>

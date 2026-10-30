@@ -21,6 +21,7 @@ import { listExamples } from "@/lib/examples.functions";
 import { toast } from "sonner";
 import { ExampleIdeas, type WorkshopExample } from "@/components/ExampleIdeas";
 import { guestIdeas, demoAtCap } from "@/lib/museum";
+import { Shelf } from "@/components/Shelf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -94,7 +95,8 @@ function Home() {
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} sources={sweep.sources} />}
     {museum.isPending && <p role="status" className="text-sm text-muted-foreground">I'm opening your saved ideas.</p>}
     {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
-    {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
+    <Shelf onWork={(text) => { setDemo(false); setHasStashed(true); setAdding(false); void sweep.run(text, false); }} busy={busy} />
+    {!busy && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
     {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How KROWE works</h2><FrameTour autoStart={false} /><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;

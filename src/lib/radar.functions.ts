@@ -98,6 +98,8 @@ export const draftRadarActions = createServerFn({ method: "POST" }).middleware([
       // No cached playbook: fetch a live template from the web instead.
       try { kit.liveTemplate = (await tavilySearch(`how to start ${exhibit.idea.name} first steps guide`, { topic: "general" })).slice(0, 3).map((r) => ({ title: r.title.slice(0, 160), url: r.url })); } catch { kit.liveTemplate = []; }
     }
+    // Prior art from past Devpost and Product Hunt projects, so the user can see what exists and find their edge.
+    try { kit.precedents = (await tavilySearch(exhibit.idea.name, { topic: "general", maxResults: 4, includeDomains: ["devpost.com", "producthunt.com"] })).slice(0, 4).map((r) => ({ title: r.title.slice(0, 160), url: r.url, snippet: r.content.slice(0, 220) })); } catch { kit.precedents = []; }
     if (!kit.pitch || !kit.headline || !kit.subhead || kit.steps.length !== 3 || kit.steps.some((s) => !s) || !kit.outreach) throw new Error("I couldn't finish those drafts. Check again to retry.");
     // Drafts are creative proposals, not verified factual signals. Their evidence is displayed alongside them.
     await storePart(data.sweepId, `kit:${data.ideaId}`, kit);
