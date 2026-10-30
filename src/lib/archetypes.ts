@@ -17,22 +17,46 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
 
 export const toArchetype = (v: unknown): ArchetypeId => (typeof v === "string" && v in ARCHETYPES ? (v as ArchetypeId) : "other");
 
+export type Scope = "small" | "medium" | "large";
+export const toScope = (v: unknown): Scope | undefined => (v === "small" || v === "medium" || v === "large" ? v : undefined);
+
+/** How far one KROWE pass can honestly take an idea depends on its scope: a newsletter gets much closer than a factory. */
+export const SCOPE_CEILING: Record<Scope, number> = { small: 45, medium: 35, large: 12 };
+const ARCHETYPE_SCOPE: Record<ArchetypeId, Scope> = { media: "small", "digital-product": "small", "creator-tool": "small", "micro-saas": "medium", "physical-business": "medium", other: "large" };
+export const scopeOf = (r: Pick<IdeaResult, "kit">): Scope => r.kit?.scope ?? (r.kit?.archetype ? ARCHETYPE_SCOPE[r.kit.archetype] : "medium");
+
 export interface ReadinessStep { label: string; done: boolean; points: number; yours?: boolean }
 
-/** Readiness rises only from work actually saved. 100% means seconds away from hitting publish, so a full KROWE pass tops out at 40%. */
+const KROWE_STEPS = (r: Pick<IdeaResult, "context" | "check" | "kit" | "radar">): [string, boolean, number][] => [
+  ["Research focus", Boolean(r.context), 5],
+  ["Checked the live web", Boolean(r.check), 8],
+  ["Cited sources", (r.check?.evidence.length ?? 0) > 0, 6],
+  ["Shape and scope identified", Boolean(r.kit?.archetype), 4],
+  ["Pitch and landing copy", Boolean(r.kit?.pitch && r.kit?.headline), 7],
+  ["Three first steps", (r.kit?.steps.length ?? 0) === 3, 4],
+  ["Outreach draft", Boolean(r.kit?.outreach), 4],
+];
+
+/** Readiness rises only from work actually saved. 100% means seconds from hitting publish; KROWE's share is capped by the idea's scope. */
 export function readinessSteps(r: Pick<IdeaResult, "context" | "check" | "kit" | "radar">): ReadinessStep[] {
+  const ceiling = SCOPE_CEILING[scopeOf(r)];
+  const steps = KROWE_STEPS(r);
+  const raw = steps.reduce((n, [, , p]) => n + p, 0);
+  const budget = ceiling - 2;
+  let used = 0;
+  const krowe = steps.map(([label, done, p], i) => {
+    const points = i === steps.length - 1 ? budget - used : Math.max(1, Math.round((p / raw) * budget));
+    used += points;
+    return { label, done, points };
+  });
+  const rest = 100 - ceiling;
+  const make = Math.round(rest * 0.5), audience = Math.round(rest * 0.25);
   return [
     { label: "Captured", done: true, points: 2 },
-    { label: "Research focus", done: Boolean(r.context), points: 5 },
-    { label: "Checked the live web", done: Boolean(r.check), points: 8 },
-    { label: "Cited sources", done: (r.check?.evidence.length ?? 0) > 0, points: 6 },
-    { label: "Shape identified", done: Boolean(r.kit?.archetype), points: 4 },
-    { label: "Pitch and landing copy", done: Boolean(r.kit?.pitch && r.kit?.headline), points: 7 },
-    { label: "Three first steps", done: (r.kit?.steps.length ?? 0) === 3, points: 4 },
-    { label: "Outreach draft", done: Boolean(r.kit?.outreach), points: 4 },
-    { label: "Make the real thing (manuscript, build or product)", done: false, points: 30, yours: true },
-    { label: "Find your first audience or customers", done: false, points: 15, yours: true },
-    { label: "Listing ready to submit", done: false, points: 15, yours: true },
+    ...krowe,
+    { label: "Make the real thing (manuscript, build or product)", done: false, points: make, yours: true },
+    { label: "Find your first audience or customers", done: false, points: audience, yours: true },
+    { label: "Listing ready to submit", done: false, points: rest - make - audience, yours: true },
   ];
 }
 
