@@ -82,17 +82,18 @@ export interface TavilyResult {
   published_date?: string;
 }
 
-export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined }) {
+export async function tavilySearch(query: string, opts: { topic?: "news" | "general"; startDate?: string | undefined; timeRange?: "month" | "year"; maxResults?: number }) {
   const key = process.env["TAVILY_API_KEY"];
   if (!key) throw new KeysMissingError("TAVILY_API_KEY");
   const body: Record<string, unknown> = {
     query: query.slice(0, 380),
     search_depth: "basic",
-    max_results: 6,
+    max_results: opts.maxResults ?? 6,
     include_answer: false,
     topic: opts.topic ?? "general",
   };
   if (opts.startDate) body["start_date"] = opts.startDate;
+  if (opts.timeRange) body["time_range"] = opts.timeRange;
   const res = await fetch(TAVILY_URL, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },

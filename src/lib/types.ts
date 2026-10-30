@@ -58,6 +58,30 @@ export interface RevivalKit {
   steps: string[];
   headline: string;
   subhead: string;
+  outreach?: string;
+}
+
+export type SignalType = "NOW FEASIBLE" | "CROWDED / COMPETITOR" | "EVENT FIT" | "REASON EXPIRED";
+export interface Signal {
+  type: SignalType;
+  headline: string;
+  reasonQuote: string | null;
+  evidence: Evidence;
+  sourceDate: string | null;
+  move: "revive" | "pivot" | "narrow" | "kill" | "wait";
+  why: string;
+  confidence: "low" | "medium" | "high";
+  wouldChange: string;
+  deadline: string | null;
+  prize: string | null;
+  fit: string | null;
+}
+export interface Radar {
+  checkedAt: string;
+  signals: Signal[];
+  queries: string[];
+  webTally: Tally;
+  pileTally: Tally;
 }
 
 export interface IdeaResult {
@@ -68,6 +92,7 @@ export interface IdeaResult {
   feedback?: "yes" | "no" | undefined;
   feedbackNote?: string | undefined;
   error?: string;
+  radar?: Radar;
 }
 
 export interface SweepResult {
