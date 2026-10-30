@@ -39,6 +39,8 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
     const confidence = (["low", "medium", "high"] as const).find((v) => v === entry.confidence);
     const headline = text(entry.headline, 240), why = text(entry.why, 600), wouldChange = text(entry.would_change, 400);
     if (!type || !move || !confidence || !headline || !why || !wouldChange) continue;
+    // Undated snippets cannot establish a change since the user stopped.
+    if (type === "REASON EXPIRED" && !source.published_date) continue;
     // Deadline and prize must occur in this same verified quote, not merely in model prose.
     const deadline = text(entry.deadline, 100), prize = text(entry.prize, 100);
     if (type === "EVENT FIT") {
@@ -50,7 +52,7 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
       if (!Number.isFinite(parsedDeadline) || new Date(parsedDeadline).toISOString().slice(0, 10) !== iso) continue;
     }
     const evidence: Evidence = { claim: headline, url: source.url, title: source.title, quote };
-    signals.push({ type, headline, reasonQuote: reasonQuote || null, evidence, sourceDate: source.published_date || null, move, why, confidence, wouldChange, deadline: type === "EVENT FIT" ? deadline : null, prize: prize && quote.includes(prize) ? prize : null, fit: type === "EVENT FIT" ? text(entry.fit, 300) || null : null });
+    signals.push({ type, headline, reasonQuote: reasonQuote || null, evidence, sourceDate: source.published_date || null, move, why, confidence: !source.published_date && confidence === "high" ? "medium" : confidence, wouldChange, deadline: type === "EVENT FIT" ? deadline : null, prize: prize && quote.includes(prize) ? prize : null, fit: type === "EVENT FIT" ? text(entry.fit, 300) || null : null });
   }
   return { signals, checkedAt: now, queries: queries.slice(0, RADAR_QUERY_CAP), webTally, pileTally };
 }

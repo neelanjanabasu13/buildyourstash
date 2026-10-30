@@ -21,6 +21,7 @@ describe("KROWE radar rules", () => {
     expect(verifyRadar({ signals: [event] }, [source], reason, [reason], [], "2026-11-13T00:00:00Z").signals).toHaveLength(0);
   });
   it("preserves missing source dates rather than inventing one", () => { expect(verifyRadar({ signals: [signal] }, [{ ...source, published_date: undefined }], reason, [reason], [], now).signals[0]?.sourceDate).toBeNull(); });
+  it("does not declare a reason expired using undated evidence", () => { expect(verifyRadar({ signals: [{ ...signal, type: "REASON EXPIRED" }] }, [{ ...source, published_date: undefined }], reason, [reason], [], now).signals).toHaveLength(0); });
   it("requires source-backed why, confidence and a change condition for every move", () => { for (const move of ["revive", "pivot", "narrow", "kill", "wait"]) { expect(verifyRadar({ signals: [{ ...signal, move }] }, [source], reason, [reason], [], now).signals[0]?.move).toBe(move); expect(verifyRadar({ signals: [{ ...signal, move, why: "" }] }, [source], reason, [reason], [], now).signals).toHaveLength(0); } });
   it("checks due exhibits again after a day, not on every render", () => { expect(radarDue(now, Date.parse(now) + 23 * 3600000)).toBe(false); expect(radarDue(now, Date.parse(now) + 24 * 3600000)).toBe(true); });
 });
