@@ -71,7 +71,10 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
     if (!visible) { v.pause(); return; }
     v.muted = true;
     v.load();
-    v.play().catch(() => setAsPicture(true));
+    v.play().catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setAsPicture(true);
+    });
   }, [asPicture, reduced, slot, visible]);
 
   const frame = `krowe-clip krowe-clip-${slot} overflow-hidden rounded-md ${className}`;
