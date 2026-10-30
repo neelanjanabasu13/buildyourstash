@@ -1,7 +1,9 @@
 import type { IdeaResult, SweepResult } from "./types";
 
-export interface MuseumSweep { id: string; createdAt: string; status: string; result: SweepResult }
+export interface MuseumSweep { id: string; createdAt: string; status: string; result: SweepResult; isExample?: boolean }
 export interface Exhibit { key: string; sweepId: string; result: IdeaResult }
+export function guestIdeas(sweeps: MuseumSweep[]) { return sweeps.filter((sweep) => !sweep.isExample); }
+export function demoAtCap(phase: string, message: string | null) { return phase === "error" && Boolean(message?.includes("sweeps a day")); }
 export function exhibitStatus(r: IdeaResult) {
   if (r.kit) return "Ready for you";
   if (r.check && !r.error) return "KROWE is building";

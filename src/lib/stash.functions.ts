@@ -290,7 +290,7 @@ export const saveSweep = createServerFn({ method: "POST" })
 export const listMuseum = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MuseumSweep[]> => {
-    const { data, error } = await context.supabase.from("sweeps").select("id,created_at,status,result").eq("user_id", context.userId).order("created_at", { ascending: false });
+    const { data, error } = await context.supabase.from("sweeps").select("id,created_at,status,result,is_example").eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw new Error("Couldn't open your workshop.");
     const { data: parts, error: partsError } = await context.supabase.from("sweep_parts").select("sweep_id,part,value");
     if (partsError) throw new Error("Couldn't read the saved work.");
@@ -303,7 +303,7 @@ export const listMuseum = createServerFn({ method: "GET" })
         if (previous?.feedback) { idea.feedback = previous.feedback; idea.feedbackNote = previous.feedbackNote; }
         if (previous?.error) idea.error = previous.error;
       }
-      return { id: s.id, createdAt: s.created_at, status: s.status, result };
+      return { id: s.id, createdAt: s.created_at, status: s.status, isExample: s.is_example, result };
     });
   });
 

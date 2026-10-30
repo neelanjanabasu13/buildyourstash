@@ -1,3 +1,9 @@
+# Saved cards and examples
+- [x] Preserve guest cards on return, refresh after guest auth changes and show saved-idea loading; whole cards open workbenches. Same-session reload restored the real card. Cleared site data or a different origin cannot recover an anonymous identity.
+- [x] Generated all three examples with real Nebius/Tavily calls, retrying one malformed model result; read-only public snapshots hold 2, 2 and 1 verified sources respectively, separate from guest rows.
+- [x] Live guided demo completed in 32 seconds and opened its finished workbench; daily cap was actually reached and displayed an honestly labelled saved example fallback without fake progress.
+- [x] Return radar and strongest news checked in-app, no browser errors/mobile overflow; examples disappeared for the real owned idea. Scheduling skipped because generated cron authentication is absent, email skipped because no owned sender domain is configured. No fabricated results or closed-browser monitoring.
+
 # Toastmasters capture bug
 - [x] Reproduced early interaction before hydration with a disabled button and typed text not captured by React; fully hydrated exact-input runs succeeded. Keep capture hidden during the existing intro until hydration, refresh guest checks rather than caching old successful sessions, show key-check and run errors, bound stalled stages and provider fetches, and expose verdict progress. Real exact-input run completed in 35 seconds through all requested stages, workbench pitch/sources/BUILD NOW/Do this today persisted on reload, injected network failure showed a visible message and retained text, 51 tests passed. Hosted log tools returned no entries; hosted invocation was 401, so hosted execution remains unverified. No simulated results, failure injection only.
 

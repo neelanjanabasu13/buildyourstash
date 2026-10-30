@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Public workshop examples are read-only snapshots backfilled exclusively from completed real pipeline work, separated from owner-scoped ideas; live demos remain capped and never fake cached playback.
 - Guest initialization caches only in-flight work, and staged client calls have deadlines with visible errors, so expired sessions and stalled providers cannot silently freeze capture.
 - Radar plans three model-generated idea-specific queries server-side and persists the plan per claimed round; legacy database query keys are slots only, preserving caps without prescribing topics.
 - KroweClip owns dual-format animation, viewport-lazy playback and reduced-motion posters; the home introduction is a once-per-page-visit UI sequence, independent of sweep orchestration.
