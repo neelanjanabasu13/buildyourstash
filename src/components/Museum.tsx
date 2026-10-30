@@ -23,7 +23,7 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
   const chosen = exhibits.find((e) => e.key === selected);
   const [seenNews, setSeenNews] = useState<string | null>(null);
   useEffect(() => { try { setSeenNews(localStorage.getItem("stash-news-seen")); } catch { /* optional UI preference */ } }, []);
-  const newsIsNew = Boolean(news && (!seenNews || news.checkedAt > seenNews));
+  const newsIsNew = Boolean(news && exhibits.find((e) => e.key === news.key)?.result.radar?.newSignals && (!seenNews || news.checkedAt > seenNews));
   const open = (key: string) => {
     setSelected(key);
     if (news?.key === key) { setSeenNews(news.checkedAt); try { localStorage.setItem("stash-news-seen", news.checkedAt); } catch { /* optional UI preference */ } }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { beginRadar, searchRadar, finishRadar, draftRadarActions } from "@/lib/radar.functions";
-import { RADAR_KINDS } from "@/lib/radar";
+import { RADAR_KINDS, radarDue } from "@/lib/radar";
 import type { Exhibit } from "@/lib/museum";
 import { withDeadline, runError } from "@/lib/run-safety";
 
@@ -33,8 +33,8 @@ export function useRadar(exhibits: Exhibit[], paused: boolean) {
   }, [begin, search, finish, draft, cache]);
   useEffect(() => {
     if (paused || active.current || document.visibilityState !== "visible") return;
-    const next = exhibits.find((e) => e.result.check && !attempted.current.has(e.key));
-    if (next) void run(next, true, true);
+    const next = exhibits.find((e) => e.result.check && radarDue(e.result.radar?.checkedAt) && !attempted.current.has(e.key));
+    if (next) void run(next, false, true);
   }, [exhibits, paused, run, tick]);
   useEffect(() => {
     const timer = window.setInterval(() => { if (document.visibilityState === "visible") { attempted.current.clear(); setTick((n) => n + 1); } }, 60 * 60 * 1000);

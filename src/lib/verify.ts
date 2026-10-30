@@ -14,15 +14,6 @@ export function normalizeText(input: string): string {
     .trim();
 }
 
-/** Strip wrapping quote marks / trailing ellipsis a model often adds around a quote. */
-function trimQuoteDecoration(q: string): string {
-  return q
-    .replace(/^[\s"'.…-]+/, "")
-    .replace(/[\s"'…]+$/, "")
-    .replace(/\.{3,}$/, "")
-    .trim();
-}
-
 export const MIN_QUOTE_CHARS = 8;
 
 export function quoteIsInSource(quote: string | undefined | null, source: string): boolean {

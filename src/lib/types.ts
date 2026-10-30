@@ -75,6 +75,8 @@ export interface Signal {
   fit: string | null;
 }
 export interface Radar {
+  newSourceUrls?: string[];
+  newSignals?: number;
   checkedAt: string;
   signals: Signal[];
   queries: string[];
