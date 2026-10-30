@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { ArrowRight, FileText, Github, Loader2, MessageSquare, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EXAMPLE_PILE } from "@/lib/example-pile";
@@ -10,6 +10,7 @@ interface Props {
   disabled: boolean;
   sweepBlocked?: boolean;
   onSweep: (pile: string, isExample: boolean) => void;
+  autoType?: { text: string; n: number } | null;
 }
 
 interface LoadedFile {
@@ -29,8 +30,20 @@ const SPARKS = [
 const ACCEPT = [".txt", ".md", ".markdown", ".json", ".zip"];
 const isExport = (name: string) => /conversations\.json$/i.test(name) || name.toLowerCase().endsWith(".zip");
 
-export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
+export function PileInput({ disabled, sweepBlocked = false, onSweep, autoType }: Props) {
   const [paste, setPaste] = useState("");
+  const [typing, setTyping] = useState(false);
+  // Demo: visibly write the example idea into the box, then hand it to KROWE.
+  useEffect(() => {
+    if (!autoType) return;
+    let i = 0; setTyping(true); setPaste("");
+    const t = window.setInterval(() => {
+      i += 1; setPaste(autoType.text.slice(0, i));
+      if (i >= autoType.text.length) { window.clearInterval(t); window.setTimeout(() => { setTyping(false); onSweep(autoType.text, true); }, 600); }
+    }, 35);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoType?.n]);
   const [files, setFiles] = useState<LoadedFile[]>([]);
   const [isExample, setIsExample] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -112,8 +125,9 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
     <div className="sweep-input">
       <div className="p-4 sm:p-5">
         <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What's an idea you never got round to?</label>
+        {typing && <span className="ml-2 rounded bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">Demo · writing an idea</span>}
         {isExample && <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>}
-        <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="A cool idea, a half-thought, a what-if…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
+        <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled || typing} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="A cool idea, a half-thought, a what-if…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
         <div className="mt-2 flex flex-wrap gap-2" aria-label="Try a spark">
           {SPARKS.map((spark) => <button key={spark} type="button" disabled={disabled} onClick={() => { setPaste(spark); setIsExample(false); }} className="rounded-full border border-paper-line px-3 py-1 text-xs text-paper-foreground hover:border-primary hover:text-primary disabled:opacity-50">{spark}</button>)}
         </div>

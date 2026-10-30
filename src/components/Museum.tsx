@@ -11,6 +11,7 @@ import { activityDate, activityDay, workActivity } from "@/lib/workshop";
 import type { SweepResult } from "@/lib/types";
 import { Link } from "@tanstack/react-router";
 import { DraftsInbox } from "./DraftsInbox";
+import { IdeaMap } from "./IdeaMap";
 
 export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweeps: MuseumSweep[]; current: SweepResult; currentId: string | null; onFeedback: (id: string, f: "yes" | "no", note?: string) => void; busy: boolean }) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
       {chosen.result.check?.verdict === "BUILD NOW" && chosen.result.kit && <Link to="/p/$id" params={{ id: chosen.key }} className="inline-flex items-center gap-2 text-primary underline">Open KROWE's page <ArrowUpRight className="h-4 w-4" /></Link>}
     </div> : <>
       {news && <section aria-label="KROWE has news" className="space-y-3 border-y border-teal/40 py-5"><p className="eyebrow text-teal">KROWE has news {newsIsNew && <span className="ml-2 rounded-sm bg-teal px-2 py-1 text-paper">New</span>}</p><SignalCard signal={news.signal} /><Button variant="link" className="px-0" onClick={() => open(news.key)}>Open this workbench <ArrowUpRight /></Button></section>}
+      {exhibits.length > 1 && <IdeaMap ideas={exhibits.map((e) => ({ key: e.key, name: e.result.idea.name, text: `${e.result.idea.name} ${e.result.idea.summary}` }))} onOpen={open} />}
       <div className="grid gap-4 sm:grid-cols-2">
         {exhibits.map((e) => <article key={e.key} tabIndex={0} aria-label={`Open ${e.result.idea.name} workbench`} onClick={(event) => { if ((event.target as HTMLElement).closest('button,a')) return; open(e.key); }} onKeyDown={(event) => { if (event.target === event.currentTarget && ["Enter", " "].includes(event.key)) { event.preventDefault(); open(e.key); } }} className="flex min-h-64 cursor-pointer flex-col rounded-md border border-foreground/25 bg-card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted-foreground">{activityDay(activityDate(e.result, sweeps.find((s) => s.id === e.sweepId)?.createdAt ?? new Date().toISOString()))}</span><span className="rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{radar.checking === e.key ? "KROWE is mulling" : exhibitStatus(e.result)}</span></div>
