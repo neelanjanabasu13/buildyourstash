@@ -10,7 +10,7 @@ import { Museum } from "@/components/Museum";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
 import { useSweep } from "@/hooks/use-sweep";
-import { getKeysStatus, listMuseum, museumPattern } from "@/lib/stash.functions";
+import { getKeysStatus, listMuseum } from "@/lib/stash.functions";
 import { useFirstResult } from "@/components/FirstResultContext";
 import { hasFirstResult } from "@/lib/first-result";
 
@@ -40,16 +40,14 @@ function Home() {
   const { unlock } = useFirstResult();
   const [adding, setAdding] = useState(false);
   const count = (museum.data ?? []).filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + sweep.result.ideas.length;
-  const findPattern = useServerFn(museumPattern);
-  const pattern = useQuery({ queryKey: ["museum-pattern", museum.dataUpdatedAt], enabled: count >= 3 && !busy, queryFn: () => findPattern(), staleTime: Infinity, retry: false });
   useEffect(() => {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
   const inputVisible = !busy && (count === 0 || adding);
   return <div className="space-y-7 pt-2 sm:pt-4">
     <section className="flex items-center gap-4">
-      <BrandImage slot={busy ? "krowe-thinking" : "krowe-standing"} alt="KROWE, the curator of your ideas" className="h-32 w-24 shrink-0" />
-      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea museum</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every cool idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, your curator. {count ? "I've got your ideas in motion. Come back to see the research and first drafts I've made." : "Stash a brainwave in seconds. I'll research it and start the first piece of work."}</p></div>
+      <BrandImage slot={busy ? "krowe-thinking" : "krowe-standing"} alt="KROWE, the crow working on your ideas" className="h-32 w-24 shrink-0" />
+      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea workshop</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the crow who gets on with it. {count ? "Here's what I've been working on for you." : "Stash a brainwave. I'll research what's around it and make your first drafts."}</p></div>
     </section>
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the exhibits" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
@@ -57,11 +55,11 @@ function Home() {
     {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
     {museum.error && <p className="text-sm text-destructive">{museum.error.message}</p>}
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
-    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} extraPattern={pattern.data ?? null} />
+    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />
     {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
       { title: "Stash it", text: "One idea is enough. I'll keep it here." },
-      { title: "KROWE starts building", text: "I'll research the context and make your first drafts." },
-      { title: "Come back to my work", text: "A pitch, page copy and first steps, already in motion." },
+      { title: "KROWE gets on it", text: "I'll research the context and make your first drafts." },
+      { title: "You pick it up", text: "A pitch, page copy and first steps, already in motion." },
     ].map((step) => <li key={step.title}><h3 className="text-lg font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div>;
 }

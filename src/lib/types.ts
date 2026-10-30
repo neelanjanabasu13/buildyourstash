@@ -46,6 +46,8 @@ export interface LiveCheck {
   query: string;
   searchedSince: string | null;
   resultsSeen: number;
+  confidence?: "low" | "medium" | "high";
+  wouldChange?: string;
 }
 
 export interface RevivalKit {
@@ -54,6 +56,7 @@ export interface RevivalKit {
   headline: string;
   subhead: string;
   outreach?: string;
+  createdAt?: string;
 }
 
 export type SignalType = "NOW FEASIBLE" | "CROWDED / COMPETITOR" | "EVENT FIT" | "TIMING CHANGED";
