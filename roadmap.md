@@ -1,4 +1,6 @@
 # Museum direction
+- [ ] Reconcile to workshop work feed and workbench, remove pattern calls/cards, add verdict confidence/change conditions and dated work activity.
+- [ ] Verify live capture, workbench, copying, return badge, caps and phone layout; disclose unsupported voice/closed-browser jobs.
 - [x] Reframe copy, input, progress, research and verdicts around brainwaves and work in motion; preserve imports and verified evidence. Neutral work statuses, BUILD NOW/WATCH/PARK, TIMING CHANGED, idea-only quotes, current-context prompts, creative first drafts even without web signals and neutral import selection.
 - [x] Normalize older exhibits into neutral verdicts without reusing past-behaviour claims; verify a real new idea, reload and mobile. A fresh half-formed idea produced live cited context, pitch, landing copy, first steps, competitor table and outreach draft; copied pitch read back, reload retained exhibit, mobile had no overflow or browser errors. 37 tests passed and build OK. Voice recording and closed-browser building remain unavailable, never presented as active.
 - [x] Add bounded recent radar searches, verified signals, sourced decisions and real copyable action drafts. Three SQL-claimed basic queries per exhibit round; source snippets and saved reasons verified, missing dates labelled, undated reason-expired claims dropped.

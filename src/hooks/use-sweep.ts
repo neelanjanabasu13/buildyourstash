@@ -2,7 +2,6 @@ import { useCallback, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   extractIdeas,
-  findThread,
   saveSweep,
   startSweep,
   researchContext,
@@ -28,7 +27,6 @@ const errText = (e: unknown) => {
 export function useSweep() {
   const start = useServerFn(startSweep);
   const extract = useServerFn(extractIdeas);
-  const thread = useServerFn(findThread);
   const context = useServerFn(researchContext);
   const radarStart = useServerFn(beginRadar), radarSearch = useServerFn(searchRadar), radarFinish = useServerFn(finishRadar), radarDraft = useServerFn(draftRadarActions);
   const save = useServerFn(saveSweep);
@@ -84,17 +82,7 @@ export function useSweep() {
         setPhase("checking");
         setStages(Object.fromEntries(ex.value.map((i) => [i.id, "context" as IdeaStage])));
 
-        const threadJob = (async () => {
-          if (ex.value.length < 3) { setThreadStage("done"); return; }
-          setThreadStage("running");
-          try {
-            const t = await thread({ data: { sweepId: id, ideas: ex.value } });
-            update((r) => ({ ...r, thread: t.value, pileTally: add(r.pileTally, t.tally) }));
-          } catch (e) {
-            console.error(e);
-          }
-          setThreadStage("done");
-        })();
+        setThreadStage("done");
 
         const ideaJobs = ex.value.map(async (idea) => {
           try {
@@ -121,7 +109,7 @@ export function useSweep() {
           }
         });
 
-        await Promise.all([threadJob, ...ideaJobs]);
+        await Promise.all(ideaJobs);
         await save({ data: { sweepId: id, result: resultRef.current, status: "done" } });
         setPhase("done");
       } catch (e) {
@@ -130,7 +118,7 @@ export function useSweep() {
         setPhase("error");
       }
     },
-    [start, extract, thread, context, radarStart, radarSearch, radarFinish, radarDraft, save, update, patchIdea],
+    [start, extract, context, radarStart, radarSearch, radarFinish, radarDraft, save, update, patchIdea],
   );
 
   const giveFeedback = useCallback(
