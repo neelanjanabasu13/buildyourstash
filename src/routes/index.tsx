@@ -2,6 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
+import shardPic from "@/assets/krowe2-poster.jpg.asset.json";
+import bulbPic from "@/assets/krowe3-poster.jpg.asset.json";
+import typingPic from "@/assets/krowe4-poster.jpg.asset.json";
+import shippedPic from "@/assets/krowe7-poster.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -75,8 +79,8 @@ function Home() {
   const inputVisible = !busy && (count === 0 || adding);
   return <>
     {introducing && <section aria-label="Meet KROWE" className="flex flex-col items-center gap-4 py-8 text-center">
-      <KroweClip slot="rise" eager loop={false} onEnded={() => setIntroducing(false)} className="h-72 w-48" />
-      <p className="max-w-md font-display text-2xl text-primary">Caw. I'm KROWE. You have the ideas, I do the work.</p>
+      <img src="/brand/krowe-standing.png" alt="KROWE the crow" className="h-72 w-auto object-contain" />
+      <p className="font-display text-4xl text-primary">I am KROWE.</p>
       <Button variant="ghost" onClick={() => setIntroducing(false)}>Skip</Button>
     </section>}
     <div hidden={introducing} className={`space-y-7 pt-2 sm:pt-4 ${introducing ? "" : "workshop-unfold"}`}>
