@@ -18,7 +18,8 @@ export function assembleParts(parts: { part: string; value: unknown }[]): SweepR
   result.ideas = ex.value.map((idea): IdeaResult => {
     const why = values.get(`why:${idea.id}`) as Checked<WhyStopped> | undefined;
     const check = values.get(`check:${idea.id}`) as Checked<LiveCheck> | undefined;
-    const kit = values.get(`kit:${idea.id}`) as RevivalKit | undefined;
+    const savedKit = values.get(`kit:${idea.id}`) as RevivalKit | undefined;
+    const kit = savedKit?.pitch ? savedKit : undefined;
     const radar = values.get(`radar:${idea.id}`) as Radar | undefined;
     if (radar) { add(radar.pileTally); result.webTally.checked += radar.webTally.checked; result.webTally.dropped += radar.webTally.dropped; }
     if (why) add(why.tally);

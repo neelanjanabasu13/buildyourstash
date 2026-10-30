@@ -59,7 +59,7 @@ REASON EXPIRED requires a stated reason and direct evidence it no longer applies
     const verdict = first?.move === "revive" ? "REVIVE NOW" : first?.move === "kill" ? "STILL DEAD" : "NOT YET";
     const check: Checked<LiveCheck> = { value: { verdict, summary: first?.headline ?? "I found no new signal I could verify.", evidence: radar.signals.map((s) => s.evidence), nothingFound: !first, query: radar.queries.join("; "), searchedSince: date, resultsSeen: sources.length }, tally: { checked: 0, dropped: 0 } };
     await storePart(data.sweepId, `check:${data.ideaId}`, check);
-    await storePart(data.sweepId, `kit:${data.ideaId}`, null);
+    await storePart(data.sweepId, `kit:${data.ideaId}`, { pending: true });
     await storePart(data.sweepId, `radar-round:${data.ideaId}`, { ...state, done: true });
     return { radar, check };
   });
