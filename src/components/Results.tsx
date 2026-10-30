@@ -127,10 +127,9 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
       </section>
 
       <section className="mt-6">
-          <p className="eyebrow mb-2 text-amber-ink">What would have to change</p>
-          <p>{why.trigger}</p>
-        </section>
-      )}
+        <p className="eyebrow mb-2 text-amber-ink">KROWE's research focus</p>
+        <p>{r.context?.focus ?? "Current tools, similar ideas and useful launch opportunities."}</p>
+      </section>
 
       <section className="mt-6">
         <p className="eyebrow mb-2 text-amber-ink">Around your idea</p>
