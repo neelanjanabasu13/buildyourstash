@@ -10,13 +10,13 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- Public workshop examples are read-only snapshots backfilled exclusively from completed real pipeline work, separated from owner-scoped ideas; live demos remain capped and never fake cached playback.
+- Public workshop examples are read-only snapshots from completed real pipeline work, separated from owner ideas; guided cached replay uses recorded job timings and explicitly makes no live calls.
 - Guest initialization caches only in-flight work, and staged client calls have deadlines with visible errors, so expired sessions and stalled providers cannot silently freeze capture.
 - Radar plans three model-generated idea-specific queries server-side and persists the plan per claimed round; legacy database query keys are slots only, preserving caps without prescribing topics.
 - KroweClip owns dual-format animation, viewport-lazy playback and reduced-motion posters; the home introduction is a once-per-page-visit UI sequence, independent of sweep orchestration.
 - Model calls go directly to Nebius Token Factory from server functions (never the Lovable AI gateway); model ids and base URLs live only in `src/lib/models.config.ts`.
-- The sweep is split into small server functions (`src/lib/stash.functions.ts`) orchestrated from the client (`src/hooks/use-sweep.ts`) because server CPU per request is tiny.
-- Quote verification always reads the pile from the `sweeps` row on the server, never from client input, so receipts cannot be forged.
+- Capture creates an owner-scoped workshop_jobs row immediately; each advanceWorkshopJob request leases one persisted step, so retry resumes authoritative saved outputs without repeating completed work. The browser drives subsequent requests; never claim closed-browser processing.
+- Quote verification checks exact case-sensitive substrings in stored user words and Tavily content, never client-provided source text, so receipts cannot be forged.
 - Sweep caps are enforced in the `start_sweep` SQL function; the client display of limits is only informational.
 - No seeded or canned results anywhere; the example pile is input only.
 - GitHub repos and ChatGPT exports are read and compacted in the browser (`src/lib/github.ts`, `src/lib/chatgpt-export.ts`); only the compacted text joins the pile, raw exports never reach the server.
@@ -29,3 +29,7 @@
 - Normalize older saved verdicts at the workshop read boundary and retain source receipts without replaying interpretations of personal history; research only idea descriptions and external context.
 - The home workshop feed and per-idea workbench reuse existing sweep storage and staged calls; do not generate or render cross-idea patterns, and date activity from saved completion timestamps rather than claiming old work happened today.
 - Radar uses owner-checked server functions and SQL-claimed bounded query rounds, persisted in sweep_parts; browser-visible museum checks due exhibits serially, never pretends closed-browser monitoring is active. Signal verification is separate from creative action drafts, which are never sent or published.
+- Provider calls reserve a database-counted aggregate daily budget before every attempt, including retries, so visitor identity resets cannot bypass key protection.
+- Browser Web Speech capture converts speech to editable text and preserves typing fallback; it never uploads recorded audio.
+- BUILD NOW pages render generated copy in an owner-checked /p/$id route and drafts inbox holds unsent text; neither surface claims a launched product or shares private guest data.
+- Radar stores each verified verdict in sweep_parts history and compares returned source URLs/content with earlier rounds, so unchanged results do not earn a new-signal badge.

@@ -1,12 +1,13 @@
 # Scope B
 - [x] Real exact Toastmasters verification first, 66 seconds with sources, verdict, pitch and first step.
-- [ ] Durable short-step jobs, owner-only progress, resume and visible Retry.
-- [ ] Exact substring receipts and aggregate spend protection, retain guest caps.
-- [ ] Primary browser voice and retained imports.
-- [ ] Honest cached replay and final-spec real example set.
-- [ ] Landing page, drafts inbox and verdict history.
-- [ ] Radar comparison, manual re-check and assess daily scheduling.
-- [ ] Real post-change Toastmasters, retry/resume, mobile, tests and app checks.
+- [x] Durable short-step jobs, owner-only progress, resume and visible Retry; real nine-step job completed and read back.
+- [x] Exact substring receipts and aggregate spend protection, retain guest caps. Aggregate calls reserved in database; exhaustion not driven to 500 in verification.
+- [x] Primary browser voice and retained imports. Microphone denial verified, actual microphone transcription awaits supported-browser hardware check.
+- [x] Honest cached replay and final-spec real example set, generated through real pipeline with 2 and 4 sources for receipt/plant examples and recorded timings.
+- [x] Owner-only landing page rendered for real BUILD NOW result, drafts inbox verified, verdict history shown.
+- [x] Radar comparison and manual re-check verified, due checks remain browser-driven. Scheduling assessed and deliberately not enabled because callback timeout cannot reliably run provider calls.
+- [x] Post-change Toastmasters 49 seconds, injected network failure + reload resume 68 seconds, mobile no overflow/browser errors, regression tests passed and app checks OK.
+- [ ] Closed-browser continuation and daily scheduled provider research: blocked by lack of documented durable callback continuation within managed schedule timeout.
 
 # Saved cards and examples
 - [x] Preserve guest cards on return, refresh after guest auth changes and show saved-idea loading; whole cards open workbenches. Same-session reload restored the real card. Cleared site data or a different origin cannot recover an anonymous identity.
