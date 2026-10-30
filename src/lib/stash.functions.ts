@@ -228,9 +228,9 @@ Return {"verdict":"BUILD NOW|WATCH|PARK","evidence":[{"claim":"one useful contex
     return output;
   });
 
-// ---------- 4. revival kit (Ultra) ----------
+// ---------- 4. first-work drafts (Ultra) ----------
 
-export const revivalKit = createServerFn({ method: "POST" })
+export const firstWorkDrafts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z
