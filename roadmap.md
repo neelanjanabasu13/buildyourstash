@@ -1,3 +1,9 @@
+# Saved cards and examples
+- [ ] Preserve guest cards on return and refresh the feed when the active guest changes.
+- [ ] Generate the three requested examples through the live pipeline and publish separate read-only example cards with provenance.
+- [ ] Add a live guided demo with an honestly labelled saved-result fallback at visitor caps.
+- [ ] Verify repeat radar/news and report scheduling/email prerequisites.
+
 # Toastmasters capture bug
 - [x] Reproduced early interaction before hydration with a disabled button and typed text not captured by React; fully hydrated exact-input runs succeeded. Keep capture hidden during the existing intro until hydration, refresh guest checks rather than caching old successful sessions, show key-check and run errors, bound stalled stages and provider fetches, and expose verdict progress. Real exact-input run completed in 35 seconds through all requested stages, workbench pitch/sources/BUILD NOW/Do this today persisted on reload, injected network failure showed a visible message and retained text, 51 tests passed. Hosted log tools returned no entries; hosted invocation was 401, so hosted execution remains unverified. No simulated results, failure injection only.
 
