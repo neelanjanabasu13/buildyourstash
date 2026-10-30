@@ -2,10 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
-import shardPic from "@/assets/krowe2-poster.jpg.asset.json";
-import bulbPic from "@/assets/krowe3-poster.jpg.asset.json";
-import typingPic from "@/assets/krowe4-poster.jpg.asset.json";
-import shippedPic from "@/assets/krowe7-poster.jpg.asset.json";
+import { FrameTour } from "@/components/FrameTour";
+import { StackBadge } from "@/components/StackBadge";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -94,11 +92,6 @@ function Home() {
     {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
     {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
-    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">What KROWE does</h2><ol className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">{[
-      { pic: shardPic.url, title: "1. I find your old ideas", text: "Notes, repos, chats. I dig out the ones you never got to." },
-      { pic: bulbPic.url, title: "2. I reignite them", text: "I check what's changed on the web, with sources." },
-      { pic: typingPic.url, title: "3. I build", text: "Pitch, page copy, competitors and first steps." },
-      { pic: shippedPic.url, title: "4. You pick it up", text: "Your idea is already moving when you come back." },
-    ].map((step) => <li key={step.title}><img src={step.pic} alt="" loading="lazy" className="aspect-square w-full rounded-md object-cover" /><h3 className="mt-2 text-base font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+    {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How KROWE works</h2><FrameTour autoStart={false} /><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;
 }
