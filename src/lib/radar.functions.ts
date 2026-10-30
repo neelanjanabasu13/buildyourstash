@@ -40,7 +40,7 @@ export const searchRadar = createServerFn({ method: "POST" }).middleware([requir
   });
 export const finishRadar = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => exhibitInput.extend({ roundId: z.string().uuid() }).parse(d))
-  .handler(async ({ context, data }): Promise<Radar> => {
+  .handler(async ({ context, data }): Promise<{ radar: Radar; check: Checked<LiveCheck> }> => {
     const { exhibit, parts, pile } = await owned(context as Context, data);
     const state = parts.find((p) => p.part === `radar-round:${data.ideaId}`)?.value;
     if (state?.id !== data.roundId || state.done) throw new Error("That radar round has ended.");
@@ -59,8 +59,9 @@ REASON EXPIRED requires a stated reason and direct evidence it no longer applies
     const verdict = first?.move === "revive" ? "REVIVE NOW" : first?.move === "kill" ? "STILL DEAD" : "NOT YET";
     const check: Checked<LiveCheck> = { value: { verdict, summary: first?.headline ?? "I found no new signal I could verify.", evidence: radar.signals.map((s) => s.evidence), nothingFound: !first, query: radar.queries.join("; "), searchedSince: date, resultsSeen: sources.length }, tally: { checked: 0, dropped: 0 } };
     await storePart(data.sweepId, `check:${data.ideaId}`, check);
+    await storePart(data.sweepId, `kit:${data.ideaId}`, null);
     await storePart(data.sweepId, `radar-round:${data.ideaId}`, { ...state, done: true });
-    return radar;
+    return { radar, check };
   });
 export const draftRadarActions = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => exhibitInput.parse(d))

@@ -46,6 +46,8 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
       if (!deadline || !quote.includes(deadline) || !/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso < now.slice(0, 10)) continue;
       // The year must appear too: a model may not silently roll an old event forward.
       if (!quote.includes(iso.slice(0, 4))) continue;
+      const parsedDeadline = Date.parse(deadline);
+      if (!Number.isFinite(parsedDeadline) || new Date(parsedDeadline).toISOString().slice(0, 10) !== iso) continue;
     }
     const evidence: Evidence = { claim: headline, url: source.url, title: source.title, quote };
     signals.push({ type, headline, reasonQuote: reasonQuote || null, evidence, sourceDate: source.published_date || null, move, why, confidence, wouldChange, deadline: type === "EVENT FIT" ? deadline : null, prize: prize && quote.includes(prize) ? prize : null, fit: type === "EVENT FIT" ? text(entry.fit, 300) || null : null });

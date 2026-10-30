@@ -3,8 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   extractIdeas,
   findThread,
-  liveCheck,
-  revivalKit,
   saveSweep,
   startSweep,
   whyStopped,
@@ -12,6 +10,8 @@ import {
 import { ensureGuestSession } from "@/lib/session";
 import type { IdeaResult, SweepResult, Tally } from "@/lib/types";
 import { needsKit } from "@/lib/museum";
+import { beginRadar, searchRadar, finishRadar, draftRadarActions } from "@/lib/radar.functions";
+import { RADAR_KINDS } from "@/lib/radar";
 
 export type IdeaStage = "why" | "web" | "verdict" | "kit" | "done" | "error";
 export type Phase = "idle" | "starting" | "reading" | "checking" | "done" | "error";
@@ -30,8 +30,7 @@ export function useSweep() {
   const extract = useServerFn(extractIdeas);
   const thread = useServerFn(findThread);
   const why = useServerFn(whyStopped);
-  const check = useServerFn(liveCheck);
-  const kit = useServerFn(revivalKit);
+  const radarStart = useServerFn(beginRadar), radarSearch = useServerFn(searchRadar), radarFinish = useServerFn(finishRadar), radarDraft = useServerFn(draftRadarActions);
   const save = useServerFn(saveSweep);
 
   const [phase, setPhase] = useState<Phase>("idle");
@@ -103,15 +102,17 @@ export function useSweep() {
             update((r) => ({ ...r, pileTally: add(r.pileTally, w.tally) }));
             patchIdea(idea.id, { why: w.value });
             setStage(idea.id, "web");
-            const c = await check({
-              data: { sweepId: id, idea, trigger: w.value.trigger, searchQuery: w.value.searchQuery, topic: w.value.topic },
-            });
-            update((r) => ({ ...r, webTally: add(r.webTally, c.tally) }));
-            patchIdea(idea.id, { check: c.value });
-            if (needsKit(c.value.verdict)) {
+            const radarData = { sweepId: id, ideaId: idea.id };
+            const roundId = await radarStart({ data: { ...radarData, force: false } });
+            if (!roundId) throw new Error("This exhibit is already being checked.");
+            await Promise.all(RADAR_KINDS.map((kind) => radarSearch({ data: { ...radarData, roundId, kind } })));
+            const c = await radarFinish({ data: { ...radarData, roundId } });
+            update((r) => ({ ...r, webTally: add(r.webTally, c.radar.webTally), pileTally: add(r.pileTally, c.radar.pileTally) }));
+            patchIdea(idea.id, { check: c.check.value, radar: c.radar });
+            if (needsKit(c.check.value.verdict) && c.radar.signals.length) {
               setStage(idea.id, "kit");
-              const k = await kit({ data: { sweepId: id, idea, trigger: w.value.trigger, evidence: c.value.evidence, verdict: c.value.verdict } });
-              patchIdea(idea.id, { kit: k });
+              const k = await radarDraft({ data: radarData });
+              if (k) patchIdea(idea.id, { kit: k });
             }
             setStage(idea.id, "done");
           } catch (e) {
@@ -129,7 +130,7 @@ export function useSweep() {
         setPhase("error");
       }
     },
-    [start, extract, thread, why, check, kit, save, update, patchIdea],
+    [start, extract, thread, why, radarStart, radarSearch, radarFinish, radarDraft, save, update, patchIdea],
   );
 
   const giveFeedback = useCallback(

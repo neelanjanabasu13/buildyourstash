@@ -187,7 +187,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
       {check && (
         <details className="mt-6 border-t-2 border-primary pt-4">
           <summary className="cursor-pointer font-display text-xl font-semibold text-primary">I've done the first piece of work</summary>
-          {!kit && !r.error && <p className="text-sm text-paper-muted">KROWE is writing your kit...</p>}
+          {!kit && !r.error && <p className="text-sm text-paper-muted">{r.radar?.signals.length === 0 ? "No source-backed move yet. I'm not drafting a launch on a guess." : "KROWE is writing your kit..."}</p>}
           {kit && (
             <div className="mt-4 space-y-4">
               <KroweClip slot={check.verdict === "REVIVE NOW" ? "shipped" : "typing"} className="h-40 w-28" />
