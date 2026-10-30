@@ -25,40 +25,51 @@ export const SCOPE_CEILING: Record<Scope, number> = { small: 45, medium: 35, lar
 const ARCHETYPE_SCOPE: Record<ArchetypeId, Scope> = { media: "small", "digital-product": "small", "creator-tool": "small", "micro-saas": "medium", "physical-business": "medium", other: "large" };
 export const scopeOf = (r: Pick<IdeaResult, "kit">): Scope => r.kit?.scope ?? (r.kit?.archetype ? ARCHETYPE_SCOPE[r.kit.archetype] : "medium");
 
-export interface ReadinessStep { label: string; done: boolean; points: number; yours?: boolean }
+export interface ReadinessStep { label: string; done: boolean; points: number; earned: number; yours?: boolean }
 
-const KROWE_STEPS = (r: Pick<IdeaResult, "context" | "check" | "kit" | "radar">): [string, boolean, number][] => [
-  ["Research focus", Boolean(r.context), 5],
-  ["Checked the live web", Boolean(r.check), 8],
-  ["Cited sources", (r.check?.evidence.length ?? 0) > 0, 6],
-  ["Shape and scope identified", Boolean(r.kit?.archetype), 4],
-  ["Pitch and landing copy", Boolean(r.kit?.pitch && r.kit?.headline), 7],
-  ["Three first steps", (r.kit?.steps.length ?? 0) === 3, 4],
-  ["Outreach draft", Boolean(r.kit?.outreach), 4],
-];
+type Input = Pick<IdeaResult, "context" | "check" | "kit" | "radar">;
+/** Each criterion has a weight and a quality score from 0 to 1 measured from the saved work, so two ideas rarely land on the same number. */
+const KROWE_STEPS = (r: Input): [string, number, number][] => {
+  const ev = r.check?.evidence.length ?? 0;
+  const conf = r.check?.confidence === "high" ? 1 : r.check?.confidence === "medium" ? 0.7 : r.check ? 0.4 : 0;
+  const prec = r.kit?.precedents?.length ?? 0;
+  const steps = r.kit?.steps.length ?? 0;
+  const signals = r.radar?.signals.length ?? 0;
+  return [
+    ["Research focus", r.context ? 1 : 0, 5],
+    ["Checked the live web", conf, 8],
+    ["Cited sources", Math.min(ev, 4) / 4, 7],
+    ["Found what others built", Math.min(prec, 4) / 4, 5],
+    ["Shape and scope identified", r.kit?.archetype ? 1 : 0, 3],
+    ["Pitch and landing copy", (r.kit?.pitch ? 0.5 : 0) + (r.kit?.headline && r.kit?.subhead ? 0.5 : 0), 7],
+    ["First steps planned", Math.min(steps, 3) / 3, 4],
+    ["Outreach draft", r.kit?.outreach ? 1 : 0, 3],
+    ["Fresh signals on the radar", Math.min(signals, 3) / 3, 4],
+  ];
+};
 
-/** Readiness rises only from work actually saved. 100% means seconds from hitting publish; KROWE's share is capped by the idea's scope. */
-export function readinessSteps(r: Pick<IdeaResult, "context" | "check" | "kit" | "radar">): ReadinessStep[] {
+/** 100% means seconds from hitting publish. The idea's scope sets the most KROWE could ever add; the quality of saved work decides how much of that he actually earned. */
+export function readinessSteps(r: Input): ReadinessStep[] {
   const ceiling = SCOPE_CEILING[scopeOf(r)];
   const steps = KROWE_STEPS(r);
   const raw = steps.reduce((n, [, , p]) => n + p, 0);
   const budget = ceiling - 2;
   let used = 0;
-  const krowe = steps.map(([label, done, p], i) => {
+  const krowe = steps.map(([label, q, p], i) => {
     const points = i === steps.length - 1 ? budget - used : Math.max(1, Math.round((p / raw) * budget));
     used += points;
-    return { label, done, points };
+    return { label, done: q > 0, points, earned: Math.round(points * q) };
   });
   const rest = 100 - ceiling;
   const make = Math.round(rest * 0.5), audience = Math.round(rest * 0.25);
   return [
-    { label: "Captured", done: true, points: 2 },
+    { label: "Captured", done: true, points: 2, earned: 2 },
     ...krowe,
-    { label: "Make the real thing (manuscript, build or product)", done: false, points: make, yours: true },
-    { label: "Find your first audience or customers", done: false, points: audience, yours: true },
-    { label: "Listing ready to submit", done: false, points: rest - make - audience, yours: true },
+    { label: "Make the real thing (manuscript, build or product)", done: false, points: make, earned: 0, yours: true },
+    { label: "Find your first audience or customers", done: false, points: audience, earned: 0, yours: true },
+    { label: "Listing ready to submit", done: false, points: rest - make - audience, earned: 0, yours: true },
   ];
 }
 
 export const readiness = (r: Parameters<typeof readinessSteps>[0]) =>
-  readinessSteps(r).reduce((n, s) => n + (s.done ? s.points : 0), 0);
+  readinessSteps(r).reduce((n, s) => n + s.earned, 0);

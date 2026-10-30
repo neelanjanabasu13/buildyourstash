@@ -74,7 +74,8 @@ function Home() {
   useEffect(() => {
     if (sweep.phase === "error" && sweep.message) toast.error(sweep.message, { duration: 8000 });
   }, [sweep.phase, sweep.message]);
-  const runDemo = (example: WorkshopExample) => { setDemo(true); setCachedDemo(false); void sweep.run(example.title, true); };
+  const [autoType, setAutoType] = useState<{ text: string; n: number } | null>(null);
+  const runDemo = (example: WorkshopExample) => { setDemo(true); setCachedDemo(false); setAdding(true); setAutoType({ text: example.title, n: Date.now() }); window.setTimeout(() => document.getElementById("capture")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); };
   useEffect(() => {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
@@ -89,7 +90,7 @@ function Home() {
         <h1 className="text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1>
         <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the keeper of STASH. Drop a half-finished idea and I research it live, find what others built, and move it as far as an idea of its size honestly can. {count ? "Here's what I've been working on for you." : ""}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <Button variant="amberOnPaper" size="lg" disabled={busy || !firstExample} onClick={() => { if (firstExample) { setIntroducing(false); runDemo(firstExample); window.setTimeout(() => document.getElementById("capture")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150); } }}><Play />{busy ? "KROWE is working, scroll down" : "See live demo"}</Button>
+          <Button variant="amberOnPaper" size="lg" disabled={busy || !firstExample} onClick={() => { if (firstExample) { setIntroducing(false); runDemo(firstExample); } }}><Play />{busy ? "KROWE is working, scroll down" : "See live demo"}</Button>
           <a href="#capture" className="text-sm underline underline-offset-4">or drop your own idea</a>
         </div>
         <p className="text-xs text-muted-foreground">The demo runs a real idea through NVIDIA Nemotron on Nebius and Tavily live search, start to finish.</p>
@@ -103,7 +104,7 @@ function Home() {
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the workshop" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
     {keys.error && <p role="alert" className="text-sm text-destructive">I couldn't check KROWE's keys. You can try stashing your idea again.</p>}
-    <div hidden={!inputVisible}><PileInput disabled={busy} onSweep={(pile, example) => { setDemo(example); setHasStashed(!example); setCachedDemo(false); setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
+    <div hidden={!inputVisible}><PileInput disabled={busy} autoType={autoType} onSweep={(pile, example) => { setDemo(example); setHasStashed(!example); setCachedDemo(false); setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
     {sweep.message && <div role="alert" className="flex flex-wrap items-center gap-3 border-l-2 border-accent pl-4 text-sm"><p>{sweep.message}</p><Button variant="paperOutline" disabled={busy} onClick={sweep.retry}><RefreshCw />Retry</Button></div>}
     {!busy && ownedSweeps.filter((s) => s.status === "running" && s.id !== sweep.sweepId).map((s) => <div key={s.id} className="flex flex-wrap items-center gap-3 border-l-2 border-accent pl-4"><p className="text-sm">Your idea is saved. Pick up the unfinished work.</p><Button variant="paperOutline" onClick={() => void sweep.resume(s.id)}><RefreshCw />Resume work</Button></div>)}
     {museum.error && <p role="alert" className="text-sm text-destructive">{runError(museum.error)}</p>}
