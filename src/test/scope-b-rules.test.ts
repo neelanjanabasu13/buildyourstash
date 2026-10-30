@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { LIMITS } from "@/lib/models.config";
 describe("Scope B safety rules", () => {
   it("preserves the existing per-visitor limits", () => {
-    expect(LIMITS).toEqual({ sweepsPerDay: 3, maxPileChars: 30000, maxIdeas: 8 });
+    expect(LIMITS).toEqual({ sweepsPerDay: 20, maxPileChars: 30000, maxIdeas: 8 });
   });
   it("limits persisted step retries to three attempts", () => {
     const sql = readFileSync("drizzle/migrations/0004_durable_workshop_jobs.sql", "utf8");

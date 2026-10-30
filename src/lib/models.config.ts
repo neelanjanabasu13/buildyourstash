@@ -27,7 +27,7 @@ export const MODELS: Record<ModelRole, ModelConfig> = {
 export const TAVILY_URL = "https://api.tavily.com/search";
 
 export const LIMITS = {
-  sweepsPerDay: 3,
+  sweepsPerDay: 20,
   maxPileChars: 30000,
   maxIdeas: 8,
 };
