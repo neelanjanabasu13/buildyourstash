@@ -258,12 +258,16 @@ export const revivalKit = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }): Promise<RevivalKit> => {
-    const pile = await loadPile(context as Ctx, data.sweepId);
+    await loadPile(context as Ctx, data.sweepId);
+    const { data: savedParts, error: savedError } = await context.supabase.from("sweep_parts").select("part,value").eq("sweep_id", data.sweepId);
+    if (savedError) throw new Error("Couldn't read verified evidence.");
+    const verified = assembleParts(savedParts ?? []).ideas.find((i) => i.idea.id === data.idea.id);
+    if (!verified?.check) throw new Error("Check this exhibit before drafting its first work.");
     const raw = await chatJson<{ pitch?: string; steps?: string[]; headline?: string; subhead?: string }>(
       "write",
       `You are KROWE, an idea museum's curator. Do the first piece of work yourself, don't merely tell the user to write it. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For NOT YET or STILL DEAD offer a low-risk sketch or test, not a claim it is now viable. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
 Return {"pitch":"rewritten one-line pitch","steps":["one tiny thing to do today","second","third"],"headline":"finished landing page headline under 10 words","subhead":"finished landing page subhead"}.`,
-      `IDEA: ${data.idea.name} - ${data.idea.summary}\nVERDICT: ${data.verdict ?? "NOT YET"}\nWHAT HAD TO CHANGE: ${data.trigger}\nVERIFIED EVIDENCE:\n${data.evidence.map((e) => `- ${e.claim}`).join("\n")}`,
+      `IDEA: ${verified.idea.name} - ${verified.idea.summary}\nVERDICT: ${verified.check.verdict}\nWHAT HAD TO CHANGE: ${verified.why?.trigger ?? "Unknown"}\nVERIFIED EVIDENCE:\n${verified.check.evidence.map((e) => `- ${e.claim}`).join("\n")}`,
     );
     const steps = (raw.steps ?? []).map((s) => str(s, 300)).filter(Boolean).slice(0, 3);
     const output = { pitch: str(raw.pitch, 300), steps, headline: str(raw.headline, 140), subhead: str(raw.subhead, 300) };

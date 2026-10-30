@@ -4,15 +4,15 @@ import { Button } from "./ui/button";
 import { BrandImage } from "./BrandImage";
 import { IdeaCard, TallyBar } from "./Results";
 import { curatorPick, exhibitStatus, showPattern, type Exhibit, type MuseumSweep } from "@/lib/museum";
-import type { IdeaResult, SweepResult } from "@/lib/types";
+import type { IdeaResult, SweepResult, Thread } from "@/lib/types";
 
-export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweeps: MuseumSweep[]; current: SweepResult; currentId: string | null; onFeedback: (id: string, f: "yes" | "no", note?: string) => void; busy: boolean }) {
+export function Museum({ sweeps, current, currentId, onFeedback, busy, extraPattern }: { sweeps: MuseumSweep[]; current: SweepResult; currentId: string | null; onFeedback: (id: string, f: "yes" | "no", note?: string) => void; busy: boolean; extraPattern?: Thread | null }) {
   const [selected, setSelected] = useState<string | null>(null);
   const visible = currentId ? [{ id: currentId, result: current }, ...sweeps.filter((s) => s.id !== currentId)] : sweeps;
   const exhibits: Exhibit[] = visible.flatMap((s) => s.result.ideas.map((r) => ({ key: `${s.id}:${r.idea.id}`, sweepId: s.id, result: r })));
   const pick = curatorPick(exhibits);
   const chosen = exhibits.find((e) => e.key === selected);
-  const pattern = visible.map((s) => s.result.thread).find((t) => t && showPattern(exhibits.length, t.receipts.length));
+  const pattern = visible.map((s) => s.result.thread).find((t) => t && showPattern(exhibits.length, t.receipts.length)) ?? (extraPattern && showPattern(exhibits.length, extraPattern.receipts.length) ? extraPattern : null);
   const tally: SweepResult = { thread: null, ideas: [], pileTally: { checked: 0, dropped: 0 }, webTally: { checked: 0, dropped: 0 } };
   for (const s of visible) { tally.pileTally.checked += s.result.pileTally.checked; tally.pileTally.dropped += s.result.pileTally.dropped; tally.webTally.checked += s.result.webTally.checked; tally.webTally.dropped += s.result.webTally.dropped; }
   if (!exhibits.length) return null;

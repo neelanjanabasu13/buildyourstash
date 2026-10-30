@@ -10,7 +10,7 @@ import { Museum } from "@/components/Museum";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
 import { useSweep } from "@/hooks/use-sweep";
-import { getKeysStatus, listMuseum } from "@/lib/stash.functions";
+import { getKeysStatus, listMuseum, museumPattern } from "@/lib/stash.functions";
 import { useFirstResult } from "@/components/FirstResultContext";
 import { hasFirstResult } from "@/lib/first-result";
 
@@ -39,7 +39,9 @@ function Home() {
   const busy = ["starting", "reading", "checking"].includes(sweep.phase);
   const { unlock } = useFirstResult();
   const [adding, setAdding] = useState(false);
-  const count = (museum.data ?? []).reduce((n, s) => n + s.result.ideas.length, 0) + sweep.result.ideas.length;
+  const count = (museum.data ?? []).filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + sweep.result.ideas.length;
+  const findPattern = useServerFn(museumPattern);
+  const pattern = useQuery({ queryKey: ["museum-pattern", museum.dataUpdatedAt], enabled: count >= 3 && !busy, queryFn: () => findPattern(), staleTime: Infinity, retry: false });
   useEffect(() => {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
@@ -55,7 +57,7 @@ function Home() {
     {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
     {museum.error && <p className="text-sm text-destructive">{museum.error.message}</p>}
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
-    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />
+    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} extraPattern={pattern.data} />
     {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
       { title: "Stash it", text: "One idea is enough. I'll keep it here." },
       { title: "KROWE mulls it", text: "I'll check what's changed and make a first draft." },
