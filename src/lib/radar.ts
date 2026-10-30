@@ -17,7 +17,8 @@ export function radarPlan(raw: unknown): { query: string; timeRange: "month" | "
   const entries = raw && typeof raw === "object" && "queries" in raw && Array.isArray(raw.queries) ? raw.queries : [];
   const plan = entries.map((entry: unknown) => {
     if (!entry || typeof entry !== "object" || !("query" in entry) || !("time_range" in entry)) return null;
-    const query = typeof entry.query === "string" ? entry.query.trim().slice(0, 380) : "";
+    // Recency belongs to Tavily's filter, not a guessed calendar year from the model.
+    const query = typeof entry.query === "string" ? entry.query.replace(/\b(?:19|20)\d{2}\b/g, "").replace(/\s+/g, " ").trim().slice(0, 380) : "";
     const timeRange = entry.time_range === "month" ? "month" : entry.time_range === "year" ? "year" : null;
     return query && timeRange ? { query, timeRange } : null;
   }).filter((entry): entry is { query: string; timeRange: "month" | "year" } => Boolean(entry));

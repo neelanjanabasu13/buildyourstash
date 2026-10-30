@@ -10,6 +10,9 @@ describe("KROWE radar rules", () => {
   it("rejects missing, duplicate or over-cap model query plans", () => {
     for (const queries of [[], [{ query: "a", time_range: "month" }], Array(3).fill({ query: "a", time_range: "year" }), Array(4).fill({ query: "a", time_range: "year" })]) expect(() => radarPlan({ queries })).toThrow();
   });
+  it("uses recency filters instead of model-guessed calendar years", () => {
+    expect(radarPlan({ queries: [{ query: "seed sharing London 2024", time_range: "month" }, { query: "planting communities", time_range: "year" }, { query: "garden funding", time_range: "month" }] })[0]).toEqual({ query: "seed sharing London", timeRange: "month" });
+  });
   it("accepts non-event opportunities without imposing a deadline", () => {
     const result = verifyRadar({ signals: [{ ...signal, type: "Opportunity", opportunity_kind: "other" }] }, [source], idea, [idea], [], now);
     expect(result.signals).toHaveLength(1); expect(result.signals[0]?.deadline).toBeNull();
