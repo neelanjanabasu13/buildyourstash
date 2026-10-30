@@ -32,6 +32,38 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_query_attempts: {
+        Row: {
+          attempts: number
+          kind: string
+          lease_until: string | null
+          round_id: string
+          sweep_id: string
+        }
+        Insert: {
+          attempts?: number
+          kind: string
+          lease_until?: string | null
+          round_id: string
+          sweep_id: string
+        }
+        Update: {
+          attempts?: number
+          kind?: string
+          lease_until?: string | null
+          round_id?: string
+          sweep_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_query_attempts_sweep_id_fkey"
+            columns: ["sweep_id"]
+            isOneToOne: false
+            referencedRelation: "sweeps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sweep_parts: {
         Row: {
           created_at: string
@@ -122,6 +154,7 @@ export type Database = {
           slug: string
           source_idea_id: string
           source_sweep_id: string
+          timings: Json
           title: string
         }
         Insert: {
@@ -130,6 +163,7 @@ export type Database = {
           slug: string
           source_idea_id: string
           source_sweep_id: string
+          timings?: Json
           title: string
         }
         Update: {
@@ -138,6 +172,7 @@ export type Database = {
           slug?: string
           source_idea_id?: string
           source_sweep_id?: string
+          timings?: Json
           title?: string
         }
         Relationships: []

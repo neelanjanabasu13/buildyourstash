@@ -36,6 +36,13 @@
       "when": 1793322151100,
       "tag": "0004_durable_workshop_jobs",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793322432169,
+      "tag": "0005_recorded_example_timings",
+      "breakpoints": true
     }
   ]
 }
