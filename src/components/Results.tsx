@@ -3,6 +3,7 @@ import { ExternalLink, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KroweClip } from "@/components/KroweClip";
 import { BrandImage } from "@/components/BrandImage";
+import { ARCHETYPES, readiness, readinessSteps } from "@/lib/archetypes";
 import type { IdeaResult, Receipt, SweepResult, VerdictLabel } from "@/lib/types";
 
 export function TallyBar({ result }: { result: SweepResult }) {
@@ -104,6 +105,7 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
         )}
       </div>
       <p className="mt-3">{idea.summary}</p>
+      <Readiness r={r} />
       {kit && <section className="mt-5"><p className="eyebrow text-amber-ink">I sharpened your pitch</p><p className="mt-2 font-display text-xl italic">{kit.pitch}</p></section>}
       {check && <div className="mt-4 space-y-2 text-sm text-muted-foreground"><p>Confidence: {check.confidence ?? r.radar?.signals[0]?.confidence ?? "low"}</p><p>What would change the verdict: {check.wouldChange ?? r.radar?.signals[0]?.wouldChange ?? "More current, directly relevant source evidence."}</p></div>}
 
@@ -196,5 +198,23 @@ export function ResultsView({
         <IdeaCard key={r.idea.id} r={r} onFeedback={onFeedback ? (f, n) => onFeedback(r.idea.id, f, n) : undefined} />
       ))}
     </div>
+  );
+}
+
+export function Readiness({ r }: { r: IdeaResult }) {
+  const pct = readiness(r);
+  const shape = r.kit?.archetype ? ARCHETYPES[r.kit.archetype] : null;
+  return (
+    <section className="mt-5 rounded-md border border-paper-line p-4" aria-label="Readiness">
+      <div className="flex items-baseline justify-between gap-3"><p className="eyebrow text-amber-ink">Readiness to ship</p><span className="font-mono text-3xl font-bold text-primary">{pct}%</span></div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-primary transition-all duration-700" style={{ width: `${pct}%` }} /></div>
+      <ul className="mt-3 grid gap-1 text-xs sm:grid-cols-2">{readinessSteps(r).map((s) => <li key={s.label} className={s.done ? "text-foreground" : "text-muted-foreground"}>{s.done ? "✓" : "○"} {s.label} <span className="font-mono">+{s.points}</span></li>)}</ul>
+      {shape && <div className="mt-4 border-t border-paper-line pt-3">
+        <p className="text-sm">KROWE sees this as: <b>{shape.label}</b>{shape.id === "other" ? ", so no ready-made playbook. Here is a live guide from the web instead." : "."}</p>
+        {shape.id === "other" && (r.kit?.liveTemplate?.length ?? 0) > 0 && <ul className="mt-2 space-y-1 text-sm">{r.kit!.liveTemplate!.map((t) => <li key={t.url}><a href={t.url} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4">{t.title || t.url}</a></li>)}</ul>}
+        <p className="eyebrow mt-3 text-amber-ink">Carry on here</p>
+        <div className="mt-2 flex flex-wrap gap-2">{shape.portals.map((p) => <Button key={p.url} asChild variant="paperOutline" size="sm"><a href={p.url} target="_blank" rel="noreferrer">{p.label} <ExternalLink /></a></Button>)}</div>
+      </div>}
+    </section>
   );
 }
