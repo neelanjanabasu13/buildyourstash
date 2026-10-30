@@ -1,3 +1,13 @@
+# Scope B
+- [x] Real exact Toastmasters verification first, 66 seconds with sources, verdict, pitch and first step.
+- [ ] Durable short-step jobs, owner-only progress, resume and visible Retry.
+- [ ] Exact substring receipts and aggregate spend protection, retain guest caps.
+- [ ] Primary browser voice and retained imports.
+- [ ] Honest cached replay and final-spec real example set.
+- [ ] Landing page, drafts inbox and verdict history.
+- [ ] Radar comparison, manual re-check and assess daily scheduling.
+- [ ] Real post-change Toastmasters, retry/resume, mobile, tests and app checks.
+
 # Saved cards and examples
 - [x] Preserve guest cards on return, refresh after guest auth changes and show saved-idea loading; whole cards open workbenches. Same-session reload restored the real card. Cleared site data or a different origin cannot recover an anonymous identity.
 - [x] Generated all three examples with real Nebius/Tavily calls, retrying one malformed model result; read-only public snapshots hold 2, 2 and 1 verified sources respectively, separate from guest rows.
