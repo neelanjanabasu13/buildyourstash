@@ -62,7 +62,7 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
     const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { rootMargin: "160px" });
     observer.observe(element);
     return () => observer.disconnect();
-  }, [eager, reduced, asPicture]);
+  }, [eager, reduced, asPicture, visible]);
 
   // Browsers only let a clip start by itself while muted, and some drop the attribute.
   useEffect(() => {
@@ -76,7 +76,7 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
 
   const frame = `krowe-clip krowe-clip-${slot} overflow-hidden rounded-md ${className}`;
 
-  if (reduced || asPicture) {
+  if (reduced || asPicture || !visible) {
     return (
       <div ref={container} className={frame}>
         <img src={c.poster} alt={c.alt} loading={eager ? "eager" : "lazy"} className="h-full w-full object-contain" />
