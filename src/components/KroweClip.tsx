@@ -59,10 +59,10 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
   useEffect(() => {
     const element = container.current;
     if (eager || !element) return;
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "160px" });
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { rootMargin: "160px" });
     observer.observe(element);
     return () => observer.disconnect();
-  }, [eager]);
+  }, [eager, reduced, asPicture]);
 
   // Browsers only let a clip start by itself while muted, and some drop the attribute.
   useEffect(() => {
@@ -70,6 +70,7 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
     if (!v || asPicture || reduced) return;
     if (!visible) { v.pause(); return; }
     v.muted = true;
+    v.load();
     v.play().catch(() => setAsPicture(true));
   }, [asPicture, reduced, slot, visible]);
 
@@ -98,7 +99,7 @@ export function KroweClip({ slot, className = "", loop, onEnded, eager = false }
         onError={() => setAsPicture(true)}
         className="h-full w-full object-contain"
       >
-        {visible && <><source src={c.mp4} type="video/mp4" /><source src={c.webm} type="video/webm" /></>}
+        {visible && <><source src={c.webm} type="video/webm" /><source src={c.mp4} type="video/mp4" /></>}
       </video>
     </div>
   );
