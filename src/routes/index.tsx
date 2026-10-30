@@ -17,6 +17,7 @@ import { runError } from "@/lib/run-safety";
 import { supabase } from "@/integrations/supabase/client";
 import { listExamples } from "@/lib/examples.functions";
 import { ExampleIdeas, type WorkshopExample } from "@/components/ExampleIdeas";
+import { guestIdeas, demoAtCap } from "@/lib/museum";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,10 +63,10 @@ function Home() {
   const busy = ["starting", "reading", "checking"].includes(sweep.phase);
   const { unlock } = useFirstResult();
   const [adding, setAdding] = useState(false);
-  const ownedSweeps = (museum.data ?? []).filter((s) => !s.isExample);
+  const ownedSweeps = guestIdeas(museum.data ?? []);
   const count = ownedSweeps.filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + (demo ? 0 : sweep.result.ideas.length);
   useEffect(() => {
-    if (demo && sweep.phase === "error" && sweep.message?.includes("sweeps a day")) setCachedDemo(true);
+    if (demo && demoAtCap(sweep.phase, sweep.message)) setCachedDemo(true);
   }, [demo, sweep.phase, sweep.message]);
   const runDemo = (example: WorkshopExample) => { setDemo(true); setCachedDemo(false); void sweep.run(example.title, true); };
   useEffect(() => {
