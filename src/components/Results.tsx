@@ -200,6 +200,7 @@ export function Readiness({ r }: { r: IdeaResult }) {
       </div>
       {shape && <div className="mt-4 border-t border-paper-line pt-3">
         <p className="text-sm">KROWE sees this as: <b>{shape.label}</b>{shape.id === "other" ? ", so no ready-made playbook. Here is a live guide from the web instead." : "."}</p>
+        {(r.kit?.precedents?.length ?? 0) > 0 && <div className="mt-4"><p className="eyebrow text-amber-ink">What others built · Devpost and Product Hunt via Tavily</p><ul className="mt-2 space-y-2 text-sm">{r.kit!.precedents!.map((t) => <li key={t.url}><a href={t.url} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4">{t.title || t.url}</a><p className="text-xs text-muted-foreground">{t.snippet}</p></li>)}</ul><p className="mt-1 text-xs text-muted-foreground">Look at these before you build, then make yours the one that does something they don't.</p></div>}
         {shape.id === "other" && (r.kit?.liveTemplate?.length ?? 0) > 0 && <ul className="mt-2 space-y-1 text-sm">{r.kit!.liveTemplate!.map((t) => <li key={t.url}><a href={t.url} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4">{t.title || t.url}</a></li>)}</ul>}
         <p className="eyebrow mt-3 text-amber-ink">Carry on here</p>
         <div className="mt-2 flex flex-wrap gap-2">{shape.portals.map((p) => <Button key={p.url} asChild variant="paperOutline" size="sm"><a href={p.url} target="_blank" rel="noreferrer">{p.label} <ExternalLink /></a></Button>)}</div>
