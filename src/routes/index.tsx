@@ -18,6 +18,7 @@ import { hasFirstResult } from "@/lib/first-result";
 import { runError } from "@/lib/run-safety";
 import { supabase } from "@/integrations/supabase/client";
 import { listExamples } from "@/lib/examples.functions";
+import { toast } from "sonner";
 import { ExampleIdeas, type WorkshopExample } from "@/components/ExampleIdeas";
 import { guestIdeas, demoAtCap } from "@/lib/museum";
 
@@ -68,6 +69,9 @@ function Home() {
   useEffect(() => {
     if (demo && demoAtCap(sweep.phase, sweep.message)) setCachedDemo(true);
   }, [demo, sweep.phase, sweep.message]);
+  useEffect(() => {
+    if (sweep.phase === "error" && sweep.message) toast.error(sweep.message, { duration: 8000 });
+  }, [sweep.phase, sweep.message]);
   const runDemo = (example: WorkshopExample) => { setDemo(true); setCachedDemo(false); void sweep.run(example.title, true); };
   useEffect(() => {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
