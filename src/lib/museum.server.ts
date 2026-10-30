@@ -1,4 +1,4 @@
-import type { Checked, Idea, IdeaResult, SweepResult, Thread, WhyStopped, LiveCheck, RevivalKit } from "./types";
+import type { Checked, Idea, IdeaResult, SweepResult, Thread, WhyStopped, LiveCheck, RevivalKit, Radar } from "./types";
 
 /** Called only after the parent handler has checked the owned sweep. No browser writes. */
 export async function storePart(sweepId: string, part: string, value: unknown) {
@@ -19,9 +19,11 @@ export function assembleParts(parts: { part: string; value: unknown }[]): SweepR
     const why = values.get(`why:${idea.id}`) as Checked<WhyStopped> | undefined;
     const check = values.get(`check:${idea.id}`) as Checked<LiveCheck> | undefined;
     const kit = values.get(`kit:${idea.id}`) as RevivalKit | undefined;
+    const radar = values.get(`radar:${idea.id}`) as Radar | undefined;
+    if (radar) { add(radar.pileTally); result.webTally.checked += radar.webTally.checked; result.webTally.dropped += radar.webTally.dropped; }
     if (why) add(why.tally);
     if (check) { result.webTally.checked += check.tally.checked; result.webTally.dropped += check.tally.dropped; }
-    return { idea, ...(why ? { why: why.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}) };
+    return { idea, ...(why ? { why: why.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}), ...(radar ? { radar } : {}) };
   });
   return result;
 }
