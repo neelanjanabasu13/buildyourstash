@@ -76,15 +76,11 @@ function Home() {
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
   const inputVisible = !busy && (count === 0 || adding);
   return <>
-    {introducing && <section aria-label="Meet KROWE" className="flex flex-col items-center gap-4 py-8 text-center">
-      <img src="/brand/krowe-standing.png" alt="KROWE the crow" className="h-72 w-auto object-contain" />
-      <p className="font-display text-4xl text-primary">I am KROWE.</p>
-      <Button variant="ghost" onClick={() => setIntroducing(false)}>Skip</Button>
-    </section>}
+    {introducing && <div className="space-y-3 py-4"><FrameTour onDone={() => setIntroducing(false)} /><StackBadge compact /></div>}
     <div hidden={introducing} className={`space-y-7 pt-2 sm:pt-4 ${introducing ? "" : "workshop-unfold"}`}>
     <section className="flex items-center gap-4">
       <KroweClip key={inputVisible ? "capture" : "idle"} slot={busy ? "typing" : inputVisible ? "shard" : "sleep"} className="h-36 w-24 shrink-0" />
-      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea workshop</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the crow who gets on with it. {count ? "Here's what I've been working on for you." : "Stash a brainwave. I'll research what's around it and make your first drafts."}</p></div>
+      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea workshop</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the crow who gets on with it. {count ? "Here's what I've been working on for you." : "Stash a brainwave. I'll research what's around it and make your first drafts."}</p><div className="mt-3"><StackBadge compact /></div></div>
     </section>
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the workshop" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
