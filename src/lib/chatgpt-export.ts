@@ -62,17 +62,11 @@ export function parseConversations(json: string): Conversation[] {
 
 const day = (t: number | null) => (t ? new Date(t * 1000).toISOString().slice(0, 10) : "unknown");
 
-/** Higher score = looks more like exploring an idea and then stopping. */
-export function dropScore(c: Conversation, now = Date.now() / 1000): number {
+/** Select idea-rich conversations, regardless of age or activity. */
+export function ideaScore(c: Conversation): number {
   const user = c.messages.filter((m) => m.role === "user");
   const all = user.map((m) => m.text).join(" ") + " " + c.title;
-  const ideaHits = Math.min(6, (all.match(IDEA_WORDS) ?? []).length);
-  const staleDays = c.updated ? (now - c.updated) / 86400 : 0;
-  const span = c.created && c.updated ? c.updated - c.created : 0;
-  // Few messages in the last quarter of the conversation's life means it fizzled out.
-  const lateCut = (c.created ?? 0) + span * 0.75;
-  const late = span > 0 ? user.filter((m) => (m.time ?? 0) > lateCut).length : 0;
-  return ideaHits * 2 + Math.min(12, staleDays / 30) + (user.length >= 2 && user.length <= 25 ? 2 : 0) - late;
+  return Math.min(12, (all.match(IDEA_WORDS) ?? []).length) * 2;
 }
 
 function compact(c: Conversation): string {
@@ -87,7 +81,7 @@ function compact(c: Conversation): string {
 }
 
 export function conversationsToPile(convs: Conversation[], budget = 30000): { text: string; used: number } {
-  const ranked = [...convs].filter((c) => dropScore(c) > 0).sort((a, b) => dropScore(b) - dropScore(a));
+  const ranked = [...convs].filter((c) => ideaScore(c) > 0).sort((a, b) => ideaScore(b) - ideaScore(a));
   const blocks: string[] = [];
   let size = 0;
   for (const c of ranked) {
