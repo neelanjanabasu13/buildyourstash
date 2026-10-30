@@ -1,4 +1,5 @@
-import type { Checked, Idea, IdeaResult, SweepResult, Thread, WhyStopped, LiveCheck, RevivalKit, Radar } from "./types";
+import type { Checked, Idea, IdeaResult, SweepResult, Thread, IdeaContext, LiveCheck, RevivalKit, Radar } from "./types";
+import { neutralMuseum } from "./idea-framing";
 
 /** Called only after the parent handler has checked the owned sweep. No browser writes. */
 export async function storePart(sweepId: string, part: string, value: unknown) {
@@ -16,15 +17,15 @@ export function assembleParts(parts: { part: string; value: unknown }[]): SweepR
   const thread = values.get("thread") as Checked<Thread | null> | undefined;
   if (thread) { result.thread = thread.value; add(thread.tally); }
   result.ideas = ex.value.map((idea): IdeaResult => {
-    const why = values.get(`why:${idea.id}`) as Checked<WhyStopped> | undefined;
+    const context = values.get(`context:${idea.id}`) as Checked<IdeaContext> | undefined;
     const check = values.get(`check:${idea.id}`) as Checked<LiveCheck> | undefined;
     const savedKit = values.get(`kit:${idea.id}`) as RevivalKit | undefined;
     const kit = savedKit?.pitch ? savedKit : undefined;
     const radar = values.get(`radar:${idea.id}`) as Radar | undefined;
     if (radar) { add(radar.pileTally); result.webTally.checked += radar.webTally.checked; result.webTally.dropped += radar.webTally.dropped; }
-    if (why) add(why.tally);
+    if (context) add(context.tally);
     if (check) { result.webTally.checked += check.tally.checked; result.webTally.dropped += check.tally.dropped; }
-    return { idea, ...(why ? { why: why.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}), ...(radar ? { radar } : {}) };
+    return { idea, ...(context ? { context: context.value } : {}), ...(check ? { check: check.value } : {}), ...(kit ? { kit } : {}), ...(radar ? { radar } : {}) };
   });
-  return result;
+  return neutralMuseum(result);
 }
