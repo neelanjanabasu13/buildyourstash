@@ -33,22 +33,22 @@ function HowItChecks() {
         <div>
           <h1 className="text-4xl font-extrabold sm:text-5xl">How STASH checks itself</h1>
           <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-            STASH is your idea museum. KROWE keeps the exhibits, checks whether your reason for stopping still holds, and makes a first draft you can pick up.
+            STASH is your idea museum. Stash a brainwave and KROWE researches the world around it, then starts the first piece of work.
           </p>
         </div>
         <KroweClip slot="rise" className="hidden h-72 w-40 sm:block" />
       </div>
 
       <Block title="Stash it, mull it, pick it up">
-        <p>One half-formed idea is enough. Type a thought, paste a link or import files, a public GitHub repo or a ChatGPT export. KROWE checks your own words for why you stopped, then searches the live web for what changed. A pattern across ideas is only a bonus after three exhibits.</p>
-        <p>Each exhibit gets REVIVE NOW, NOT YET or STILL DEAD with receipts and sources. KROWE writes a pitch, three tiny steps and a finished landing-page headline and subhead. For an idea that isn't ready, the draft is a low-risk sketch, not a recommendation to launch. You can confirm the reason or correct it in one line.</p>
+        <p>One half-formed idea is enough. Type a thought, paste a link or import files, a public GitHub repo or a ChatGPT export. KROWE quotes your words to describe the idea and searches the live web for useful current context. A pattern across ideas is only a bonus after three exhibits.</p>
+        <p>Each exhibit gets BUILD NOW, WATCH or PARK with receipts and sources when evidence is available. KROWE makes a pitch, page copy, three tiny steps and an outreach draft, with a sourced competitor comparison and open events when found. Without evidence, WATCH means more research is needed; creative first drafts can still take shape. You can confirm or correct the idea in one line.</p>
         <p>Your exhibits stay with this browser's guest session, so keep its site data if you want to return to the same museum. No voice-note recording is included yet. Non-GitHub links are references only; their pages are not imported.</p>
         <p>STASH is a hackathon project. Quotes and links are machine-checked; verdicts are AI opinions.</p>
       </Block>
 
       <Block title="What is checked: your quotes are real">
         <p>
-          Every claim STASH makes about you, such as why you stopped or what theme keeps coming back, must carry a quote from your own pile. Before
+          STASH quotes your words to describe the idea itself, never to explain your personal history. Each idea description must carry a quote from your notes. Before
           showing it, our server takes the pile you sent, tidies both texts in the same way (ignoring capital letters, extra spaces and curly versus
           straight quote marks) and looks for the quote word for word. If it is not there, the claim is thrown away.
         </p>
@@ -59,19 +59,19 @@ function HowItChecks() {
         <p>
           Every piece of web evidence must point to a page that the live search actually returned during your sweep, and its quote must appear in
           the text of that search result. Evidence that fails either test is dropped. If nothing survives, the verdict says “nothing found”, and an
-          idea cannot be marked REVIVE NOW without proof.
+          idea cannot be marked BUILD NOW without source evidence.
         </p>
       </Block>
 
       <Block title="What is NOT checked: the verdicts">
-        <p>KROWE's radar runs three targeted basic searches per exhibit check for recent blocker changes, competitors and open events. Due exhibits are checked while your museum is open and when you return after a day; there is no closed-browser monitoring or notification service. Check again starts a fresh round. Search-result dates can be missing, which is shown rather than invented. Open event deadlines and any prize must appear in the quoted source passage; unknown eligibility is not a promise of fit.</p>
+        <p>KROWE's radar runs three targeted basic searches per exhibit check for relevant tools and launches, competitors and open events. NOW FEASIBLE, CROWDED / COMPETITOR, EVENT FIT and TIMING CHANGED describe context around the idea. Due exhibits are checked while your museum is open and when you return after a day; there is no closed-browser monitoring or notification service. Check again starts a fresh round. Source dates can be missing, which is shown rather than invented. Open event deadlines and any prize must appear in the quoted source passage; unknown eligibility is not a promise of fit.</p>
         <p>Signals include a source-backed recommendation, confidence and what would change it. Exact quotes prove that the source said something, not that the recommendation is correct. Copyable pitches, page copy, first steps and outreach notes are generated draft artifacts, not deployed pages or sent messages.</p>
         <p>
-          REVIVE NOW, NOT YET and STILL DEAD are opinions written by an AI model reading the evidence. They can be wrong, too hopeful, or miss news
-          the search didn't find. The same goes for the revival kit, which is a starting draft rather than advice. Read the sources and decide for
+          BUILD NOW, WATCH and PARK are opinions written by an AI model reading the evidence. They can be wrong, too hopeful, or miss news
+          the search didn't find. The same goes for first-work drafts, which are starting proposals rather than guarantees. Read the sources and decide for
           yourself.
         </p>
-        <p>A real quote can also be read the wrong way, which is why each “why you stopped” has a quick “Not really” button.</p>
+        <p>A real quote can also be read the wrong way, which is why each idea has a quick “Not really” button.</p>
       </Block>
 
       <Block title="Fair use limits">
