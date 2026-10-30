@@ -74,7 +74,7 @@ export function useSweep() {
         if (ex.value.length === 0) {
           setMessage("I couldn't find an idea in those words yet. A half-formed thought is enough, so try naming what you'd like to make.");
           setPhase("done");
-          await save({ data: { sweepId: id, result: resultRef.current, status: "done" } });
+          await withDeadline(save({ data: { sweepId: id, result: resultRef.current, status: "done" } }), "Saving your idea took too long. Please try again.");
           return;
         }
         setPhase("checking");
