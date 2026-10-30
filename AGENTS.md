@@ -21,4 +21,5 @@
 - Input, sweeping and results are views of the existing home route; keep PileInput mounted when hidden so the user's pile survives a sweep and can be reused without changing orchestration.
 - FirstResultProvider shares the completed-result navigation reveal between home and the header; persist only this UI preference in browser storage after hydration, never use it as an authorization check.
 - Museum exhibits reuse owner-scoped sweeps; server-only sweep_parts store verified stage outputs and saveSweep assembles from them rather than trusting client receipts, preserving provenance on reload.
-- Generate a first-work draft for every completed verdict; NOT YET and STILL DEAD drafts stay conditional and low-risk rather than claiming the blocker has expired.
+- Generate source-backed first-work drafts for completed verdicts with verified signals; without evidence withhold new action suggestions, and keep NOT YET and STILL DEAD drafts conditional and low-risk.
+- Radar uses owner-checked server functions and SQL-claimed bounded query rounds, persisted in sweep_parts; browser-visible museum checks due exhibits serially, never pretends closed-browser monitoring is active. Signal verification is separate from creative action drafts, which are never sent or published.

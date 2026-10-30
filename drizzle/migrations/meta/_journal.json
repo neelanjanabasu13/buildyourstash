@@ -15,6 +15,13 @@
       "when": 1793318212715,
       "tag": "0001_museum_verified_parts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793318801349,
+      "tag": "0002_bounded_radar_rounds",
+      "breakpoints": true
     }
   ]
 }

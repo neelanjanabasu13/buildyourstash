@@ -1,4 +1,7 @@
 # Museum direction
+- [x] Add bounded recent radar searches, verified signals, sourced decisions and real copyable action drafts. Three SQL-claimed basic queries per exhibit round; source snippets and saved reasons verified, missing dates labelled, undated reason-expired claims dropped.
+- [x] Add repeat checks and strongest news without removing existing exhibits or curator pick. Automatic due checks while visible and on return, plus Check again; no closed-browser scheduler or notifications.
+- [x] Verify live checks, persisted receipts, copying and phone layout; disclose monitoring limitations. Real guest idea and repeat check passed with live search and generated action drafts, copied pitch read back from clipboard, exhibit persisted after reload, no phone overflow or browser errors, 26 tests passed and build OK. No open events or competitor comparison were forced when search lacked verifiable evidence. Continuous closed-browser monitoring is not implemented; all displayed results are live, drafts are never sent or published.
 - [x] Persist guest idea exhibits, including one half-formed idea, preserving imports and existing caps.
 - [x] Curate each exhibit with real search, verified receipts, generated first work and one nudge. Saved stage outputs are server-authoritative; drafts use saved verified evidence.
 - [x] Build the calm museum grid, curator pick and optional pattern after three ideas. A real pattern appeared in the initial bulk run; no pattern was forced in the final run.

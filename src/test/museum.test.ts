@@ -18,4 +18,8 @@ describe("museum rules", () => {
     const result = assembleParts([{ part: "extract", value: { value: [one.idea], tally: { checked: 1, dropped: 0 } } }]);
     expect(result.ideas[0]?.idea.name).toBe("My idea"); expect(result.pileTally.checked).toBe(1); expect(result.thread).toBeNull();
   });
+  it("persists radar tally and ignores an unfinished replacement draft", () => {
+    const result = assembleParts([{ part: "extract", value: { value: [one.idea], tally: { checked: 1, dropped: 0 } } }, { part: "radar:one", value: { signals: [], queries: ["query"], checkedAt: "2026-10-30", pileTally: { checked: 2, dropped: 1 }, webTally: { checked: 4, dropped: 2 } } }, { part: "kit:one", value: { pending: true } }]);
+    expect(result.ideas[0]?.kit).toBeUndefined(); expect(result.ideas[0]?.radar?.queries).toEqual(["query"]); expect(result.pileTally).toEqual({ checked: 3, dropped: 1 }); expect(result.webTally).toEqual({ checked: 4, dropped: 2 });
+  });
 });
