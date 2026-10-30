@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound, Plus, RefreshCw } from "lucide-react";
+import { KeyRound, Play, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
 import { FrameTour } from "@/components/FrameTour";
 import { StackBadge } from "@/components/StackBadge";
@@ -114,6 +114,6 @@ function Home() {
     <Shelf onWork={(text) => { setDemo(false); setHasStashed(true); setAdding(false); void sweep.run(text, false); }} busy={busy} />
     {!busy && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
-    {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How KROWE works</h2><FrameTour autoStart={false} /><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+    {!busy && <section aria-labelledby="museum-how" className="space-y-4 border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">What powers KROWE</h2><StackBadge /><p className="text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;
 }
