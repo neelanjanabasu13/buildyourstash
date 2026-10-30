@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { beginRadar, searchRadar, finishRadar, draftRadarActions } from "@/lib/radar.functions";
 import { RADAR_KINDS, radarDue } from "@/lib/radar";
 import type { Exhibit } from "@/lib/museum";
+import { withDeadline, runError } from "@/lib/run-safety";
 
 export function useRadar(exhibits: Exhibit[], paused: boolean) {
   const begin = useServerFn(beginRadar), search = useServerFn(searchRadar), finish = useServerFn(finishRadar), draft = useServerFn(draftRadarActions);
@@ -13,20 +14,21 @@ export function useRadar(exhibits: Exhibit[], paused: boolean) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [tick, setTick] = useState(0);
   const run = useCallback(async (exhibit: Exhibit, force = false) => {
-    if (active.current) return;
+    if (active.current) { if (force) setErrors((old) => ({ ...old, [exhibit.key]: "I'm already checking an idea. Please wait for it to finish." })); return; }
     active.current = true; attempted.current.add(exhibit.key); setChecking(exhibit.key);
     setErrors((e) => ({ ...e, [exhibit.key]: "" }));
     const data = { sweepId: exhibit.sweepId, ideaId: exhibit.result.idea.id };
     try {
-      const roundId = await begin({ data: { ...data, force } });
+      const roundId = await withDeadline(begin({ data: { ...data, force } }), "Planning this check took too long. Please check again.");
       if (roundId) {
-        await Promise.all(RADAR_KINDS.map((kind) => search({ data: { ...data, roundId, kind } })));
-        await finish({ data: { ...data, roundId } });
+        await withDeadline(Promise.all(RADAR_KINDS.map((kind) => search({ data: { ...data, roundId, kind } }))), "Web searches took too long. Please check again.");
+        await withDeadline(finish({ data: { ...data, roundId } }), "Weighing the evidence took too long. Please check again.");
         await cache.invalidateQueries({ queryKey: ["museum"] });
-        await draft({ data });
+        const kit = await withDeadline(draft({ data }), "Making your drafts took too long. Please check again.");
+        if (!kit) throw new Error("I couldn't finish your drafts. Please check again.");
         await cache.invalidateQueries({ queryKey: ["museum"] });
-      }
-    } catch (e) { setErrors((old) => ({ ...old, [exhibit.key]: e instanceof Error ? e.message : "I couldn't finish this radar check." })); }
+      } else if (force) throw new Error("This idea is already being checked. Please wait and try again.");
+    } catch (e) { setErrors((old) => ({ ...old, [exhibit.key]: runError(e) })); }
     finally { active.current = false; setChecking(null); setTick((n) => n + 1); }
   }, [begin, search, finish, draft, cache]);
   useEffect(() => {

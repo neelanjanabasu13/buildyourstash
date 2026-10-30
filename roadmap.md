@@ -1,3 +1,6 @@
+# Toastmasters capture bug
+- [x] Reproduced early interaction before hydration with a disabled button and typed text not captured by React; fully hydrated exact-input runs succeeded. Keep capture hidden during the existing intro until hydration, refresh guest checks rather than caching old successful sessions, show key-check and run errors, bound stalled stages and provider fetches, and expose verdict progress. Real exact-input run completed in 35 seconds through all requested stages, workbench pitch/sources/BUILD NOW/Do this today persisted on reload, injected network failure showed a visible message and retained text, 51 tests passed. Hosted log tools returned no entries; hosted invocation was 401, so hosted execution remains unverified. No simulated results, failure injection only.
+
 # Animation and header
 - [x] Verified clips 6 introduction, 2 capture, 3 stashed, 4 research, 7 generated work ready and 5 empty/idle; clip 1 left unused as unrelated. Actual playback advanced through a real idea run; Skip, reduced-motion posters, mobile fit, logo-only header and 42 regression tests passed, build OK. Product logic unchanged.
 

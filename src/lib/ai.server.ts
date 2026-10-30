@@ -43,6 +43,7 @@ export async function chat(role: ModelRole, system: string, user: string, json: 
   };
   if (json) body["response_format"] = { type: "json_object" };
   const res = await fetch(baseUrlFor(role) + "chat/completions", {
+    signal: AbortSignal.timeout(75000),
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -58,6 +59,7 @@ export async function chat(role: ModelRole, system: string, user: string, json: 
   // with empty content; one retry usually fixes it.
   if (!content) {
     const retry = await fetch(baseUrlFor(role) + "chat/completions", {
+      signal: AbortSignal.timeout(75000),
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -95,6 +97,7 @@ export async function tavilySearch(query: string, opts: { topic?: "news" | "gene
   if (opts.startDate) body["start_date"] = opts.startDate;
   if (opts.timeRange) body["time_range"] = opts.timeRange;
   const res = await fetch(TAVILY_URL, {
+    signal: AbortSignal.timeout(25000),
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
