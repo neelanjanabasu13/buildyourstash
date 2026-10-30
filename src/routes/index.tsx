@@ -14,6 +14,9 @@ import { getKeysStatus, listMuseum } from "@/lib/stash.functions";
 import { useFirstResult } from "@/components/FirstResultContext";
 import { hasFirstResult } from "@/lib/first-result";
 import { runError } from "@/lib/run-safety";
+import { supabase } from "@/integrations/supabase/client";
+import { listExamples } from "@/lib/examples.functions";
+import { ExampleIdeas, type WorkshopExample } from "@/components/ExampleIdeas";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,12 +48,26 @@ function Home() {
   const sweep = useSweep();
   const loadMuseum = useServerFn(listMuseum);
   const museum = useQuery({ queryKey: ["museum"], queryFn: async () => { await ensureGuestSession(); return loadMuseum(); } });
+  const loadExamples = useServerFn(listExamples);
+  const examples = useQuery({ queryKey: ["workshop-examples"], queryFn: () => loadExamples() });
+  const [demo, setDemo] = useState(false);
+  const [cachedDemo, setCachedDemo] = useState(false);
+  const [hasStashed, setHasStashed] = useState(false);
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange(() => { void museum.refetch(); });
+    return () => data.subscription.unsubscribe();
+  }, []);
   const keys = useQuery({ queryKey: ["keys-status"], queryFn: () => getKeysStatus() });
   const keysMissing = keys.data && (!keys.data.nebius || !keys.data.tavily);
   const busy = ["starting", "reading", "checking"].includes(sweep.phase);
   const { unlock } = useFirstResult();
   const [adding, setAdding] = useState(false);
-  const count = (museum.data ?? []).filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + sweep.result.ideas.length;
+  const ownedSweeps = (museum.data ?? []).filter((s) => !s.isExample);
+  const count = ownedSweeps.filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + (demo ? 0 : sweep.result.ideas.length);
+  useEffect(() => {
+    if (demo && sweep.phase === "error" && sweep.message?.includes("sweeps a day")) setCachedDemo(true);
+  }, [demo, sweep.phase, sweep.message]);
+  const runDemo = (example: WorkshopExample) => { setDemo(true); setCachedDemo(false); void sweep.run(example.title, true); };
   useEffect(() => {
     if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
@@ -69,11 +86,14 @@ function Home() {
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the exhibits" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
     {keys.error && <p role="alert" className="text-sm text-destructive">I couldn't check KROWE's keys. You can try stashing your idea again.</p>}
-    <div hidden={!inputVisible}><PileInput disabled={busy} onSweep={(pile, example) => { setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
+    <div hidden={!inputVisible}><PileInput disabled={busy} onSweep={(pile, example) => { setDemo(example); setHasStashed(!example); setCachedDemo(false); setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
     {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
     {museum.error && <p role="alert" className="text-sm text-destructive">{runError(museum.error)}</p>}
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
-    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />
+    {museum.isPending && <p role="status" className="text-sm text-muted-foreground">I'm opening your saved ideas.</p>}
+    {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
+    {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
+    {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
     {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
       { title: "Stash it", text: "One idea is enough. I'll keep it here." },
       { title: "KROWE gets on it", text: "I'll research the context and make your first drafts." },

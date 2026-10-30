@@ -40,11 +40,11 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
     </div> : <>
       {news && <section aria-label="KROWE has news" className="space-y-3 border-y border-teal/40 py-5"><p className="eyebrow text-teal">KROWE has news {newsIsNew && <span className="ml-2 rounded-sm bg-teal px-2 py-1 text-paper">New</span>}</p><SignalCard signal={news.signal} /><Button variant="link" className="px-0" onClick={() => open(news.key)}>Open this workbench <ArrowUpRight /></Button></section>}
       <div className="grid gap-4 sm:grid-cols-2">
-        {exhibits.map((e) => <article key={e.key} className="flex min-h-64 flex-col rounded-md border border-foreground/25 bg-card p-5">
+        {exhibits.map((e) => <article key={e.key} tabIndex={0} aria-label={`Open ${e.result.idea.name} workbench`} onClick={(event) => { if ((event.target as HTMLElement).closest('button,a')) return; open(e.key); }} onKeyDown={(event) => { if (event.target === event.currentTarget && ["Enter", " "].includes(event.key)) { event.preventDefault(); open(e.key); } }} className="flex min-h-64 cursor-pointer flex-col rounded-md border border-foreground/25 bg-card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted-foreground">{activityDay(activityDate(e.result, sweeps.find((s) => s.id === e.sweepId)?.createdAt ?? new Date().toISOString()))}</span><span className="rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{radar.checking === e.key ? "KROWE is mulling" : exhibitStatus(e.result)}</span></div>
           <h3 className="text-xl font-semibold">{e.result.idea.name}</h3>
           {e.result.kit && <KroweClip slot={e.sweepId === currentId ? "shipped" : radar.checking === e.key ? "typing" : "sleep"} className="mt-3 h-36 w-24 self-end" />}
-          <p className="mt-3 text-sm text-muted-foreground">{workActivity(e.result)}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{e.result.check?.summary ?? workActivity(e.result)}</p>
           {e.result.error && <p role="status" className="mt-3 text-sm text-destructive">I hit a snag: {e.result.error}</p>}
           {e.result.kit && <p className="mt-4 font-display text-lg italic">{e.result.kit.pitch}</p>}
           {e.result.kit && <p className="mt-3 text-xs text-muted-foreground">Pitch · Landing copy · First steps · Research</p>}

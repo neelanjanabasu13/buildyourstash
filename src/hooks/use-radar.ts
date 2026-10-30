@@ -33,8 +33,8 @@ export function useRadar(exhibits: Exhibit[], paused: boolean) {
   }, [begin, search, finish, draft, cache]);
   useEffect(() => {
     if (paused || active.current || document.visibilityState !== "visible") return;
-    const next = exhibits.find((e) => e.result.check && radarDue(e.result.radar?.checkedAt) && !attempted.current.has(e.key));
-    if (next) void run(next);
+    const next = exhibits.find((e) => e.result.check && !attempted.current.has(e.key));
+    if (next) void run(next, true);
   }, [exhibits, paused, run, tick]);
   useEffect(() => {
     const timer = window.setInterval(() => { if (document.visibilityState === "visible") { attempted.current.clear(); setTick((n) => n + 1); } }, 60 * 60 * 1000);

@@ -1,6 +1,6 @@
 import type { IdeaResult, SweepResult } from "./types";
 
-export interface MuseumSweep { id: string; createdAt: string; status: string; result: SweepResult }
+export interface MuseumSweep { id: string; createdAt: string; status: string; result: SweepResult; isExample?: boolean }
 export interface Exhibit { key: string; sweepId: string; result: IdeaResult }
 export function exhibitStatus(r: IdeaResult) {
   if (r.kit) return "Ready for you";
