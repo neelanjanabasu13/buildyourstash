@@ -2,6 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { KeyRound, Plus, RefreshCw } from "lucide-react";
 import { KroweClip } from "@/components/KroweClip";
+import shardPic from "@/assets/krowe2-poster.jpg.asset.json";
+import bulbPic from "@/assets/krowe3-poster.jpg.asset.json";
+import typingPic from "@/assets/krowe4-poster.jpg.asset.json";
+import shippedPic from "@/assets/krowe7-poster.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -75,8 +79,8 @@ function Home() {
   const inputVisible = !busy && (count === 0 || adding);
   return <>
     {introducing && <section aria-label="Meet KROWE" className="flex flex-col items-center gap-4 py-8 text-center">
-      <KroweClip slot="rise" eager loop={false} onEnded={() => setIntroducing(false)} className="h-72 w-48" />
-      <p className="max-w-md font-display text-2xl text-primary">Caw. I'm KROWE. You have the ideas, I do the work.</p>
+      <img src="/brand/krowe-standing.png" alt="KROWE the crow" className="h-72 w-auto object-contain" />
+      <p className="font-display text-4xl text-primary">I am KROWE.</p>
       <Button variant="ghost" onClick={() => setIntroducing(false)}>Skip</Button>
     </section>}
     <div hidden={introducing} className={`space-y-7 pt-2 sm:pt-4 ${introducing ? "" : "workshop-unfold"}`}>
@@ -96,10 +100,11 @@ function Home() {
     {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
     {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
-    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
-      { title: "Stash it", text: "One idea is enough. I'll keep it here." },
-      { title: "KROWE gets on it", text: "I'll research the context and make your first drafts." },
-      { title: "You pick it up", text: "A pitch, page copy and first steps, already in motion." },
-    ].map((step) => <li key={step.title}><h3 className="text-lg font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">What KROWE does</h2><ol className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">{[
+      { pic: shardPic.url, title: "1. I find your old ideas", text: "Notes, repos, chats. I dig out the ones you never got to." },
+      { pic: bulbPic.url, title: "2. I reignite them", text: "I check what's changed on the web, with sources." },
+      { pic: typingPic.url, title: "3. I build", text: "Pitch, page copy, competitors and first steps." },
+      { pic: shippedPic.url, title: "4. You pick it up", text: "Your idea is already moving when you come back." },
+    ].map((step) => <li key={step.title}><img src={step.pic} alt="" loading="lazy" className="aspect-square w-full rounded-md object-cover" /><h3 className="mt-2 text-base font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;
 }
