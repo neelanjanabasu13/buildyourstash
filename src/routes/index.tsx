@@ -54,7 +54,7 @@ function Home() {
   const [cachedDemo, setCachedDemo] = useState(false);
   const [hasStashed, setHasStashed] = useState(false);
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange(() => { void museum.refetch(); });
+    const { data } = supabase.auth.onAuthStateChange(() => { window.setTimeout(() => { void museum.refetch(); }, 0); });
     return () => data.subscription.unsubscribe();
   }, []);
   const keys = useQuery({ queryKey: ["keys-status"], queryFn: () => getKeysStatus() });
