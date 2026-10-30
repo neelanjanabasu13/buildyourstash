@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useRadar } from "@/hooks/use-radar";
+import { KroweClip } from "./KroweClip";
 import { strongestSignal } from "@/lib/radar";
 import { RadarCards, SignalCard } from "./RadarCards";
 import { Button } from "./ui/button";
@@ -40,8 +41,9 @@ export function Museum({ sweeps, current, currentId, onFeedback, busy }: { sweep
       {news && <section aria-label="KROWE has news" className="space-y-3 border-y border-teal/40 py-5"><p className="eyebrow text-teal">KROWE has news {newsIsNew && <span className="ml-2 rounded-sm bg-teal px-2 py-1 text-paper">New</span>}</p><SignalCard signal={news.signal} /><Button variant="link" className="px-0" onClick={() => open(news.key)}>Open this workbench <ArrowUpRight /></Button></section>}
       <div className="grid gap-4 sm:grid-cols-2">
         {exhibits.map((e) => <article key={e.key} className="flex min-h-64 flex-col rounded-md border border-foreground/25 bg-card p-5">
-          <div className="mb-4 flex items-center justify-between gap-2"><span className="font-mono text-xs text-muted-foreground">{activityDay(activityDate(e.result, sweeps.find((s) => s.id === e.sweepId)?.createdAt ?? new Date().toISOString()))}</span><span className="rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{exhibitStatus(e.result)}</span></div>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted-foreground">{activityDay(activityDate(e.result, sweeps.find((s) => s.id === e.sweepId)?.createdAt ?? new Date().toISOString()))}</span><span className="rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{radar.checking === e.key ? "KROWE is mulling" : exhibitStatus(e.result)}</span></div>
           <h3 className="text-xl font-semibold">{e.result.idea.name}</h3>
+          {e.result.kit && <KroweClip slot="typing" className="mt-3 h-24 w-16 self-end" />}
           <p className="mt-3 text-sm text-muted-foreground">{workActivity(e.result)}</p>
           {e.result.kit && <p className="mt-4 font-display text-lg italic">{e.result.kit.pitch}</p>}
           {e.result.kit && <p className="mt-3 text-xs text-muted-foreground">Pitch · Landing copy · First steps · Research</p>}

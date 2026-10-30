@@ -8,7 +8,7 @@ export function neutralVerdict(value: string): VerdictLabel {
 }
 export function neutralExhibit(input: IdeaResult): IdeaResult {
   const legacy = input.check && !["BUILD NOW", "WATCH", "PARK"].includes(input.check.verdict);
-  if (!legacy) return input;
+  if (!legacy) return input.check ? { ...input, check: { ...input.check, confidence: input.check.confidence ?? input.radar?.signals[0]?.confidence ?? "low", wouldChange: input.check.wouldChange ?? input.radar?.signals[0]?.wouldChange ?? "More current, directly relevant source evidence." } } : input;
   const evidence = input.check?.evidence.map((e) => ({ ...e, claim: e.title || "Source context" })) ?? [];
   return { idea: input.idea, ...(input.check ? { check: { ...input.check, verdict: neutralVerdict(input.check.verdict), summary: "I've kept the source receipts. Check again for fresh context and new work on this idea.", evidence } } : {}), ...(input.feedback ? { feedback: input.feedback } : {}) };
 }
