@@ -13,6 +13,7 @@ import { useSweep } from "@/hooks/use-sweep";
 import { getKeysStatus, listMuseum } from "@/lib/stash.functions";
 import { useFirstResult } from "@/components/FirstResultContext";
 import { hasFirstResult } from "@/lib/first-result";
+import { runError } from "@/lib/run-safety";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,9 +34,9 @@ export const Route = createFileRoute("/")({
 let introducedThisVisit = false;
 
 function Home() {
-  const [introducing, setIntroducing] = useState(false);
+  const [introducing, setIntroducing] = useState(true);
   useEffect(() => {
-    if (introducedThisVisit) return;
+    if (introducedThisVisit) { setIntroducing(false); return; }
     introducedThisVisit = true;
     setIntroducing(true);
     const timer = window.setTimeout(() => setIntroducing(false), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1800 : 6500);
@@ -67,9 +68,10 @@ function Home() {
     </section>
     {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the exhibits" : "Stash another idea"}</Button>}
     {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
-    <div hidden={!inputVisible}><PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={(pile, example) => { setAdding(false); void sweep.run(pile, example); }} /></div>
+    {keys.error && <p role="alert" className="text-sm text-destructive">I couldn't check KROWE's keys. You can try stashing your idea again.</p>}
+    <div hidden={!inputVisible}><PileInput disabled={busy} onSweep={(pile, example) => { setIntroducing(false); setAdding(false); void sweep.run(pile, example); }} /></div>
     {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
-    {museum.error && <p className="text-sm text-destructive">{museum.error.message}</p>}
+    {museum.error && <p role="alert" className="text-sm text-destructive">{runError(museum.error)}</p>}
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
     <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />
     {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
