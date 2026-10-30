@@ -5,7 +5,7 @@ export const RADAR_QUERY_CAP = 3;
 export const RADAR_REFRESH_MS = 24 * 60 * 60 * 1000;
 export const RADAR_KINDS = ["blocker", "competitors", "events"] as const;
 export type RadarKind = typeof RADAR_KINDS[number];
-export interface RadarSource { title: string; url: string; content: string; published_date?: string }
+export interface RadarSource { title: string; url: string; content: string; published_date?: string | undefined }
 export function safeSourceUrl(url: string) {
   try { return new URL(url).protocol === "https:" || new URL(url).protocol === "http:"; } catch { return false; }
 }
@@ -54,7 +54,7 @@ export function verifyRadar(raw: unknown, sources: RadarSource[], pile: string, 
   }
   return { signals, checkedAt: now, queries: queries.slice(0, RADAR_QUERY_CAP), webTally, pileTally };
 }
-export function strongestSignal(radars: { key: string; radar?: Radar }[]) {
+export function strongestSignal(radars: { key: string; radar?: Radar | undefined }[]) {
   const weight = { high: 3, medium: 2, low: 1 };
   return radars.flatMap((r) => (r.radar?.signals ?? []).map((signal) => ({ key: r.key, signal, checkedAt: r.radar?.checkedAt ?? "" }))).sort((a, b) => weight[b.signal.confidence] - weight[a.signal.confidence] || b.checkedAt.localeCompare(a.checkedAt))[0];
 }
