@@ -64,6 +64,8 @@ function HowItChecks() {
       </Block>
 
       <Block title="What is NOT checked: the verdicts">
+        <p>KROWE's radar runs three targeted basic searches per exhibit check for recent blocker changes, competitors and open events. Due exhibits are checked while your museum is open and when you return after a day; there is no closed-browser monitoring or notification service. Check again starts a fresh round. Search-result dates can be missing, which is shown rather than invented. Open event deadlines and any prize must appear in the quoted source passage; unknown eligibility is not a promise of fit.</p>
+        <p>Signals include a source-backed recommendation, confidence and what would change it. Exact quotes prove that the source said something, not that the recommendation is correct. Copyable pitches, page copy, first steps and outreach notes are generated draft artifacts, not deployed pages or sent messages.</p>
         <p>
           REVIVE NOW, NOT YET and STILL DEAD are opinions written by an AI model reading the evidence. They can be wrong, too hopeful, or miss news
           the search didn't find. The same goes for the revival kit, which is a starting draft rather than advice. Read the sources and decide for
