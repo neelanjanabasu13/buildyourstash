@@ -5,10 +5,10 @@ import { KroweClip } from "@/components/KroweClip";
 import { BrandImage } from "@/components/BrandImage";
 
 const IDEA_LABEL: Record<IdeaStage, string> = {
-  why: "I'm finding why you stopped",
+  context: "I'm finding useful context for your idea",
   web: "I'm checking what changed",
   verdict: "I'm weighing the evidence",
-  kit: "I'm packing your revival kit",
+  kit: "I'm building your first drafts",
   done: "checked and ready",
   error: "I hit a snag",
 };
@@ -38,7 +38,7 @@ export function SweepProgress({
 }) {
   const after = (p: Phase[]) => (p.includes(phase) ? "done" : "todo");
   const done = Object.values(stages).filter((s) => s === "done" || s === "error").length;
-  const headline = phase === "starting" ? "I'll keep this safe." : phase === "reading" ? "Let me pick up your idea." : Object.values(stages).some((s) => s === "kit") ? "I'm doing the first bit myself." : "I'm checking if your reason still holds.";
+  const headline = phase === "starting" ? "I'll keep this safe." : phase === "reading" ? "Let me pick up your idea." : Object.values(stages).some((s) => s === "kit") ? "I'm doing the first bit myself." : "I'm finding what's happening around your idea.";
   return (
     <section aria-live="polite" className="py-6">
       <div className="mb-6 flex items-center gap-4">
@@ -51,7 +51,7 @@ export function SweepProgress({
       <p className="eyebrow mb-2 text-primary">KROWE is mulling</p>
       <ul className="text-sm">
         <Row state={phase === "starting" ? "run" : after(["reading", "checking", "done"])} label="I'm getting your pile ready" />
-        <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="I'm reading your pile and finding what you dropped" />
+        <Row state={phase === "reading" ? "run" : after(["checking", "done"])} label="I'm finding the brainwaves in your notes" />
         {result.ideas.length >= 3 && (
           <Row
             state={threadStage === "running" ? "run" : threadStage === "done" ? "done" : "todo"}
@@ -59,7 +59,7 @@ export function SweepProgress({
           />
         )}
         {result.ideas.map(({ idea }) => {
-          const s = stages[idea.id] ?? "why";
+          const s = stages[idea.id] ?? "context";
           return (
             <Row
               key={idea.id}

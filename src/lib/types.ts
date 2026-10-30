@@ -22,19 +22,14 @@ export interface Thread {
   receipts: Receipt[];
 }
 
-export interface Reason {
-  reason: string;
-  quote: string;
-}
-
-export interface WhyStopped {
-  reasons: Reason[];
-  trigger: string;
+export interface IdeaContext {
+  receipts: Receipt[];
+  focus: string;
   searchQuery: string;
   topic: "news" | "general";
 }
 
-export type VerdictLabel = "REVIVE NOW" | "NOT YET" | "STILL DEAD";
+export type VerdictLabel = "BUILD NOW" | "WATCH" | "PARK";
 
 export interface Evidence {
   claim: string;
@@ -61,14 +56,14 @@ export interface RevivalKit {
   outreach?: string;
 }
 
-export type SignalType = "NOW FEASIBLE" | "CROWDED / COMPETITOR" | "EVENT FIT" | "REASON EXPIRED";
+export type SignalType = "NOW FEASIBLE" | "CROWDED / COMPETITOR" | "EVENT FIT" | "TIMING CHANGED";
 export interface Signal {
   type: SignalType;
   headline: string;
-  reasonQuote: string | null;
+  ideaQuote: string | null;
   evidence: Evidence;
   sourceDate: string | null;
-  move: "revive" | "pivot" | "narrow" | "kill" | "wait";
+  move: "build" | "pivot" | "narrow" | "park" | "watch";
   why: string;
   confidence: "low" | "medium" | "high";
   wouldChange: string;
@@ -86,7 +81,7 @@ export interface Radar {
 
 export interface IdeaResult {
   idea: Idea;
-  why?: WhyStopped;
+  context?: IdeaContext;
   check?: LiveCheck;
   kit?: RevivalKit;
   feedback?: "yes" | "no" | undefined;

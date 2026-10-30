@@ -1,6 +1,6 @@
 # STASH
 
-KROWE the crow rescues half-finished side projects. Drop in your notes and STASH finds the ideas you started and dropped, works out why from your own words, finds the thread that keeps coming back, checks the live web for what has changed since, and gives each idea a verdict (REVIVE NOW, NOT YET or STILL DEAD) with receipts.
+Every cool idea you ever had starts building itself. Stash a brainwave and KROWE the crow researches its live context and makes editable pitch, landing-page copy, first steps and outreach drafts. BUILD NOW, WATCH and PARK are evidence-backed recommendations, not judgments of the user's past. Guest-first museum, bulk imports, verified quotes and live radar are real; drafts are never sent or published, and radar runs while the museum is open or when you return.
 
 > Placeholder README for the hackathon. Setup, architecture and demo notes to come.
 

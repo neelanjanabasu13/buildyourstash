@@ -96,7 +96,7 @@ export function repoToPile(r: RepoInfo): string {
     r.lastCommitAt ? `The last commit was on ${r.lastCommitAt} (${r.daysSinceCommit} days ago).` : "No commits found.",
     r.archived ? "The repo is archived." : "",
     r.builtWithLovable ? "This repo was built with Lovable." : "",
-    r.looksDropped ? "There has been no recent activity, so this looks like a dropped project." : "The repo still has recent activity.",
+    r.looksDropped ? "No recent commits are recorded." : "The repo still has recent activity.",
     "",
     "Commit messages, newest first:",
     ...r.commits.map((c) => `${c.date}: ${c.message}`),

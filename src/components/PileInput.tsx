@@ -103,9 +103,9 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   return (
     <div className="sweep-input">
       <div className="p-4 sm:p-5">
-        <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What idea should I keep for you?</label>
+        <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What brainwave should I pick up?</label>
         {isExample && <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>}
-        <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="An idea, a half-thought, or something you stopped because…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
+        <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="A cool idea, a half-thought, a what-if…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
         <div className="mt-1 flex flex-wrap justify-between gap-2">
           <Button variant="link" className="px-0" disabled={disabled} aria-expanded={importsOpen} onClick={() => setImportsOpen((v) => !v)}><Upload />Paste a link or import ideas</Button>
           <Button variant="link" className="px-0 text-paper-muted" disabled={disabled} onClick={() => { setPaste(EXAMPLE_PILE); setFiles([]); setIsExample(true); }}>Try an example pile</Button>
@@ -161,7 +161,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
           <p className="text-xs text-paper-muted">GitHub repos are read. Other links are kept as references, not read.</p>
         </> : <>
           {mode === "files" ? <Upload className="h-8 w-8 text-primary" /> : <MessageSquare className="h-8 w-8 text-primary" />}
-          <p className="font-display text-2xl font-semibold text-primary">{dragging ? "I've got room for that." : mode === "files" ? "Drop your unfinished business." : "Those chats had an idea in them."}</p>
+          <p className="font-display text-2xl font-semibold text-primary">{dragging ? "I've got room for that." : mode === "files" ? "Drop the notes your ideas live in." : "Those chats had an idea in them."}</p>
           <p className="text-sm text-paper-muted">{mode === "files" ? ".txt, .md, .json" : "conversations.json or your export .zip"}</p>
           <Button variant="paperOutline" disabled={disabled} onClick={() => inputRef.current?.click()} className="mt-2"><Upload />{mode === "files" ? "Choose files" : "Choose ChatGPT export"}</Button>
         </>}

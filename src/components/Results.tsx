@@ -54,15 +54,15 @@ export function ThreadCard({ thread }: { thread: Thread }) {
 }
 
 const VERDICT_STYLE: Record<VerdictLabel, string> = {
-  "REVIVE NOW": "bg-revive text-paper",
-  "NOT YET": "bg-amber text-foreground",
-  "STILL DEAD": "bg-dead text-paper",
+  "BUILD NOW": "bg-revive text-paper",
+  "WATCH": "bg-amber text-foreground",
+  "PARK": "bg-dead text-paper",
 };
 
 function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "no", note?: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [note, setNote] = useState("");
-  if (r.feedback === "yes") return <p className="text-sm text-paper-muted">Thanks, noted.</p>;
+  if (r.feedback === "yes") return <p className="text-sm text-paper-muted">Your idea, noted.</p>;
   if (r.feedback === "no" && !editing)
     return <p className="text-sm text-paper-muted">Noted{r.feedbackNote ? `: “${r.feedbackNote}”` : ""}.</p>;
   if (editing)
@@ -80,8 +80,8 @@ function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "n
           maxLength={140}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Optional: the real reason, in one line"
-          aria-label="The real reason"
+          placeholder="Optional: a correction to the idea, in one line"
+          aria-label="Your idea correction"
           className="min-h-10 min-w-0 flex-1 rounded-md border border-paper-line bg-paper px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber"
         />
         <Button size="sm" variant="paper" type="submit">
@@ -92,7 +92,7 @@ function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "n
   return (
     <div className="flex gap-2">
       <Button size="sm" variant="paper" onClick={() => onFeedback("yes")}>
-        Yes, that's why
+        Yes, that's my idea
       </Button>
       <Button size="sm" variant="paperOutline" onClick={() => setEditing(true)}>
         Not really
@@ -102,59 +102,38 @@ function Feedback({ r, onFeedback }: { r: IdeaResult; onFeedback: (f: "yes" | "n
 }
 
 export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "yes" | "no", note?: string) => void) | undefined }) {
-  const { idea, why, check, kit } = r;
+  const { idea, check, kit } = r;
   return (
     <article className="paper-card p-5 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {check && <span className={`mb-4 inline-block rounded-sm px-3 py-2 font-mono text-lg font-bold sm:text-xl ${VERDICT_STYLE[check.verdict]}`}>{check.verdict}</span>}
           <h3 className="text-2xl font-semibold">{idea.name}</h3>
-          <p className="mt-1 text-sm text-paper-muted">
-            {idea.droppedWhen ? `Dropped: ${idea.droppedWhen}` : "When you dropped it: not stated in your pile"}
-          </p>
+
         </div>
         {check && (
           <div className="shrink-0">
-            {check.verdict === "REVIVE NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrates a project worth reviving" className="h-32 w-20 sm:w-24" />}
-            {check.verdict === "STILL DEAD" && <BrandImage slot="krowe-sleeping" alt="KROWE lets this project rest" className="h-28 w-20 sm:w-24" />}
+            {check.verdict === "BUILD NOW" && <BrandImage slot="krowe-shipped" alt="KROWE celebrates a project ready to build" className="h-32 w-20 sm:w-24" />}
+            {check.verdict === "PARK" && <BrandImage slot="krowe-sleeping" alt="KROWE keeps this idea safe" className="h-28 w-20 sm:w-24" />}
           </div>
         )}
       </div>
       <p className="mt-3">{idea.summary}</p>
 
       <section className="mt-6">
-        <p className="eyebrow mb-2 text-amber-ink">Why you stopped</p>
-        {!why && !r.error && <p className="text-sm text-paper-muted">KROWE is thinking...</p>}
-        {why && why.reasons.length === 0 && (
-          <p className="text-sm text-paper-muted">Your pile doesn't say why in words KROWE could quote, so it won't guess.</p>
-        )}
-        {why && why.reasons.length > 0 && (
-          <ul className="space-y-3">
-            {why.reasons.map((x, i) => (
-              <li key={i}>
-                <p className="font-semibold">{x.reason}</p>
-                <p className="receipt mt-1 text-sm">“{x.quote}”</p>
-              </li>
-            ))}
-          </ul>
-        )}
-        {why && why.reasons.length > 0 && onFeedback && (
-          <div className="mt-3">
-            <Feedback r={r} onFeedback={onFeedback} />
-          </div>
-        )}
+        <p className="eyebrow mb-2 text-amber-ink">Your brainwave</p>
+        <Receipts items={idea.receipts} />
+        {onFeedback && <div className="mt-3"><Feedback r={r} onFeedback={onFeedback} /></div>}
       </section>
 
-      {why?.trigger && (
-        <section className="mt-6">
-          <p className="eyebrow mb-2 text-amber-ink">What would have to change</p>
-          <p>{why.trigger}</p>
-        </section>
-      )}
+      <section className="mt-6">
+        <p className="eyebrow mb-2 text-amber-ink">KROWE's research focus</p>
+        <p>{r.context?.focus ?? "Current tools, similar ideas and useful launch opportunities."}</p>
+      </section>
 
       <section className="mt-6">
-        <p className="eyebrow mb-2 text-amber-ink">Why now</p>
-        {why && !check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
+        <p className="eyebrow mb-2 text-amber-ink">Around your idea</p>
+        {!check && !r.error && <p className="text-sm text-paper-muted">Checking the web...</p>}
         {check && (
           <>
             {check.nothingFound && <KroweClip slot="sleep" className="mb-3 h-36 w-24" />}
@@ -187,10 +166,10 @@ export function IdeaCard({ r, onFeedback }: { r: IdeaResult; onFeedback?: ((f: "
       {check && (
         <details className="mt-6 border-t-2 border-primary pt-4">
           <summary className="cursor-pointer font-display text-xl font-semibold text-primary">I've done the first piece of work</summary>
-          {!kit && !r.error && <p className="text-sm text-paper-muted">{r.radar?.signals.length === 0 ? "No source-backed move yet. I'm not drafting a launch on a guess." : "KROWE is writing your kit..."}</p>}
+          {!kit && !r.error && <p className="text-sm text-paper-muted">{"KROWE is building your first drafts..."}</p>}
           {kit && (
             <div className="mt-4 space-y-4">
-              <KroweClip slot={check.verdict === "REVIVE NOW" ? "shipped" : "typing"} className="h-40 w-28" />
+              <KroweClip slot={check.verdict === "BUILD NOW" ? "shipped" : "typing"} className="h-40 w-28" />
               <p className="font-display text-lg italic">{kit.pitch}</p>
               <ol className="list-decimal space-y-1 pl-5">
                 {kit.steps.map((s, i) => (

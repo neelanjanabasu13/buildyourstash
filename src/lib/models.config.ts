@@ -18,7 +18,7 @@ export const MODELS: Record<ModelRole, ModelConfig> = {
   // Extraction of ideas and flags (JSON). Nano is a reasoning model: it needs a big
   // output budget or it burns every token thinking and returns empty content.
   extract: { model: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", baseUrl: null, maxTokens: 16000, temperature: 0.1 },
-  // Thread, why-stopped, search query and verdicts (JSON)
+  // Shared idea interests, research context and verdicts (JSON)
   reason: { model: "nvidia/nemotron-3-super-120b-a12b", baseUrl: null, maxTokens: 6000, temperature: 0.2 },
   // Revival kit writing
   write: { model: "nvidia/Nemotron-3-Ultra-550b-a55b", baseUrl: null, maxTokens: 4000, temperature: 0.6 },

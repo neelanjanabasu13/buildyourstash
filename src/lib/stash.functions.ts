@@ -5,6 +5,7 @@ import { chat, chatJson, tavilySearch } from "./ai.server";
 import { LIMITS, MODELS } from "./models.config";
 import { emptyTally, filterByQuote, quoteIsInSource, sameUrl } from "./verify";
 import { assembleParts, storePart } from "./museum.server";
+import { neutralMuseum } from "./idea-framing";
 import type { MuseumSweep } from "./museum";
 import type {
   Checked,
@@ -15,7 +16,7 @@ import type {
   SweepResult,
   Thread,
   VerdictLabel,
-  WhyStopped,
+  IdeaContext,
 } from "./types";
 
 type Ctx = { supabase: { from: (t: "sweeps") => any; rpc: (...a: any[]) => any } };
@@ -98,10 +99,10 @@ export const extractIdeas = createServerFn({ method: "POST" })
     const pile = await loadPile(context as Ctx, data.sweepId);
     const raw = await chatJson<{ ideas?: any[] }>(
       "extract",
-      `You are KROWE, curator of someone's idea museum. Find the ideas in their notes, including ONE half-formed idea, an aspiration, a paused project, or something never started. Do not require abandonment or a stopping reason.
+      `You are KROWE, curator and maker in an idea museum. Find brainwaves, including ONE half-formed thought or aspiration. Describe only the idea itself, never interpret the person's past behaviour.
 Today is ${today()}.
-Return {"ideas":[{"name":"short name","summary":"one sentence","dropped_when":"when they stopped in their words, or null","dropped_date":"YYYY-MM-DD best estimate of when they stopped, or null if unknown","quotes":["exact sentence copied from the notes", "..."]}]}
-Rules: at most ${LIMITS.maxIdeas} ideas. Each quote MUST be copied character for character from the notes (1-3 quotes per idea, each 8-200 characters). Never paraphrase inside quotes. Only return no ideas if there is no idea-like content. Never invent a stopping reason or date.`,
+Return {"ideas":[{"name":"short name","summary":"one sentence","quotes":["exact sentence copied from the notes", "..."]}]}
+Rules: at most ${LIMITS.maxIdeas} ideas. Each quote MUST be copied character for character from the notes (1-3 quotes per idea, each 8-200 characters). Never paraphrase inside quotes. Only return no ideas if there is no idea-like content. Do not infer personal history or dates. Choose quotes describing the idea, not past behaviour.`,
       `NOTES:\n"""\n${pile}\n"""`,
     );
     const tally = emptyTally();
@@ -110,13 +111,13 @@ Rules: at most ${LIMITS.maxIdeas} ideas. Each quote MUST be copied character for
       const quotes = Array.isArray(it?.quotes) ? it.quotes.map((q: unknown) => str(q, 400)) : [];
       const kept = filterByQuote(quotes, (q: string) => q, pile, tally);
       if (!kept.length || !str(it?.name)) continue;
-      const date = str(it?.dropped_date, 10);
+      
       ideas.push({
         id: `idea-${i}`,
         name: str(it.name, 120),
         summary: str(it.summary, 400),
-        droppedWhen: str(it.dropped_when, 120) || null,
-        droppedDate: /^\d{4}-\d{2}-\d{2}$/.test(date) && date < today() ? date : null,
+        droppedWhen: null,
+        droppedDate: null,
         receipts: kept.map((quote) => ({ quote })),
       });
     }
@@ -137,9 +138,9 @@ export const findThread = createServerFn({ method: "POST" })
     const list = data.ideas.map((i) => `- ${i.name}: ${i.summary}`).join("\n");
     const raw = await chatJson<{ theme?: string; explanation?: string; quotes?: string[] }>(
       "reason",
-      `Find the ONE theme that keeps coming back across these dropped ideas: a recurring interest, need, or pattern in how the person drops things. Be specific, warm and honest.
+      `Find ONE shared interest across these ideas. Describe the ideas, not the person's behaviour or history. Be specific and warm.
 Return {"theme":"short phrase","explanation":"one sentence","quotes":["exact sentences copied from the notes that show the theme", "..."]}. Exactly three quotes from different ideas, copied character for character. If there is no real common theme return {"theme":"","explanation":"","quotes":[]}.`,
-      `DROPPED IDEAS:\n${list}\n\nNOTES:\n"""\n${pile}\n"""`,
+      `IDEAS:\n${list}\n\nNOTES:\n"""\n${pile}\n"""`,
     );
     const receipts = filterByQuote(raw.quotes ?? [], (q) => q, pile, tally).map((quote) => ({ quote }));
     const output = { value: str(raw.theme) && receipts.length >= 3 ? { theme: str(raw.theme, 160), explanation: str(raw.explanation, 600), receipts: receipts.slice(0, 3) } : null, tally };
@@ -147,37 +148,23 @@ Return {"theme":"short phrase","explanation":"one sentence","quotes":["exact sen
     return output;
   });
 
-// ---------- 3a. why stopped (Super) ----------
+// ---------- 3a. idea context (Super) ----------
 
-export const whyStopped = createServerFn({ method: "POST" })
+export const researchContext = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ sweepId: z.string().uuid(), idea: ideaSchema }).parse(d))
-  .handler(async ({ data, context }): Promise<Checked<WhyStopped>> => {
+  .handler(async ({ data, context }): Promise<Checked<IdeaContext>> => {
     const pile = await loadPile(context as Ctx, data.sweepId);
-    const raw = await chatJson<{ reasons?: { reason?: string; quote?: string }[]; would_need_to_change?: string; search_query?: string; topic?: string }>(
-      "reason",
-      `Work out from the person's OWN words why they stopped this idea, and what in the outside world would have to change for it to be worth restarting.
-Today is ${today()}.
-Return {"reasons":[{"reason":"short reason","quote":"exact sentence copied from the notes that shows it"}],"would_need_to_change":"one sentence: the concrete external change that would unblock it","search_query":"a web search query (under 20 words) to find whether that change has happened","topic":"news or general"}.
-Only include reasons you can back with an exact quote copied character for character. If no reason is stated return reasons:[] and search for practical recent tools relevant to the idea, not an invented blocker.`,
-      `IDEA: ${data.idea.name} - ${data.idea.summary}\nKNOWN QUOTES: ${data.idea.receipts.map((r) => r.quote).join(" | ")}\n\nNOTES:\n"""\n${pile}\n"""`,
-    );
+    const { data: parts } = await context.supabase.from("sweep_parts").select("part,value").eq("sweep_id", data.sweepId);
+    const idea = assembleParts(parts ?? []).ideas.find((i) => i.idea.id === data.idea.id)?.idea;
+    if (!idea) throw new Error("Idea not found.");
+    const raw = await chatJson<{ focus?: string; search_query?: string; quotes?: string[] }>("reason",
+      `You are KROWE. Describe the idea itself and identify useful current tools or launches to research. Never ask or infer anything about the person's past behaviour. Return {"focus":"one sentence describing the idea's practical research direction","search_query":"short query for relevant current tools","quotes":["exact quotes describing the idea, copied from NOTES"]}. Quotes must describe the brainwave, not personal history.`,
+      `IDEA: ${idea.name}: ${idea.summary}\nNOTES:\n${pile}`);
     const tally = emptyTally();
-    const reasons = filterByQuote(raw.reasons ?? [], (r) => r?.quote, pile, tally).map((r) => ({
-      reason: str(r.reason, 200),
-      quote: str(r.quote, 400),
-    }));
-    const trigger = str(raw.would_need_to_change, 300);
-    const output: Checked<WhyStopped> = {
-      value: {
-        reasons,
-        trigger,
-        searchQuery: str(raw.search_query, 200) || `${data.idea.name} ${trigger}`.slice(0, 200),
-        topic: raw.topic === "news" ? "news" : "general",
-      },
-      tally,
-    };
-    await storePart(data.sweepId, `why:${data.idea.id}`, output);
+    const receipts = filterByQuote(raw.quotes ?? [], (q) => q, pile, tally).map((quote) => ({ quote }));
+    const output: Checked<IdeaContext> = { value: { receipts, focus: str(raw.focus, 300), searchQuery: str(raw.search_query, 200) || idea.name, topic: "general" }, tally };
+    await storePart(data.sweepId, `context:${idea.id}`, output);
     return output;
   });
 
@@ -198,13 +185,13 @@ export const liveCheck = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<Checked<LiveCheck>> => {
     await loadPile(context as Ctx, data.sweepId); // ownership + freshness check
-    const since = data.idea.droppedDate;
-    const results = await tavilySearch(data.searchQuery, { topic: data.topic, startDate: since ?? undefined });
+    const since = null;
+    const results = await tavilySearch(data.searchQuery, { topic: data.topic, timeRange: "month" });
     const tally = emptyTally();
     const base = { query: data.searchQuery, searchedSince: since, resultsSeen: results.length };
 
     if (results.length === 0) {
-      const output: Checked<LiveCheck> = { value: { ...base, verdict: "NOT YET", summary: "Nothing found. The web search returned no results for this.", evidence: [], nothingFound: true }, tally };
+      const output: Checked<LiveCheck> = { value: { ...base, verdict: "WATCH", summary: "Nothing found. The web search returned no results for this.", evidence: [], nothingFound: true }, tally };
       await storePart(data.sweepId, `check:${data.idea.id}`, output);
       return output;
     }
@@ -214,11 +201,10 @@ export const liveCheck = createServerFn({ method: "POST" })
       .join("\n\n");
     const raw = await chatJson<{ verdict?: string; summary?: string; evidence?: { claim?: string; url?: string; quote?: string }[] }>(
       "reason",
-      `You judge whether a dropped side project is worth reviving TODAY (${today()}), based ONLY on the search results given.
-Verdicts: "REVIVE NOW" (the blocker has clearly eased, with evidence), "NOT YET" (some movement but not enough, or unclear), "STILL DEAD" (nothing changed or it got worse).
-Never invent news. If the results don't speak to the blocker, say so and choose NOT YET or STILL DEAD.
-Return {"verdict":"REVIVE NOW|NOT YET|STILL DEAD","summary":"one honest sentence","evidence":[{"claim":"one-line why now: what changed","url":"exact URL from the results","quote":"exact phrase copied from that result's TEXT"}]}. 0-3 evidence items. Do not claim the user had a blocker when none was stated.`,
-      `IDEA: ${data.idea.name} - ${data.idea.summary}\nSTOPPED ${since ? `around ${since}` : "at an unknown time"}.\nWHAT WOULD NEED TO CHANGE: ${data.trigger}\n\nSEARCH RESULTS:\n${sources}`,
+      `You are KROWE. Judge a brainwave using ONLY current search context, never the person's past behaviour. Today is ${today()}.
+Verdicts: BUILD NOW for a useful supported first experiment, WATCH for uncertain context, PARK for evidence suggesting this direction is not a useful current investment. Never treat competition alone as failure. Never invent news or user history.
+Return {"verdict":"BUILD NOW|WATCH|PARK","evidence":[{"claim":"one useful context headline","url":"exact search URL","quote":"exact source passage supporting it"}]}. Every verdict needs evidence; without evidence choose WATCH.`,
+      `IDEA: ${data.idea.name}: ${data.idea.summary}\nRESEARCH FOCUS: ${data.trigger}\nSEARCH RESULTS:\n${sources}`
     );
 
     const evidence: Evidence[] = [];
@@ -230,21 +216,21 @@ Return {"verdict":"REVIVE NOW|NOT YET|STILL DEAD","summary":"one honest sentence
       } else tally.dropped += 1;
     }
 
-    let verdict: VerdictLabel = (["REVIVE NOW", "NOT YET", "STILL DEAD"] as const).find((v) => v === raw.verdict) ?? "NOT YET";
+    let verdict: VerdictLabel = (["BUILD NOW", "WATCH", "PARK"] as const).find((v) => v === raw.verdict) ?? "WATCH";
     let summary = evidence[0]?.claim ?? "Nothing found that we could verify.";
     const nothingFound = evidence.length === 0;
     if (nothingFound) {
-      if (verdict === "REVIVE NOW") verdict = "NOT YET";
-      summary = "Nothing found that we could verify. None of the search results contained checkable proof that the blocker has changed.";
+      if (verdict === "BUILD NOW") verdict = "WATCH";
+      summary = "Nothing found that we could verify. There is not enough source evidence for a recommendation.";
     }
     const output: Checked<LiveCheck> = { value: { ...base, verdict, summary, evidence, nothingFound }, tally };
     await storePart(data.sweepId, `check:${data.idea.id}`, output);
     return output;
   });
 
-// ---------- 4. revival kit (Ultra) ----------
+// ---------- 4. first-work drafts (Ultra) ----------
 
-export const revivalKit = createServerFn({ method: "POST" })
+export const firstWorkDrafts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z
@@ -253,7 +239,7 @@ export const revivalKit = createServerFn({ method: "POST" })
         idea: ideaSchema,
         trigger: z.string().max(400),
         evidence: z.array(z.object({ claim: z.string(), url: z.string(), title: z.string(), quote: z.string() })).max(5),
-        verdict: z.enum(["REVIVE NOW", "NOT YET", "STILL DEAD"]).optional(),
+        verdict: z.enum(["BUILD NOW", "WATCH", "PARK"]).optional(),
       })
       .parse(d),
   )
@@ -265,9 +251,9 @@ export const revivalKit = createServerFn({ method: "POST" })
     if (!verified?.check) throw new Error("Check this exhibit before drafting its first work.");
     const raw = await chatJson<{ pitch?: string; steps?: string[]; headline?: string; subhead?: string }>(
       "write",
-      `You are KROWE, an idea museum's curator. Do the first piece of work yourself, don't merely tell the user to write it. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For NOT YET or STILL DEAD offer a low-risk sketch or test, not a claim it is now viable. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
+      `You are KROWE, an idea museum's curator. Do the first piece of work yourself, don't merely tell the user to write it. Never interpret personal history. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For WATCH or PARK offer a low-risk sketch or test, not a launch guarantee. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
 Return {"pitch":"rewritten one-line pitch","steps":["one tiny thing to do today","second","third"],"headline":"finished landing page headline under 10 words","subhead":"finished landing page subhead"}.`,
-      `IDEA: ${verified.idea.name} - ${verified.idea.summary}\nVERDICT: ${verified.check.verdict}\nWHAT HAD TO CHANGE: ${verified.why?.trigger ?? "Unknown"}\nVERIFIED EVIDENCE:\n${verified.check.evidence.map((e) => `- ${e.claim}`).join("\n")}`,
+      `IDEA: ${verified.idea.name} - ${verified.idea.summary}\nVERDICT: ${verified.check.verdict}\nRESEARCH FOCUS: ${verified.context?.focus ?? verified.idea.summary}\nVERIFIED EVIDENCE:\n${verified.check.evidence.map((e) => `- ${e.claim}`).join("\n")}`,
     );
     const steps = (raw.steps ?? []).map((s) => str(s, 300)).filter(Boolean).slice(0, 3);
     const output = { pitch: str(raw.pitch, 300), steps, headline: str(raw.headline, 140), subhead: str(raw.subhead, 300) };
@@ -311,7 +297,7 @@ export const listMuseum = createServerFn({ method: "GET" })
     return (data ?? []).map((s) => {
       const saved = s.result as unknown as SweepResult | null;
       const serverParts = (parts ?? []).filter((p) => p.sweep_id === s.id);
-      const result = serverParts.length ? assembleParts(serverParts) : saved ?? assembleParts([]);
+      const result = serverParts.length ? assembleParts(serverParts) : neutralMuseum(saved ?? assembleParts([]));
       for (const idea of result.ideas) {
         const previous = saved?.ideas?.find((i) => i.idea.id === idea.idea.id);
         if (previous?.feedback) { idea.feedback = previous.feedback; idea.feedbackNote = previous.feedbackNote; }
@@ -331,7 +317,7 @@ export const museumPattern = createServerFn({ method: "GET" })
     const existing = (rows ?? []).map((r) => (r.result as unknown as SweepResult | null)?.thread).find((t) => t && t.receipts.length >= 3);
     if (existing) return existing;
     const source = (rows ?? []).map((r) => r.pile).join("\n\n").slice(0, LIMITS.maxPileChars);
-    const raw = await chatJson<{ theme?: string; quotes?: string[] }>("reason", 'Find one optional common theme across at least three distinct ideas. Return {"theme":"short name","quotes":["exact quote for idea one","exact quote for idea two","exact quote for idea three"]}. Copy quotes character for character from NOTES. If no pattern, return {"theme":"","quotes":[]}. Never invent a user claim.', `IDEAS: ${ideas.map((i) => i.idea.name).join("; ")}\nNOTES:\n${source}`);
+    const raw = await chatJson<{ theme?: string; quotes?: string[] }>("reason", 'Find one optional common theme across at least three distinct ideas. Return {"theme":"short name","quotes":["exact quote for idea one","exact quote for idea two","exact quote for idea three"]}. Copy quotes character for character from NOTES. If no pattern, return {"theme":"","quotes":[]}. Quote only descriptions of the ideas, never infer personal history or behaviour.', `IDEAS: ${ideas.map((i) => i.idea.name).join("; ")}\nNOTES:\n${source}`);
     const receipts = filterByQuote(raw.quotes ?? [], (q) => q, source, emptyTally()).slice(0, 3).map((quote) => ({ quote }));
     return str(raw.theme) && receipts.length === 3 ? { theme: str(raw.theme, 160), explanation: "", receipts } : null;
   });
