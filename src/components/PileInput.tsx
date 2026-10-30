@@ -30,7 +30,7 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
   const [repoUrl, setRepoUrl] = useState("");
   const [loadingRepo, setLoadingRepo] = useState(false);
   const [mode, setMode] = useState<"files" | "github" | "chatgpt">("files");
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [importsOpen, setImportsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function addRepo() {
@@ -48,6 +48,15 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
     } finally {
       setLoadingRepo(false);
     }
+  }
+
+  async function addLink() {
+    let url: URL;
+    try { url = new URL(repoUrl.trim()); } catch { setWarning("Paste a complete https link."); return; }
+    if (!["http:", "https:"].includes(url.protocol)) { setWarning("Use an http or https link."); return; }
+    if (url.hostname === "github.com" || url.hostname === "www.github.com") { await addRepo(); return; }
+    setFiles((prev) => [...prev, { name: url.hostname, text: `Idea reference: ${url.href}` }]);
+    setRepoUrl(""); setIsExample(false); setWarning("Link kept as a reference. Add a few words about the idea if the page title isn't in the link.");
   }
 
   const pile = [paste.trim(), ...files.map((f) => `--- ${f.kind ?? "file"}: ${f.name} ---\n${f.text}`)].filter(Boolean).join("\n\n");
@@ -93,7 +102,17 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
 
   return (
     <div className="sweep-input">
-      <div role="tablist" aria-label="Add to your pile" className="grid grid-cols-3 border-b border-foreground/20">
+      <div className="p-4 sm:p-5">
+        <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What idea should I keep for you?</label>
+        {isExample && <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>}
+        <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="An idea, a half-thought, or something you stopped because…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
+        <div className="mt-1 flex flex-wrap justify-between gap-2">
+          <Button variant="link" className="px-0" disabled={disabled} aria-expanded={importsOpen} onClick={() => setImportsOpen((v) => !v)}><Upload />Paste a link or import ideas</Button>
+          <Button variant="link" className="px-0 text-paper-muted" disabled={disabled} onClick={() => { setPaste(EXAMPLE_PILE); setFiles([]); setIsExample(true); }}>Try an example pile</Button>
+        </div>
+      </div>
+      <div hidden={!importsOpen}>
+      <div role="tablist" aria-label="Import ideas" className="grid grid-cols-3 border-y border-foreground/20">
         {([
           { id: "files", icon: Upload, label: "Drop files" },
           { id: "github", icon: Github, label: "GitHub link" },
@@ -116,10 +135,12 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
           </Button>
         ))}
       </div>
-      <div className="p-4 sm:p-6">
+      </div>
+      <div className="p-4 pt-0 sm:p-5 sm:pt-0">
       <input ref={inputRef} type="file" multiple accept={mode === "chatgpt" ? ".json,.zip" : ACCEPT.join(",")} disabled={disabled} className="hidden" aria-label="Upload pile files"
         onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
       <div
+        hidden={!importsOpen}
         role="tabpanel" id={`import-panel-${mode}`} aria-labelledby={`import-tab-${mode}`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -127,17 +148,17 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        className={`flex min-h-64 flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed px-4 py-7 text-center transition-colors sm:min-h-72 ${dragging ? "border-primary bg-primary/5" : "border-foreground/25 bg-background/50"}`}
+        className={`${importsOpen ? "flex" : "hidden"} min-h-44 flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed px-4 py-5 text-center transition-colors ${dragging ? "border-primary bg-primary/5" : "border-foreground/25 bg-background/50"}`}
       >
         {mode === "github" ? <>
           <Github className="h-8 w-8 text-primary" />
-          <p className="font-display text-2xl font-semibold text-primary">That repo you left behind.</p>
+          <p className="font-display text-xl font-semibold text-primary">A place your idea already lives.</p>
           <div className="mt-2 flex w-full max-w-lg flex-col gap-2 sm:flex-row">
-            <input aria-label="Public GitHub repo URL" value={repoUrl} disabled={disabled || loadingRepo} onChange={(e) => setRepoUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !disabled && !loadingRepo && void addRepo()}
+            <input aria-label="Idea link" value={repoUrl} disabled={disabled || loadingRepo} onChange={(e) => setRepoUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !disabled && !loadingRepo && void addLink()}
               placeholder="https://github.com/you/that-project" className="min-w-0 flex-1 rounded-md border border-paper-line bg-paper px-3 py-3 text-sm text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
-            <Button variant="paperOutline" className="h-11" disabled={disabled || loadingRepo || !repoUrl.trim()} onClick={() => void addRepo()}>{loadingRepo ? <Loader2 className="animate-spin" /> : <ArrowRight />} Add repo</Button>
+            <Button variant="paperOutline" className="h-11" disabled={disabled || loadingRepo || !repoUrl.trim()} onClick={() => void addLink()}>{loadingRepo ? <Loader2 className="animate-spin" /> : <ArrowRight />} Add link</Button>
           </div>
-          <p className="text-xs text-paper-muted">Public repos only</p>
+          <p className="text-xs text-paper-muted">GitHub repos are read. Other links are kept as references, not read.</p>
         </> : <>
           {mode === "files" ? <Upload className="h-8 w-8 text-primary" /> : <MessageSquare className="h-8 w-8 text-primary" />}
           <p className="font-display text-2xl font-semibold text-primary">{dragging ? "I've got room for that." : mode === "files" ? "Drop your unfinished business." : "Those chats had an idea in them."}</p>
@@ -162,28 +183,6 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         </ul>
       )}
       {warning && <p className="mt-2 text-sm font-medium text-destructive">{warning}</p>}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <Button variant="link" disabled={disabled} className="px-0 text-sm" aria-expanded={notesOpen} aria-controls="paste-notes" onClick={() => setNotesOpen((v) => !v)}><FileText />{notesOpen ? "Close pasted notes" : "Or paste notes"}</Button>
-        <Button variant="link" disabled={disabled} className="px-0 text-sm text-paper-muted" onClick={() => { setPaste(EXAMPLE_PILE); setFiles([]); setIsExample(true); setNotesOpen(true); }}>Try an example pile</Button>
-      </div>
-      <label id="paste-notes" className={`mt-3 block ${notesOpen ? "" : "hidden"}`}>
-        <span className="text-sm font-semibold">Your notes</span>
-        {isExample && (
-          <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>
-        )}
-        <textarea
-          value={paste}
-          disabled={disabled}
-          onChange={(e) => {
-            setPaste(e.target.value);
-            if (isExample && e.target.value !== EXAMPLE_PILE) setIsExample(false);
-          }}
-          placeholder="Old todo lists, half-written READMEs, journal bits, abandoned plans..."
-          rows={5}
-          className="mt-2 w-full resize-y rounded-lg border border-paper-line bg-paper p-3 font-mono text-sm text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-amber"
-        />
-      </label>
-
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className={over ? "font-semibold text-destructive" : "text-paper-muted"}>
           {pile.length.toLocaleString()} / {LIMITS.maxPileChars.toLocaleString()} characters
@@ -196,11 +195,11 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         <Button
           variant="amberOnPaper"
           size="lg"
-          disabled={disabled || loadingRepo || sweepBlocked || over || pile.trim().length < 20}
+          disabled={disabled || loadingRepo || sweepBlocked || over || pile.trim().length < 8}
           onClick={() => onSweep(pile, isExample)}
           className="h-14 w-full text-base"
         >
-          Let KROWE sweep it <ArrowRight />
+          Stash it <ArrowRight />
         </Button>
       </div>
       </div>

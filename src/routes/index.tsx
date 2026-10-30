@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Plus } from "lucide-react";
 import { BrandImage } from "@/components/BrandImage";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { KroweClip } from "@/components/KroweClip";
+import { useServerFn } from "@tanstack/react-start";
+import { ensureGuestSession } from "@/lib/session";
+import { Museum } from "@/components/Museum";
 import { PileInput } from "@/components/PileInput";
 import { SweepProgress } from "@/components/SweepProgress";
-import { ResultsView } from "@/components/Results";
 import { useSweep } from "@/hooks/use-sweep";
-import { getKeysStatus } from "@/lib/stash.functions";
+import { getKeysStatus, listMuseum, museumPattern } from "@/lib/stash.functions";
 import { useFirstResult } from "@/components/FirstResultContext";
 import { hasFirstResult } from "@/lib/first-result";
 
@@ -31,90 +32,36 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const sweep = useSweep();
+  const loadMuseum = useServerFn(listMuseum);
+  const museum = useQuery({ queryKey: ["museum"], queryFn: async () => { await ensureGuestSession(); return loadMuseum(); } });
   const keys = useQuery({ queryKey: ["keys-status"], queryFn: () => getKeysStatus() });
   const keysMissing = keys.data && (!keys.data.nebius || !keys.data.tavily);
   const busy = ["starting", "reading", "checking"].includes(sweep.phase);
-  const showProgress = sweep.phase !== "idle" && sweep.phase !== "error";
-  const [editPile, setEditPile] = useState(false);
-  const hasOutcome = sweep.phase === "done";
-  const inputVisible = !busy && (!hasOutcome || editPile);
   const { unlock } = useFirstResult();
+  const [adding, setAdding] = useState(false);
+  const count = (museum.data ?? []).filter((s) => s.id !== sweep.sweepId).reduce((n, s) => n + s.result.ideas.length, 0) + sweep.result.ideas.length;
+  const findPattern = useServerFn(museumPattern);
+  const pattern = useQuery({ queryKey: ["museum-pattern", museum.dataUpdatedAt], enabled: count >= 3 && !busy, queryFn: () => findPattern(), staleTime: Infinity, retry: false });
   useEffect(() => {
-    if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) unlock();
+    if (hasFirstResult(sweep.phase, sweep.result.ideas.length)) { unlock(); void museum.refetch(); }
   }, [sweep.phase, sweep.result.ideas.length, unlock]);
-
-  return (
-    <div className="space-y-6 pt-2 sm:pt-4">
-      {inputVisible && <section className="flex items-center gap-3 sm:gap-6">
-        <BrandImage slot="krowe-standing" alt="KROWE, ready to rescue your unfinished projects" className="h-28 w-20 shrink-0 sm:h-36 sm:w-24" />
-        <div className="min-w-0">
-          <p className="mb-2 text-xs font-semibold text-muted-foreground">KROWE says</p>
-          <h1 className="max-w-xl text-2xl font-semibold leading-tight sm:text-4xl">You stopped for a reason. <span className="block">See if it still holds.</span></h1>
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">Meet KROWE, STASH's crow. He rescues half-finished side projects.</p>
-        </div>
-      </section>}
-      {hasOutcome && <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="eyebrow text-muted-foreground">Sweep complete</p><h1 className="mt-1 text-3xl font-semibold">{sweep.result.ideas.length ? "Here's what we can rescue." : "Nothing to rescue from this pile."}</h1></div>
-        <Button variant="paperOutline" aria-expanded={editPile} onClick={() => setEditPile((v) => !v)}>{editPile ? "Back to results" : "Sweep another pile"}</Button>
-      </div>}
-
-      {keysMissing && (
-        <div className="flex gap-3 rounded-xl border border-primary/50 bg-primary/10 p-4 text-sm">
-          <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-          <div>
-            <p className="font-semibold text-foreground">Keys not set</p>
-            <p className="text-muted-foreground">
-              STASH only runs live. Missing: {[!keys.data?.nebius && "NEBIUS_API_KEY", !keys.data?.tavily && "TAVILY_API_KEY"].filter(Boolean).join(" and ")}.
-              Sweeps are switched off until the owner adds them.
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div hidden={!inputVisible}>
-        <PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={(pile, example) => { setEditPile(false); void sweep.run(pile, example); }} />
-      </div>
-
-      {inputVisible && <section aria-labelledby="how-it-works-title" className="border-t border-foreground/20 pt-8 sm:pt-10">
-        <p className="eyebrow mb-2 text-muted-foreground">From your pile to a next step</p>
-        <h2 id="how-it-works-title" className="text-3xl font-semibold">How it works</h2>
-        <ol className="mt-6 grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-          {([
-            { slot: "krowe-standing", title: "Drop your pile", text: "Notes, files, a GitHub repo or a ChatGPT export.", alt: "KROWE standing, ready for your pile" },
-            { slot: "krowe-thinking", title: "Find why you stopped", text: "KROWE reads it and finds why you stopped, in your own words, plus the thread running through your ideas.", alt: "KROWE thinking through your unfinished ideas" },
-            { slot: "krowe-thinking", title: "Check what changed", text: "He searches the live web for what changed since you stopped, with sources.", alt: "KROWE with a laptop, investigating what changed" },
-            { slot: "krowe-shipped", title: "Get a verdict and a kit", text: "You get a verdict per idea: REVIVE NOW, NOT YET or STILL DEAD, and a revival kit for the ones worth restarting.", alt: "KROWE celebrating a project ready to ship" },
-          ] as const).map((step, index) => <li key={step.title} className="grid grid-cols-[4.5rem_1fr] items-start gap-4 sm:block">
-            <BrandImage slot={step.slot} alt={step.alt} className="h-24 w-18 sm:mb-4 sm:h-32 sm:w-24" />
-            <div><span className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-sm bg-accent font-mono text-sm font-bold text-accent-foreground">{index + 1}</span>
-              <h3 className="text-xl font-semibold">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
-            </div>
-          </li>)}
-        </ol>
-        <p className="mt-8 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">Every claim about your ideas comes with a quote that the server checks against your pile, and unverifiable claims are dropped.</p>
-      </section>}
-
-      {sweep.phase === "done" && sweep.result.ideas.length === 0 && (
-        <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <BrandImage slot="krowe-sleeping" alt="KROWE resting beside the pile" className="h-40 w-32" />
-          <KroweClip slot="sleep" className="h-44 w-32" />
-        </div>
-      )}
-
-      {sweep.message && (
-        <p className={`rounded-lg border p-4 text-sm ${sweep.phase === "error" ? "border-destructive/60 text-foreground" : "border-border text-muted-foreground"}`}>
-          {sweep.message}
-        </p>
-      )}
-
-      {showProgress && busy && (
-        <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />
-      )}
-
-      {showProgress && !busy && sweep.result.ideas.length > 0 && (
-        <ResultsView result={sweep.result} onFeedback={sweep.giveFeedback} threadPending={sweep.threadStage !== "done"} />
-      )}
-    </div>
-  );
+  const inputVisible = !busy && (count === 0 || adding);
+  return <div className="space-y-7 pt-2 sm:pt-4">
+    <section className="flex items-center gap-4">
+      <BrandImage slot={busy ? "krowe-thinking" : "krowe-standing"} alt="KROWE, the curator of your ideas" className="h-32 w-24 shrink-0" />
+      <div className="min-w-0 flex-1"><p className="eyebrow text-muted-foreground">STASH · your idea museum</p><h1 className="mt-2 text-3xl font-semibold sm:text-4xl">{count ? "Every idea has a place here." : "Your first idea belongs here."}</h1><p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, your curator. {count ? "I'll keep your ideas and check when the reason you stopped expires." : "Hand me one half-formed idea. I'll mull it over and get the first bit moving."}</p></div>
+    </section>
+    {count > 0 && !busy && <Button variant="paperOutline" aria-expanded={adding} onClick={() => setAdding((v) => !v)}><Plus />{adding ? "Back to the exhibits" : "Stash another idea"}</Button>}
+    {keysMissing && <p className="rounded-md border border-border p-4 text-sm"><KeyRound className="mr-2 inline h-4 w-4" />Keys not set. KROWE needs the model and search keys before he can mull an idea over.</p>}
+    <div hidden={!inputVisible}><PileInput disabled={busy} sweepBlocked={Boolean(keysMissing)} onSweep={(pile, example) => { setAdding(false); void sweep.run(pile, example); }} /></div>
+    {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
+    {museum.error && <p className="text-sm text-destructive">{museum.error.message}</p>}
+    {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
+    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} extraPattern={pattern.data ?? null} />
+    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
+      { title: "Stash it", text: "One idea is enough. I'll keep it here." },
+      { title: "KROWE mulls it", text: "I'll check what's changed and make a first draft." },
+      { title: "You pick it up", text: "One tiny thing today. The ball is already rolling." },
+    ].map((step) => <li key={step.title}><h3 className="text-lg font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+  </div>;
 }
