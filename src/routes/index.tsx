@@ -47,8 +47,6 @@ function Home() {
     if (introducedThisVisit) { setIntroducing(false); return; }
     introducedThisVisit = true;
     setIntroducing(true);
-    const timer = window.setTimeout(() => setIntroducing(false), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1800 : 6500);
-    return () => window.clearTimeout(timer);
   }, []);
   const sweep = useSweep();
   const loadMuseum = useServerFn(listMuseum);
