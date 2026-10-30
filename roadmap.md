@@ -1,4 +1,7 @@
 # Museum direction
+- [ ] Add bounded recent radar searches, verified signals, sourced decisions and real copyable action drafts.
+- [ ] Add repeat checks and strongest news without removing existing exhibits or curator pick.
+- [ ] Verify live checks, persisted receipts, copying and phone layout; disclose monitoring limitations.
 - [x] Persist guest idea exhibits, including one half-formed idea, preserving imports and existing caps.
 - [x] Curate each exhibit with real search, verified receipts, generated first work and one nudge. Saved stage outputs are server-authoritative; drafts use saved verified evidence.
 - [x] Build the calm museum grid, curator pick and optional pattern after three ideas. A real pattern appeared in the initial bulk run; no pattern was forced in the final run.
