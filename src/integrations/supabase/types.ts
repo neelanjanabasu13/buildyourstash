@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      provider_usage: {
+        Row: {
+          calls: number
+          day: string
+          provider: string
+        }
+        Insert: {
+          calls?: number
+          day?: string
+          provider: string
+        }
+        Update: {
+          calls?: number
+          day?: string
+          provider?: string
+        }
+        Relationships: []
+      }
       sweep_parts: {
         Row: {
           created_at: string
@@ -124,6 +142,59 @@ export type Database = {
         }
         Relationships: []
       }
+      workshop_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          error: string | null
+          events: Json
+          lease_token: string | null
+          lease_until: string | null
+          progress: Json
+          status: string
+          step: string
+          sweep_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          events?: Json
+          lease_token?: string | null
+          lease_until?: string | null
+          progress?: Json
+          status?: string
+          step?: string
+          sweep_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          events?: Json
+          lease_token?: string | null
+          lease_until?: string | null
+          progress?: Json
+          status?: string
+          step?: string
+          sweep_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_jobs_sweep_id_fkey"
+            columns: ["sweep_id"]
+            isOneToOne: true
+            referencedRelation: "sweeps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -142,6 +213,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_workshop_step: {
+        Args: { _id: string; _step: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -149,6 +224,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reserve_provider_call: { Args: { _provider: string }; Returns: boolean }
       save_sweep_result: {
         Args: { _id: string; _result: Json; _status: string }
         Returns: undefined

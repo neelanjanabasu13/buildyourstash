@@ -29,6 +29,13 @@
       "when": 1793321494662,
       "tag": "0003_public_live_workshop_examples",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793322151100,
+      "tag": "0004_durable_workshop_jobs",
+      "breakpoints": true
     }
   ]
 }
