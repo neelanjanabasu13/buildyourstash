@@ -258,7 +258,7 @@ export const revivalKit = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }): Promise<RevivalKit> => {
-    await loadPile(context as Ctx, data.sweepId);
+    const pile = await loadPile(context as Ctx, data.sweepId);
     const raw = await chatJson<{ pitch?: string; steps?: string[]; headline?: string; subhead?: string }>(
       "write",
       `You are KROWE, an idea museum's curator. Do the first piece of work yourself, don't merely tell the user to write it. Draft a sharper pitch and finished landing page headline and subhead, plus three tiny 5-15 minute steps. For NOT YET or STILL DEAD offer a low-risk sketch or test, not a claim it is now viable. Never invent facts about the user or claim anything was published, coded or deployed. No em dashes.
@@ -302,7 +302,34 @@ export const listMuseum = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<MuseumSweep[]> => {
     const { data, error } = await context.supabase.from("sweeps").select("id,created_at,status,result").eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw new Error("Couldn't open your museum.");
-    return (data ?? []).map((s) => ({ id: s.id, createdAt: s.created_at, status: s.status, result: (s.result ?? { thread: null, ideas: [], pileTally: { checked: 0, dropped: 0 }, webTally: { checked: 0, dropped: 0 } }) as unknown as SweepResult }));
+    const { data: parts, error: partsError } = await context.supabase.from("sweep_parts").select("sweep_id,part,value");
+    if (partsError) throw new Error("Couldn't read the saved exhibits.");
+    return (data ?? []).map((s) => {
+      const saved = s.result as unknown as SweepResult | null;
+      const serverParts = (parts ?? []).filter((p) => p.sweep_id === s.id);
+      const result = serverParts.length ? assembleParts(serverParts) : saved ?? assembleParts([]);
+      for (const idea of result.ideas) {
+        const previous = saved?.ideas?.find((i) => i.idea.id === idea.idea.id);
+        if (previous?.feedback) { idea.feedback = previous.feedback; idea.feedbackNote = previous.feedbackNote; }
+        if (previous?.error) idea.error = previous.error;
+      }
+      return { id: s.id, createdAt: s.created_at, status: s.status, result };
+    });
+  });
+
+export const museumPattern = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<Thread | null> => {
+    const { data: rows, error } = await context.supabase.from("sweeps").select("pile,result").eq("user_id", context.userId).order("created_at", { ascending: false });
+    if (error) throw new Error("Couldn't read the ideas for a pattern.");
+    const ideas = (rows ?? []).flatMap((r) => (r.result as unknown as SweepResult | null)?.ideas ?? []);
+    if (ideas.length < 3) return null;
+    const existing = (rows ?? []).map((r) => (r.result as unknown as SweepResult | null)?.thread).find((t) => t && t.receipts.length >= 3);
+    if (existing) return existing;
+    const source = (rows ?? []).map((r) => r.pile).join("\n\n").slice(0, LIMITS.maxPileChars);
+    const raw = await chatJson<{ theme?: string; quotes?: string[] }>("reason", 'Find one optional common theme across at least three distinct ideas. Return {"theme":"short name","quotes":["exact quote for idea one","exact quote for idea two","exact quote for idea three"]}. Copy quotes character for character from NOTES. If no pattern, return {"theme":"","quotes":[]}. Never invent a user claim.', `IDEAS: ${ideas.map((i) => i.idea.name).join("; ")}\nNOTES:\n${source}`);
+    const receipts = filterByQuote(raw.quotes ?? [], (q) => q, source, emptyTally()).slice(0, 3).map((quote) => ({ quote }));
+    return str(raw.theme) && receipts.length === 3 ? { theme: str(raw.theme, 160), explanation: "", receipts } : null;
   });
 
 // ---------- admin API test ----------
