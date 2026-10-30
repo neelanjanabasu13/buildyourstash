@@ -18,6 +18,14 @@ interface LoadedFile {
   kind?: "file" | "github" | "chatgpt";
 }
 
+const SPARKS = [
+  "A book on baby-led weaning to sell online",
+  "A newsletter about forgotten design history",
+  "An app that splits grocery bills with flatmates",
+  "A weekend pottery stall at local markets",
+  "Notion templates for freelance illustrators",
+];
+
 const ACCEPT = [".txt", ".md", ".markdown", ".json", ".zip"];
 const isExport = (name: string) => /conversations\.json$/i.test(name) || name.toLowerCase().endsWith(".zip");
 
@@ -106,6 +114,9 @@ export function PileInput({ disabled, sweepBlocked = false, onSweep }: Props) {
         <label htmlFor="museum-idea" className="font-display text-xl font-semibold text-primary">What's an idea you never got round to?</label>
         {isExample && <span className="ml-2 rounded bg-amber px-2 py-0.5 text-xs font-semibold text-paper-foreground">EXAMPLE PILE loaded</span>}
         <textarea id="museum-idea" aria-label="Your idea" value={paste} disabled={disabled} onChange={(e) => { setPaste(e.target.value); setIsExample(false); }} placeholder="A cool idea, a half-thought, a what-if…" rows={3} className="mt-3 w-full resize-y rounded-md border border-paper-line bg-background/50 p-3 text-base text-paper-foreground placeholder:text-paper-muted focus:outline-none focus:ring-2 focus:ring-primary" />
+        <div className="mt-2 flex flex-wrap gap-2" aria-label="Try a spark">
+          {SPARKS.map((spark) => <button key={spark} type="button" disabled={disabled} onClick={() => { setPaste(spark); setIsExample(false); }} className="rounded-full border border-paper-line px-3 py-1 text-xs text-paper-foreground hover:border-primary hover:text-primary disabled:opacity-50">{spark}</button>)}
+        </div>
         <div className="mt-1 flex flex-wrap justify-between gap-2">
           <Button variant="link" className="px-0" disabled={disabled} aria-expanded={importsOpen} onClick={() => setImportsOpen((v) => !v)}><Upload />Paste a link or import ideas</Button>
           <Button variant="link" className="px-0 text-paper-muted" disabled={disabled} onClick={() => { setPaste(EXAMPLE_PILE); setFiles([]); setIsExample(true); }}>Try an example pile</Button>

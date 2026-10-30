@@ -57,6 +57,8 @@ export interface RevivalKit {
   subhead: string;
   outreach?: string;
   createdAt?: string;
+  archetype?: import("./archetypes").ArchetypeId;
+  liveTemplate?: { title: string; url: string }[];
 }
 
 export type SignalType = "Now possible" | "Crowded" | "Opportunity" | "Timing changed";
