@@ -1,3 +1,6 @@
+# Animation and header
+- [x] Verified clips 6 introduction, 2 capture, 3 stashed, 4 research, 7 generated work ready and 5 empty/idle; clip 1 left unused as unrelated. Actual playback advanced through a real idea run; Skip, reduced-motion posters, mobile fit, logo-only header and 42 regression tests passed, build OK. Product logic unchanged.
+
 # Museum direction
 - [x] Reconcile to workshop work feed and workbench, remove pattern calls/cards, add verdict confidence/change conditions and dated work activity. Existing storage/imports/providers retained, worker voice and three short steps, workbench drafts open, news has persisted seen state.
 - [x] Verify live capture, workbench, copying, return badge, caps and phone layout; disclose unsupported voice/closed-browser jobs. Real completed runs took 43.9 and 46.4 seconds; copied drafts read back, work persisted after reload, no browser errors/mobile overflow, 41 tests passed. Earlier live run produced news and competitor table; final run honestly found no verified signal and kept WATCH plus creative drafts. Event date versus entry deadline tightened after live evidence exposed ambiguity. Existing visitor caps retained; capped-session behaviour was not rerun. Voice capture, closed-tab work, published execution and the full 24-hour return cadence remain untested or unavailable; no simulated results.

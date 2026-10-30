@@ -40,10 +40,12 @@ const CLIPS: Record<ClipSlot, { mp4: string; webm: string; poster: string; alt: 
   shipped: { mp4: shippedMp4.url, webm: shippedWebm.url, poster: shippedPic.url, alt: "KROWE holds a laptop whose screen reads SHIPPED", loop: false, cream: "#e3e1d4" },
 };
 
-export function KroweClip({ slot, className = "" }: { slot: ClipSlot; className?: string }) {
+export function KroweClip({ slot, className = "", loop, onEnded, eager = false }: { slot: ClipSlot; className?: string; loop?: boolean; onEnded?: () => void; eager?: boolean }) {
   const c = CLIPS[slot];
   const [asPicture, setAsPicture] = useState(false);
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(true);
+  const [visible, setVisible] = useState(eager);
+  const container = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -54,39 +56,53 @@ export function KroweClip({ slot, className = "" }: { slot: ClipSlot; className?
     return () => mq.removeEventListener("change", on);
   }, []);
 
+  useEffect(() => {
+    const element = container.current;
+    if (eager || !element) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { rootMargin: "160px" });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [eager, reduced, asPicture, visible]);
+
   // Browsers only let a clip start by itself while muted, and some drop the attribute.
   useEffect(() => {
     const v = ref.current;
     if (!v || asPicture || reduced) return;
+    if (!visible) { v.pause(); return; }
     v.muted = true;
-    v.play().catch(() => setAsPicture(true));
-  }, [asPicture, reduced, slot]);
+    v.load();
+    v.play().catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setAsPicture(true);
+    });
+  }, [asPicture, reduced, slot, visible]);
 
-  const frame = `overflow-hidden rounded-xl border border-paper-line ${className}`;
+  const frame = `krowe-clip krowe-clip-${slot} overflow-hidden rounded-md ${className}`;
 
-  if (reduced || asPicture) {
+  if (reduced || asPicture || !visible) {
     return (
-      <div className={frame} style={{ backgroundColor: c.cream }}>
-        <img src={c.poster} alt={c.alt} className="h-full w-full object-contain" />
+      <div ref={container} className={frame}>
+        <img src={c.poster} alt={c.alt} loading={eager ? "eager" : "lazy"} className="h-full w-full object-contain" />
       </div>
     );
   }
 
   return (
-    <div className={frame} style={{ backgroundColor: c.cream }}>
+    <div ref={container} className={frame}>
       <video
         ref={ref}
         poster={c.poster}
         muted
-        autoPlay
+        autoPlay={visible}
+        preload={eager ? "auto" : "none"}
         playsInline
-        loop={c.loop}
+        loop={loop ?? c.loop}
+        onEnded={onEnded}
         aria-label={c.alt}
         onError={() => setAsPicture(true)}
         className="h-full w-full object-contain"
       >
-        <source src={c.mp4} type="video/mp4" />
-        <source src={c.webm} type="video/webm" />
+        {visible && <><source src={c.webm} type="video/webm" /><source src={c.mp4} type="video/mp4" /></>}
       </video>
     </div>
   );
