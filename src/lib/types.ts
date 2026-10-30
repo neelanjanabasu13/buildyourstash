@@ -58,6 +58,7 @@ export interface RevivalKit {
   outreach?: string;
   createdAt?: string;
   archetype?: import("./archetypes").ArchetypeId;
+  scope?: import("./archetypes").Scope;
   liveTemplate?: { title: string; url: string }[];
   precedents?: { title: string; url: string; snippet: string }[];
 }
