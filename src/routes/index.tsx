@@ -100,10 +100,11 @@ function Home() {
     {demo && sweep.result.ideas.length > 0 ? <section aria-label="Live example result"><p className="eyebrow text-amber-ink">Example · live run</p><Museum sweeps={[]} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} /></section> : <Museum sweeps={ownedSweeps} current={demo ? { ...sweep.result, ideas: [] } : sweep.result} currentId={demo ? null : sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} />}
     {!busy && count === 0 && !hasStashed && examples.data && <ExampleIdeas examples={examples.data} onDemo={runDemo} cached={cachedDemo} />}
     {examples.error && count === 0 && <p role="alert" className="text-sm text-destructive">{runError(examples.error)}</p>}
-    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
-      { title: "Stash it", text: "One idea is enough. I'll keep it here." },
-      { title: "KROWE gets on it", text: "I'll research the context and make your first drafts." },
-      { title: "You pick it up", text: "A pitch, page copy and first steps, already in motion." },
-    ].map((step) => <li key={step.title}><h3 className="text-lg font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
+    {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">What KROWE does</h2><ol className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">{[
+      { pic: shardPic.url, title: "1. I find your old ideas", text: "Notes, repos, chats. I dig out the ones you never got to." },
+      { pic: bulbPic.url, title: "2. I reignite them", text: "I check what's changed on the web, with sources." },
+      { pic: typingPic.url, title: "3. I build", text: "Pitch, page copy, competitors and first steps." },
+      { pic: shippedPic.url, title: "4. You pick it up", text: "Your idea is already moving when you come back." },
+    ].map((step) => <li key={step.title}><img src={step.pic} alt="" loading="lazy" className="aspect-square w-full rounded-md object-cover" /><h3 className="mt-2 text-base font-semibold">{step.title}</h3><p className="mt-1 text-sm text-muted-foreground">{step.text}</p></li>)}</ol><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Your words and web receipts are checked on the server. Unverifiable claims are dropped. Drafts and verdicts are AI suggestions, not guarantees.</p></section>}
   </div></>;
 }
