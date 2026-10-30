@@ -57,7 +57,7 @@ function Home() {
     {sweep.message && <p role="status" className="border-l-2 border-accent pl-4 text-sm">{sweep.message}</p>}
     {museum.error && <p className="text-sm text-destructive">{museum.error.message}</p>}
     {busy && <SweepProgress phase={sweep.phase} threadStage={sweep.threadStage} stages={sweep.stages} result={sweep.result} />}
-    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} extraPattern={pattern.data} />
+    <Museum sweeps={museum.data ?? []} current={sweep.result} currentId={sweep.sweepId} onFeedback={sweep.giveFeedback} busy={busy} extraPattern={pattern.data ?? null} />
     {!busy && <section aria-labelledby="museum-how" className="border-t border-foreground/20 pt-6"><h2 id="museum-how" className="text-xl font-semibold">How it works</h2><ol className="mt-4 grid gap-5 sm:grid-cols-3">{[
       { title: "Stash it", text: "One idea is enough. I'll keep it here." },
       { title: "KROWE mulls it", text: "I'll check what's changed and make a first draft." },
