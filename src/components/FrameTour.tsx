@@ -27,7 +27,7 @@ export function FrameTour({ onDone, autoStart = true }: { onDone?: () => void; a
     const t = window.setTimeout(() => { if (i < FRAMES.length - 1) setI(i + 1); else setPlaying(false); }, 3200);
     return () => window.clearTimeout(t);
   }, [i, playing]);
-  const f = FRAMES[i];
+  const f = FRAMES[i] ?? FRAMES[0]!;
   return (
     <section aria-label="How KROWE works, frame by frame" className="rounded-md border border-border bg-card p-4">
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-stretch">
