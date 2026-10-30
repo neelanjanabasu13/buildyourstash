@@ -89,7 +89,7 @@ function Home() {
         <h1 className="text-3xl font-semibold sm:text-4xl">Every idea you ever had starts building itself.</h1>
         <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">I'm KROWE, the keeper of STASH. Drop a half-finished idea and I research it live, find what others built, and move it as far as an idea of its size honestly can. {count ? "Here's what I've been working on for you." : ""}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <Button variant="amberOnPaper" size="lg" disabled={busy || !firstExample} onClick={() => { if (firstExample) { setIntroducing(false); runDemo(firstExample); } }}><Play />See live demo</Button>
+          <Button variant="amberOnPaper" size="lg" disabled={busy || !firstExample} onClick={() => { if (firstExample) { setIntroducing(false); runDemo(firstExample); window.setTimeout(() => document.getElementById("capture")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150); } }}><Play />{busy ? "KROWE is working, scroll down" : "See live demo"}</Button>
           <a href="#capture" className="text-sm underline underline-offset-4">or drop your own idea</a>
         </div>
         <p className="text-xs text-muted-foreground">The demo runs a real idea through NVIDIA Nemotron on Nebius and Tavily live search, start to finish.</p>
